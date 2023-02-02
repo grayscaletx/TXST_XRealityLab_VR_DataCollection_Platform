@@ -1,0 +1,273 @@
+﻿@model IEnumerable<ARI.Models.CompanyCarReservationDTO>
+    @using System.Security.Claims;
+    @using ARI.Common;
+
+    @{
+        ViewBag.Title = "Εξοπλισμός";
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+    <div class="content-heading">
+        <div>
+            Εταιρικά αυτοκίνητα
+        </div>
+    </div>
+
+    <div class="card" style="max-width:1800px">
+        <div class="card-header">
+            <div class="card-title">Εξοπλισμός \ Εταιρικά αυτοκίνητα</div>
+            <div class="text-sm">Στο παρακάτω πίνακα εμφανίζονται η χρήση των εταιρικών αυτοκινήτων.</div>
+            <a id="download-btn" asp-action="DownloadCarList" class="mb-1 btn btn-primary"  style="float: right;margin: 0px 0px 0px 5px;display:inline">Εξαγωγή δεδομένων</a>
+            <a asp-action="AddCompanyCar" class="mb-1 btn btn-primary" type="button"  style="float: right;display:inline">Προσθήκη νέας κράτησης</a>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped my-5 w-100" id="CompaniesTrucksDataTable">
+                <thead>
+                    <tr>
+                        <th data-priority="1">Α/Α</th>
+                        <th>Ονοματεπώνυμο</th>
+                        <th style="text-align: center">Αυτοκίνητο</th>
+                        <th style="text-align: center">Ημερομηνία χρέωσης</th>
+                        <th style="text-align: center">Ημερομηνία παράδοσης</th>
+                        <th style="text-align: center">Χρόνος κράτησης</th>
+                        <th style="text-align: center">Χιλιόμετρα</th>
+                        <th style="text-align: center">Λίτρα καυσίμου</th>
+                        <th style="text-align: center">Κόστος καυσίμου</th>
+                        <th style="text-align: center">Είδος συντήρησης</th>
+                        <th style="text-align: center">Κόστος συντήρησης</th>
+                        <th style="text-align: center">Γενικές παρατηρήσεις</th>
+                        <th style="text-align: center">Υπέγραψε</th>
+                        <th style="text-align: center">Κατάσταση</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr class="gradeX">
+                            @if (item.DepartureDateTime == null)@*|| item.Sign == null*@
+                            {
+                                <td data-sort="@item.CompanyCarReservationId">
+                                    <a asp-action="EditCompanyCar" asp-route-passToken="@item.PassToken">ΧΡ @item.CompanyCarReservationId</a>
+                                </td>
+                            }
+                            else
+                            {
+                                <td data-sort="@item.CompanyCarReservationId">
+                                    <a>ΧΡ @item.CompanyCarReservationId</a>
+                                </td>
+                            }
+                            <td>@item.Firstname @item.Lastname</td>
+                            <td style="text-align: center">@item.CarModel-@item.CarLicensePlate</td>
+                            <td data-sort="@Convert.ToInt64(((DateTimeOffset)item.ArrivalDateTime).ToUnixTimeSeconds())" style="text-align: center">@item.ArrivalDateTime.ToString("dd/MM/yyyy H:mm")</td>
+
+                            @if (item.DepartureDateTime != null)
+                            {
+                                <td data-sort="@Convert.ToInt64(((DateTimeOffset)item.DepartureDateTime).ToUnixTimeSeconds())" >@item.DepartureDateTime.Value.ToString("dd/MM/yyyy H:mm")</td>
+                            }
+                            else
+                            {
+                                <td style="text-align:center">-</td>
+                            }
+                            @{
+                                if (item.VisitingDuration >= 60)
+                                {
+                                    <td data-sort="@item.VisitingDuration" style="text-align: center">@Convert.ToInt32(item.VisitingDuration / 60.0f) ώρες,  @Convert.ToInt32(item.VisitingDuration % 60.0f) λεπτά</td>
+                                }
+                                else
+                                {
+                                    <td data-sort="@item.VisitingDuration" style="text-align: center">@Convert.ToInt32(item.VisitingDuration % 60.0f) λεπτά</td>
+                                }
+                            }
+                            <td style="text-align: center">
+                                @item.InKilometers-
+                                @{
+                                    string outKilometers = string.Empty;
+                                    if (item.OutKilometers != 0)
+                                    {
+                                        outKilometers = item.OutKilometers.ToString();
+                                    }
+                                    else
+                                    {
+                                        outKilometers = "-";
+                                    }
+                                }
+                                @item.OutKilometers
+                            </td>
+                            <td data-sort="@Convert.ToInt64(item.FuelLitre * 1000000)" style="text-align: center">
+                                @{
+                                    string fuelLitre = string.Empty;
+                                    if (item.FuelLitre != 0)
+                                    {
+                                        fuelLitre = item.FuelLitre.ToString() + " λτ";
+                                    }
+                                    else
+                                    {
+                                        fuelLitre = "-";
+                                    }
+                                }
+                                @fuelLitre
+                            </td>
+                            <td data-sort="@Convert.ToInt64(item.FuelCost * 1000000)" style="text-align: center">
+                                @{
+                                    string fuelCost = string.Empty;
+                                    if (item.FuelCost != 0)
+                                    {
+                                        fuelCost = item.FuelCost.ToString() + " €";
+                                    }
+                                    else
+                                    {
+                                        fuelCost = "-";
+                                    }
+                                }
+                                @fuelCost
+                            </td>
+                            <td style="text-align: center"> @item.MaintenanceType</td>
+                            <td data-sort="@Convert.ToInt64(item.MaintenanceCost * 1000000)" style="text-align: center"> @item.MaintenanceCost</td>
+                            <td style="text-align: center"> @item.Observations</td>
+
+                            @if (@item.Sign != null)
+                            {
+                                <td style="text-align: center">Done</td>
+                            }
+                            else
+                            {
+                                <td style="text-align: center">-</td>
+                            }
+                            @if (item.IsIncorrect == false)
+                            {
+                                @if (item.ArrivalDateTime < DateTime.UtcNow.AddHours(3))
+                                {
+                                    @if (item.DepartureDateTime != null)
+                                    {
+                                        @if (item.DepartureDateTime > DateTime.UtcNow.AddHours(3))
+                                        {
+                                            <td style="text-align: center"> <div class="badge badge-success" style="min-height:20px;text-align:center">Σε χρήση</div></td>
+                                        }
+                                        else
+                                        {
+                                            <td style="text-align: center"> <div class="badge badge-warning" style="min-height:20px;text-align:center">Παραδόθηκε</div></td>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <td style="text-align: center"> <div class="badge badge-success" style="min-height:20px;text-align:center">Σε χρήση</div></td>
+                                    }
+                                }
+                                else
+                                {
+                                    <td style="text-align: center"> <div class="badge badge-warning" style="min-height:20px;text-align:center">Παραδόθηκε</div></td>
+                                }
+                            }
+                            else
+                            {
+                                <td style="text-align: center"> <div class="badge badge-danger" style="min-height:20px;text-align:center">Άκυρο</div></td>
+                            }
+                            <td>
+                                @{
+                                    string titleMessage = string.Empty;
+                                    if (item.IsIncorrect == true)
+                                    {
+                                        titleMessage = "Επαναφορά εγγραφής";
+                                    }
+                                    else
+                                    {
+                                        titleMessage = "Άκυρη ενέργεια";
+                                    }
+                                }
+                                <a asp-action="CleanGuest" asp-route-passToken="@item.PassToken" data-toggle="tooltip" data-placement="top"
+                                   title="@titleMessage" style="margin: 0 10px 0 0">
+                                    @if (item.IsIncorrect == true)
+                                    {
+                                        <em class="mr-2 fas fa-undo"></em>
+                                    }
+                                    else
+                                    {
+                                        <em class="mr-2 fas fa-archive"></em>
+                                    }
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+
+    @section Styles {
+        <environment names="Development">
+            <link rel="stylesheet" href="~/vendor/datatables.net-bs4/css/dataTables.bootstrap4.css">
+            <link rel="stylesheet" href="~/vendor/datatables.net-keytable-bs/css/keyTable.bootstrap.css">
+            <link rel="stylesheet" href="~/vendor/datatables.net-responsive-bs/css/responsive.bootstrap.css">
+        </environment>
+        <environment names="Staging,Production">
+            <link rel="stylesheet" href="~/vendor/datatables.net-bs4/css/dataTables.bootstrap4.css">
+            <link rel="stylesheet" href="~/vendor/datatables.net-keytable-bs/css/keyTable.bootstrap.css">
+            <link rel="stylesheet" href="~/vendor/datatables.net-responsive-bs/css/responsive.bootstrap.css">
+        </environment>
+    }
+
+    @section Scripts {
+
+        <environment names="Development">
+            <script src="~/vendor/datatables.net/js/jquery.dataTables.js"></script>
+            <script src="~/vendor/datatables.net-bs4/js/dataTables.bootstrap4.js"></script>
+            <script src="~/vendor/datatables.net-buttons/js/dataTables.buttons.js"></script>
+            <script src="~/vendor/datatables.net-buttons-bs/js/buttons.bootstrap.js"></script>
+            <script src="~/vendor/datatables.net-buttons/js/buttons.colVis.js"></script>
+            <script src="~/vendor/datatables.net-buttons/js/buttons.flash.js"></script>
+            <script src="~/vendor/datatables.net-buttons/js/buttons.html5.js"></script>
+            <script src="~/vendor/datatables.net-buttons/js/buttons.print.js"></script>
+            <script src="~/vendor/datatables.net-keytable/js/dataTables.keyTable.js"></script>
+            <script src="~/vendor/datatables.net-responsive/js/dataTables.responsive.js"></script>
+            <script src="~/vendor/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+            <script src="~/vendor/jszip/dist/jszip.js"></script>
+            <script src="~/vendor/pdfmake/build/pdfmake.js"></script>
+            <script src="~/vendor/pdfmake/build/vfs_fonts.js"></script>
+        </environment>
+        <environment names="Staging,Production">
+            <script src="~/vendor/datatables.net/js/jquery.dataTables.js"></script>
+            <script src="~/vendor/datatables.net-bs4/js/dataTables.bootstrap4.js"></script>
+            <script src="~/vendor/datatables.net-buttons/js/dataTables.buttons.js"></script>
+            <script src="~/vendor/datatables.net-buttons-bs/js/buttons.bootstrap.js"></script>
+            <script src="~/vendor/datatables.net-buttons/js/buttons.colVis.js"></script>
+            <script src="~/vendor/datatables.net-buttons/js/buttons.flash.js"></script>
+            <script src="~/vendor/datatables.net-buttons/js/buttons.html5.js"></script>
+            <script src="~/vendor/datatables.net-buttons/js/buttons.print.js"></script>
+            <script src="~/vendor/datatables.net-keytable/js/dataTables.keyTable.js"></script>
+            <script src="~/vendor/datatables.net-responsive/js/dataTables.responsive.js"></script>
+            <script src="~/vendor/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+            <script src="~/vendor/jszip/dist/jszip.js"></script>
+            <script src="~/vendor/pdfmake/build/pdfmake.js"></script>
+            <script src="~/vendor/pdfmake/build/vfs_fonts.js"></script>
+            <script>
+                if ($('#CompaniesTrucksDataTable').DataTable)
+                    $('#CompaniesTrucksDataTable').DataTable({
+                        'paging': true,
+                        // Table pagination
+                        'ordering': true,
+                        // Column ordering
+                        'info': true,
+                        // Bottom left status text
+                        responsive: true,
+                        'order': [[0, 'desc']],
+                        // Text translation options
+                        // Note the required keywords between underscores (e.g _MENU_)
+                        oLanguage: {
+                            sSearch: '<em class="fas fa-search"></em>',
+                            sLengthMenu: '_MENU_ records per page',
+                            info: 'Σελίδα _PAGE_ από _PAGES_',
+                            zeroRecords: 'Nothing found - sorry',
+                            infoEmpty: 'No records available',
+                            infoFiltered: '(filtered from _MAX_ total records)',
+                            oPaginate: {
+                                sNext: '<em class="fa fa-caret-right"></em>',
+                                sPrevious: '<em class="fa fa-caret-left"></em>'
+                            }
+                        }
+                    });
+            </script>
+        </environment>
+
+    }

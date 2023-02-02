@@ -1,0 +1,15 @@
+C:\NIH\XRealityLab\XRealityLab.Service\Mail\bin\Debug\netstandard2.1\Mail.deps.json
+C:\NIH\XRealityLab\XRealityLab.Service\Mail\bin\Debug\netstandard2.1\Mail.dll
+C:\NIH\XRealityLab\XRealityLab.Service\Mail\bin\Debug\netstandard2.1\Mail.pdb
+C:\NIH\XRealityLab\XRealityLab.Service\Mail\bin\Debug\netstandard2.1\Common.dll
+C:\NIH\XRealityLab\XRealityLab.Service\Mail\bin\Debug\netstandard2.1\Infrastructure.dll
+C:\NIH\XRealityLab\XRealityLab.Service\Mail\bin\Debug\netstandard2.1\Common.pdb
+C:\NIH\XRealityLab\XRealityLab.Service\Mail\bin\Debug\netstandard2.1\Infrastructure.pdb
+C:\NIH\XRealityLab\XRealityLab.Service\Mail\obj\Debug\netstandard2.1\Mail.csproj.AssemblyReference.cache
+C:\NIH\XRealityLab\XRealityLab.Service\Mail\obj\Debug\netstandard2.1\Mail.GeneratedMSBuildEditorConfig.editorconfig
+C:\NIH\XRealityLab\XRealityLab.Service\Mail\obj\Debug\netstandard2.1\Mail.AssemblyInfoInputs.cache
+C:\NIH\XRealityLab\XRealityLab.Service\Mail\obj\Debug\netstandard2.1\Mail.AssemblyInfo.cs
+C:\NIH\XRealityLab\XRealityLab.Service\Mail\obj\Debug\netstandard2.1\Mail.csproj.CoreCompileInputs.cache
+C:\NIH\XRealityLab\XRealityLab.Service\Mail\obj\Debug\netstandard2.1\Mail.csproj.CopyComplete
+C:\NIH\XRealityLab\XRealityLab.Service\Mail\obj\Debug\netstandard2.1\Mail.dll
+C:\NIH\XRealityLab\XRealityLab.Service\Mail\obj\Debug\netstandard2.1\Mail.pdb

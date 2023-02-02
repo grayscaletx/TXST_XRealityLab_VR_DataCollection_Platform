@@ -1,0 +1,253 @@
+﻿@model ARI.Models.PalletQRInfoDTO
+
+@{
+    ViewData["Title"] = "Πληροφορίες παλέτας μέσω QR code";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="content-heading">
+    <div>
+        Πληροφορίες παλέτας
+    </div>
+</div>
+
+
+<!--Pallet info-->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card card-default" style="width:1400px">
+            <div class="card-header"></div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <p class="lead bb">
+                            <img class="pallet-icon" src="~/images/pallet__small_icon.png" style="width:20px;height:20px" />
+                            Παλέτα @Model.palletDTO.PalletId
+                        </p>
+                        <p id="error-message" style="text-align:right;color:red"></p>
+                        <div class="form-group row">
+                            <div class="col-md-3">Κατάσταση:</div>
+                            <div class="col-md-3">
+
+                                @if (Model.palletDTO.SelectedStatus == "0")
+                                {<div class="badge badge-warning">Αναμονή για φόρτωση χαρτοκιβωτίων</div>}
+                                else if (Model.palletDTO.SelectedStatus == "1")
+                                {<div class="badge badge-success">Δημιουργήθηκε</div>}
+                                else if (Model.palletDTO.SelectedStatus == "2")
+                                {<div class="badge" style="background: yellow">Δεσμευμένη</div>}
+                                else if (Model.palletDTO.SelectedStatus == "3")
+                                {<div class="badge badge-dark">Δεσμευμένη για φόρτωση</div>}
+                                else if (Model.palletDTO.SelectedStatus == "4")
+                                {<div class="badge badge-purple">Επικαιροποιημένη για φόρτωση</div>}
+                                else if (Model.palletDTO.SelectedStatus == "5")
+                                {<div class="badge" style="background: blue">Φορτώθηκε</div>}
+                                else if (Model.palletDTO.SelectedStatus == "6")
+                                {<div class="badge badge-danger">Άκυρο</div>}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">Κωδικοποίηση παλέτας: </div>
+                            <div class="col-md-3">
+                                <strong>@Model.palletDTO.Material.MaterialDescription</strong>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">Προϊόν:</div>
+                            <div class="col-md-3">
+                                <strong>@Model.palletDTO.Material.PackagingLineDescription</strong>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">Κωδικός SAP προϊόντος: </div>
+                            <div class="col-md-3">
+                                <strong>@Model.palletDTO.Material.MaterialSAPID</strong>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">LOT παλέτας: </div>
+                            <div class="col-md-3">
+                                <strong>
+                                    @if (Model.palletDTO.Material.MaterialLOT == 0)
+                                    {
+
+                                    }
+                                    else
+                                    {
+                                        @Model.palletDTO.Material.MaterialLOT;
+                                    }
+                                </strong>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">Χώρα: </div>
+                            <div class="col-md-2">
+                                <strong>@Model.palletDTO.CountryCode</strong>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">Αριθμός χαρτοκιβωτίων: </div>
+                            <div class="col-md-2">
+                                <strong>@Model.palletDTO.NoPalletBox</strong>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">Ημερομηνία παραγωγής: </div>
+                            <div class="col-md-3">
+                                <strong>@DateTime.Parse(@Model.palletDTO.CreationDateTime).ToString("dd/MM/yyyy")</strong>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">Ώρα συσκευασίας: </div>
+                            <div class="col-md-3">
+                                <strong>@DateTime.Parse(@Model.palletDTO.CreationDateTime).ToString("HH:mm")</strong>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">Μέγιστη ημερομηνία παράδοσης: </div>
+                            <div class="col-md-3">
+                                <strong>@Model.palletDTO.Material.MaxDeliveryDate.ToString("dd/MM/yyyy hh:mm")</strong>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">Ημερομηνία λήξης της παλέτας: </div>
+                            <div class="col-md-3">
+                                <strong>@Model.palletDTO.Material.ExpirationDate.ToString("dd/MM/yyyy hh:mm")</strong>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">QR παλέτας:</div>
+                            <div class="col-md-3">
+                                <img width="200" height="200" src="@Model.palletDTO.QRCodeLink" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">Barcode παλέτας:</div>
+                            <div class="col-md-3">
+                                <img width="200" height="60" src="@Model.palletDTO.BarCodeLink" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">παλετοκάρτα ARI:</div>
+                            <div class="col-md-3">
+                                <a href="" src="@Model.palletDTO.PalletCardLink" target="_blank" class="btn btn-primary" style="display:block;max-width:200px">παλετοκάρτα ARI</a>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">παλετοκάρτα LIDL:</div>
+                            <div class="col-md-3">
+                                <a href="" src="@Model.palletDTO.PalletCardLIDLLink" target="_blank" class="btn btn-primary" style="display:block;max-width:200px">παλετοκάρτα LIDL</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Order info-->
+@if (Model.eDIOrderDTO != null)
+{
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card card-default" style="width:1400px">
+                <div class="card-header"></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <p class="lead bb">Συνδεμένη παλέτα με την παραγγελία @Model.eDIOrderDTO.OrderId - @Model.eDIOrderDTO.ReferenceNumber</p>
+                            <p id="error-message" style="text-align:right;color:red"></p>
+                            <div class="form-group row">
+                                <div class="col-md-3">Κατάσταση:</div>
+                                <div class="col-md-2">
+                                    @if (Model.eDIOrderDTO.SelectedStatus == "0")
+                                    {<div class="badge badge-warning">Προστέθηκε</div>}
+                                    else if (Model.eDIOrderDTO.SelectedStatus == "1")
+                                    {<div class="badge badge-success">Έγινε picking</div>}
+                                    else if (Model.eDIOrderDTO.SelectedStatus == "2")
+                                    {<div class="badge badge-dark">Ολοκληρώθηκε</div>}
+                                    else if (Model.eDIOrderDTO.SelectedStatus == "3")
+                                    {<div class="badge badge-danger">Άκυρο</div>}
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">Reference Number:</div>
+                                <div class="col-md-2">
+                                    <strong>@Model.eDIOrderDTO.ReferenceNumber</strong>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">Ship-To-Party:</div>
+                                <div class="col-md-2">
+                                    @if (Model.eDIOrderDTO.ShipToParty != null)
+                                    {
+                                        <strong>@Model.eDIOrderDTO.ShipToParty.Name1</strong>
+                                    }
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">Sold-To-Party:</div>
+                                <div class="col-md-2">
+                                    @if (Model.eDIOrderDTO.SoldToParty != null)
+                                    {
+                                        <strong>@Model.eDIOrderDTO.SoldToParty.Name1</strong>
+                                    }
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">Document date:</div>
+                                <div class="col-md-2">
+                                    <strong>@Model.eDIOrderDTO.DocumentDate.ToString("dd/MM/yyyy")</strong>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">Purchase order date:</div>
+                                <div class="col-md-2">
+                                    <strong>@Model.eDIOrderDTO.PurchaseOrderDate.ToString("dd/MM/yyyy")</strong>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">Requested delivery date:</div>
+                                <div class="col-md-2">
+                                    <strong>@Model.eDIOrderDTO.RequestedDeliveryDate.ToString("dd/MM/yyyy")</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+
+
+@section Scripts {
+    <script>
+
+        function formatDate(date) {
+            var d = new Date(date),
+                month = '' + (d.getMonth() + 1),
+                day = '' + d.getDate(),
+                year = d.getFullYear();
+
+            if (month.length < 2)
+                month = '0' + month;
+            if (day.length < 2)
+                day = '0' + day;
+
+            return [day, month, year].join('-');
+        }
+        function parseDate(input) {
+            var parts = input.match(/(\d+)/g);
+            // new Date(year, month [, date [, hours[, minutes[, seconds[, ms]]]]])
+            return new Date(parts[0], parts[1] - 1, parts[2]); // months are 0-based
+        }
+        function isNumeric(str) {
+            if (typeof str != "string") return false // we only process strings!
+            return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+                !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+        }
+
+    </script>
+}

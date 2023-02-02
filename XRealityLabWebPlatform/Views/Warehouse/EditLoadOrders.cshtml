@@ -1,0 +1,457 @@
+﻿@model ARI.Models.LoadDTO
+@using System.Security.Claims;
+@using ARI.Common;
+
+@{
+    ViewBag.Title = "Επεξεργασία παραγγελίας ARI";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int sala1_available = 264 - Model.WarehouseDTO.PalletDTOs.Where(k => k.LoadingAreaID == 1).Count();
+    int sala1_psigeio_available = 16 - Model.WarehouseDTO.PalletDTOs.Where(k => k.LoadingAreaID == 2).Count();
+    int proektasi_available = 216 - Model.WarehouseDTO.PalletDTOs.Where(k => k.LoadingAreaID == 3).Count();
+    int sala_2_deksia_pteriga_available = 168 - Model.WarehouseDTO.PalletDTOs.Where(k => k.LoadingAreaID == 4).Count();
+    int sala_2_aristeri_pteriga_available = 28 - Model.WarehouseDTO.PalletDTOs.Where(k => k.LoadingAreaID == 5).Count();
+    int sala_2_domatio_available = 64 - Model.WarehouseDTO.PalletDTOs.Where(k => k.LoadingAreaID == 6).Count();
+    int makio_available = 100 - Model.WarehouseDTO.PalletDTOs.Where(k => k.LoadingAreaID == 7).Count();
+    int eikoniki_available = 100 - Model.WarehouseDTO.PalletDTOs.Where(k => k.LoadingAreaID == 8).Count();
+}
+
+<!--Header-->
+<div class="content-heading">
+    <div>
+        Φόρτωση \ Έντυπο @Model.LoadId  \ <strong>Επεξεργασία παραγγελιών</strong>
+    </div>
+</div>
+
+<!--Alert dialog-->
+@*@if (Model.SucceededPastAction)
+    {
+        <div id="success-dialog" class="alert alert-success alert-dismissible fade show" role="alert">
+            <button class="close" type="button" onclick="closeSuccessDialog()" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <strong>Φόρτωση</strong> Δημιουργήθηκε η παραγγελία ARI με επιτυχία
+        </div>
+    }*@
+
+<!--Load orders search and selection-->
+<div class="card" id="search-orders" style="max-width:1600px;display:none">
+    <div class="card-body">
+        <!--Search & insertion of the orders-->
+        <div class="card card-default">
+            <div class="card-header">
+                <div>
+                    <p class="lead bb">Προσθήκη παραγγελιών</p>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!--Search input-->
+                    <div class="col-lg-12">
+                        <h4>Φίλτρα</h4>
+                        <input id="search-orders-filter-text" class="form-control mb-2" type="text" placeholder="Αναζήτηση reference number, material, GTIN, etc." />
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label class="col-form-label mb-2">Document date (Από)</label>
+                                    <div class="input-group date" id="datetimepicker">
+                                        <input class="form-control" type="date" name="documentDate" id="doc-from-date" />
+                                        <span class="input-group-append input-group-addon">
+                                            <span class="input-group-text fas fa-calendar-alt"></span>
+                                        </span>
+                                    </div>
+                                    <label class="col-form-label mb-2">Document date (Εώς)</label>
+                                    <div class="input-group date" id="datetimepicker">
+                                        <input class="form-control" type="date" name="documentDate" id="doc-until-date" />
+                                        <span class="input-group-append input-group-addon">
+                                            <span class="input-group-text fas fa-calendar-alt"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label class="col-form-label mb-2">Purchase order date (Από)</label>
+                                    <div class="input-group date" id="datetimepicker">
+                                        <input class="form-control" type="date" name="documentDate" id="pur-from-date" />
+                                        <span class="input-group-append input-group-addon">
+                                            <span class="input-group-text fas fa-calendar-alt"></span>
+                                        </span>
+                                    </div>
+                                    <label class="col-form-label mb-2">Purchase order date (Εώς)</label>
+                                    <div class="input-group date" id="datetimepicker">
+                                        <input class="form-control" type="date" name="documentDate" id="pur-until-date" />
+                                        <span class="input-group-append input-group-addon">
+                                            <span class="input-group-text fas fa-calendar-alt"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label class="col-form-label mb-2">Requested delivery date (Από)</label>
+                                    <div class="input-group date" id="datetimepicker">
+                                        <input class="form-control" type="date" id="req-from-date" />
+                                        <span class="input-group-append input-group-addon">
+                                            <span class="input-group-text fas fa-calendar-alt"></span>
+                                        </span>
+                                    </div>
+                                    <label class="col-form-label mb-2">Requested delivery date (Εώς)</label>
+                                    <div class="input-group date" id="datetimepicker">
+                                        <input class="form-control" type="date" id="req-until-date" />
+                                        <span class="input-group-append input-group-addon">
+                                            <span class="input-group-text fas fa-calendar-alt"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex">
+                            <button onclick="applyFilters()" class="btn btn-secondary" type="button">Εφαρμογή</button>
+                            <label><i id="no-orders-filter"></i></label>
+                        </div>
+                        <br />
+                    </div>
+                    <!--Search table-->
+                    <div class="col-lg-12">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th data-priority="1">Α/Α</th>
+                                    <th style="text-align: center" class="sort-numeric">Reference number</th>
+                                    <th style="text-align: center" class="sort-numeric">Material</th>
+                                    <th style="text-align: center" class="sort-numeric">Quantity</th>
+                                    <th style="text-align: center" class="sort-numeric">No pallet..</th>
+                                    <th style="text-align: center" class="sort-numeric">GTIN</th>
+                                    <th style="text-align: center" class="sort-numeric">Ship-To-Party</th>
+                                    <th style="text-align: center" class="sort-numeric">Sold-To-Party</th>
+                                    <th style="text-align: center" class="sort-numeric">Document date</th>
+                                    <th style="text-align: center" class="sort-numeric">Purchase order date</th>
+                                    <th style="text-align: center" class="sort-numeric">Requested delivery date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="filter-order-table">
+                                @foreach (var item in Model.EDIOrderDTOs.Where(k => k.SelectedStatus == "0" && k.IsFiltered))
+                                {
+                                    <tr class="gradeX">
+                                        <td>
+                                            <div class="checkbox c-checkbox">
+                                                <label>
+                                                    <input onclick="addOrderToLoad(@item.OrderId.ToString())" type="checkbox" />
+                                                    <span class="fa fa-check"></span>
+                                                </label>
+                                            </div>
+                                        </td>
+                                        <td>ΠΑ @item.OrderId</td>
+                                        <td style="text-align: center">@item.ReferenceNumber</td>
+                                        <td style="text-align: center">@item.Material.MaterialDescription</td>
+                                        <td style="text-align: center">@item.Quantity</td>
+                                        <td style="text-align: center">@item.NoPalletBox</td>
+                                        <td style="text-align: center">@item.Material.GTIN</td>
+                                        <td style="text-align: center">@item.ShipToParty.Name1</td>
+                                        <td style="text-align: center">@item.SoldToParty.Name1</td>
+                                        <td style="text-align: center">@item.DocumentDate.ToString("dd/MM/yyyy")</td>
+                                        <td style="text-align: center">@item.PurchaseOrderDate.ToString("dd/MM/yyyy")</td>
+                                        <td style="text-align: center">@item.RequestedDeliveryDate.ToString("dd/MM/yyyy")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Selected orders-->
+<div class="card" style="max-width:1600px">
+    <div class="card-header">
+        <div class="text-sm" style="max-width:900px">
+            Επιλέξτε από τον παρακάτω πίνακα τις παραγγελίες που θέλετε να προστεθούν για την φόρτωση - έντυπο @Model.LoadId . <i>(Εάν οι παραγγελίες δεν έχουν ship-to-party ή sold-to-party δεν εμφανίζονται στην παρακάτω λίστα)</i>
+        </div>
+    </div>
+    <div class="card-body">
+        <div>
+            <h3><strong>Έντυπο @Model.LoadId</strong></h3>
+            <div class="ibox">
+                <div class="ibox-tools">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="fa fa-filter"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                        <li style="margin:2px 0" id="modal-pallet-action-rollback">
+                            <a id="filter-ibox-button" onclick="displayFilters()" class="btn btn-primary">Προβολή προσθήκης παραγγελιών \ φίλτρα</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <p class="lead bb">Επιλεγμένες παραγγελίες <strong>(@Model.EDIOrderDTOs.Where(k => k.IsSelectedForLoad).Count())</strong></p>
+            <table class="table table-bordered table-hover" id="table-ext-1">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th data-priority="1">Α/Α</th>
+                        <th style="text-align: center" class="sort-numeric">Reference number</th>
+                        <th style="text-align: center" class="sort-numeric">Material</th>
+                        <th style="text-align: center" class="sort-numeric">Quantity</th>
+                        <th style="text-align: center" class="sort-numeric">No pallet</th>
+                        <th style="text-align: center" class="sort-numeric">GTIN</th>
+                        <th style="text-align: center" class="sort-numeric">Ship-To-Party</th>
+                        <th style="text-align: center" class="sort-numeric">Sold-To-Party</th>
+                        <th style="text-align: center" class="sort-numeric">Document date</th>
+                        <th style="text-align: center" class="sort-numeric">Purchase order date</th>
+                        <th style="text-align: center" class="sort-numeric">Requested delivery date</th>
+                    </tr>
+                </thead>
+                <tbody id="selected-order-table">
+                    @foreach (var item in Model.EDIOrderDTOs.Where(k => k.IsSelectedForLoad))
+                    {
+                        <tr class="gradeX">
+                            <td>
+                                @{ string _href = "/Warehouse/RemoveOrderFromLoad?passToken=" + @Model.PassToken + "&orderId=" + @item.OrderId;}
+                                <a href="@_href" style="margin: 0 10px 0 0"><em class="mr-2 fas fa-trash-alt"></em></a>
+                            </td>
+                            <td>ΠΑ @item.OrderId</td>
+                            <td style="text-align: center">@item.ReferenceNumber</td>
+                            <td style="text-align: center">@item.Material.MaterialDescription</td>
+                            <td style="text-align: center">@item.Quantity</td>
+                            <td style="text-align: center">@item.NoPalletBox</td>
+                            <td style="text-align: center">@item.Material.GTIN</td>
+                            <td style="text-align: center">@item.ShipToParty.Name1</td>
+                            <td style="text-align: center">@item.SoldToParty.Name1</td>
+                            <td style="text-align: center">@item.DocumentDate.ToString("dd/MM/yyyy")</td>
+                            <td style="text-align: center">@item.PurchaseOrderDate.ToString("dd/MM/yyyy")</td>
+                            <td style="text-align: center">@item.RequestedDeliveryDate.ToString("dd/MM/yyyy")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!--Selected pallets analysis-->
+    <div class="card" style="max-width: 600px; margin: 0px 20px">
+        <div class="card-body">
+            <div>
+                <p class="lead bb">Σύνολο</p>
+                <div class="col-lg-12">
+                    <table style="margin: 0px 0px 0px 0px;" class="table table-bordered table-hover" id="table-ext-1">
+                        <thead>
+                            <tr class="gradeX" style="vertical-align: top">
+                                <th data-priority="1">Α/Α</th>
+                                <th style="text-align: center" class="sort-numeric">SAPCode</th>
+                                <th style="text-align: center" class="sort-numeric">Material</th>
+                                <th style="text-align: center" class="sort-numeric">Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ int counter = 0;}
+                            @foreach (var item in Model.GroupOrderDTOs)
+                            {
+                                { counter++; }
+                                <tr class="gradeX">
+                                    <td>@counter. </td>
+                                    <td style="text-align: center">@item.MaterialSAPID</td>
+                                    <td style="text-align: center">@item.MaterialDescription</td>
+                                    <td style="text-align: center">@item.Quantity</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Selected pallets analysis-->
+    <div class="card" style="max-width:600px;margin:0px 10px">
+        <div class="card-body">
+            <div>
+                <p class="lead bb">Διαθεσιμότητα της αποθήκης σε αυτούς τους κωδικούς</p>
+                <div class="col-lg-12">
+                    <table style="margin: 0px 0px 0px 0px;" class="table table-bordered table-hover" id="table-ext-1">
+                        <thead>
+                            <tr class="gradeX" style="vertical-align: top">
+                                <th data-priority="1">Α/Α</th>
+                                <th style="text-align: center" class="sort-numeric">SAPCode</th>
+                                <th style="text-align: center" class="sort-numeric">Material</th>
+                                <th style="text-align: center" class="sort-numeric">Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ counter = 0;}
+                            @foreach (var itemO in Model.GroupOrderDTOs)
+                            {
+                                counter++;
+                                string sapid = itemO.MaterialSAPID;
+                                int counterQ = 0;
+                                @foreach (var itemP in Model.WarehouseDTO.PalletDTOs)
+                                {
+                                    if (itemP.Material.MaterialSAPID == itemO.MaterialSAPID && itemP.StatusId == 2)
+                                    {
+                                        counterQ++;
+                                    }
+                                }
+                                <tr class="gradeX">
+                                    <td>@counter. </td>
+                                    <td style="text-align: center">@itemO.MaterialSAPID</td>
+                                    <td style="text-align: center">@itemO.MaterialDescription</td>
+                                    <td style="text-align: center">@counterQ</td>
+                                </tr>
+
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<br />
+<br />
+
+@section BodyArea {
+    <!--Confirmation dialog-->
+    <div class="modal fade" id="AddConfirmationDialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">Επιβεβαίωση δημιουργίας φορτηγού</h4>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Στο παρακατώ πεδίο μπορείτε να προσθέσετε τη μέγιστη ημερομηνία παράδοσης που το φορτηγό θα θέλατε να παραδώσει τη παραγγελία και το σύστημα εμφανίζει τυχόν σφάλματα με βάση τις παλέτες που επιλέξατε.
+                    Το συγκεκριμένο πεδίο δεν είναι υποχρεωτικό. Μπορείτε να παρακάμψετε αυτή τη διαδικασία για να ολοκληρώσετε τη δημιουργία της παραγγελίας του φορτηγού.
+                    <br />
+                    <span style="display:inline">
+                        <input asp-for="WarehouseDTO.MaxDeliveryDate" type="date" name="FormDate" id="maxDeliveryDatePicker" value="@DateTime.Now" style="width:150px" />
+                        <button onclick="checkPalletMaxDates()" class="btn btn-danger" type="button">Έλεγχος παλετών</button>
+                    </span>
+                    <p id="confirmation-message" style="color:red;opacity:0.8"></p>
+                    <br />
+                    <strong>Είστε σίγουροι για αυτήν την ενέργεια;</strong>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Κλείσιμο</button>
+                    <button onclick="CreateTheTruck()" name="updateId" id="create-truck" class="btn btn-primary" data-dismiss="modal">Δημιουργία</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Styles{
+    <style>
+        .pallet-btn {
+            opacity: 1.0;
+        }
+
+            .pallet-btn:hover {
+                opacity: 0.6;
+                cursor: pointer;
+            }
+
+        .pallet-warehouse-btn {
+            opacity: 1.0;
+        }
+
+            .pallet-warehouse-btn:hover {
+                opacity: 0.6;
+                cursor: pointer;
+            }
+    </style>
+    <link rel="stylesheet" href="~/vendor/datatables.net-bs4/css/dataTables.bootstrap4.css">
+    <link rel="stylesheet" href="~/vendor/datatables.net-keytable-bs/css/keyTable.bootstrap.css">
+    <link rel="stylesheet" href="~/vendor/datatables.net-responsive-bs/css/responsive.bootstrap.css">
+}
+
+@section Scripts {
+    <script src="~/js/popper.min.js"></script>
+    <script src="~/js/moment.js"></script>
+    <script>
+        var [searchText, docFromDate, docUntilDate, purFromDate, purUntilDate, reqFromDate, reqUntilDate, filterOrderTable, groupOrderTable, noOrdersFilter,
+            createTruckButton, selectedPalletIds, maxDeliveryDate, searchOrders, filterIboxButton] = [];
+        selectedOrderIds = [];
+        init();
+        initfilters();
+
+        function addOrderToLoad(orderId) {
+            window.location = '/Warehouse/AddOrderToLoad?passToken=' +  @Html.Raw(Json.Serialize(Model.PassToken)) + '&orderId=' + orderId;
+        }
+        function removeOrderFromLoad(orderId) {
+            window.location = '/Warehouse/RemoveOrderFromLoad?passToken=' +  @Html.Raw(Json.Serialize(Model.PassToken)) + '&orderId=' + orderId;
+        }
+        function applyFilters() {
+            window.location = "/Warehouse/ApplyFilters?passToken=" + @Html.Raw(Json.Serialize(Model.PassToken)) +
+                "&text=" + (isNaN(searchText.value) ? searchText.value : "-")
+                + "&docFromDate=" + (isNaN(docFromDate.value) ? docFromDate.value : "-")
+                + "&docUntilDate=" + (isNaN(docUntilDate.value) ? docUntilDate.value : "-")
+                + "&purFromDate=" + (isNaN(purFromDate.value) ? purFromDate.value : "-")
+                + "&purUntilDate=" + (isNaN(purUntilDate.value) ? purUntilDate.value : "-")
+                + "&reqFromDate=" + (isNaN(reqFromDate.value) ? reqFromDate.value : "-")
+                + "&reqUntilDate=" + (isNaN(reqUntilDate.value) ? reqUntilDate.value : "-");
+        }
+
+        ////UI Utils
+        function init() {
+            searchText = document.getElementById('search-orders-filter-text');
+            docFromDate = document.getElementById('doc-from-date');
+            docUntilDate = document.getElementById('doc-until-date');
+            purFromDate = document.getElementById('pur-from-date');
+            purUntilDate = document.getElementById('pur-until-date');
+            reqFromDate = document.getElementById('req-from-date');
+            reqUntilDate = document.getElementById('req-until-date');
+
+            filterOrderTable = document.getElementById("filter-order-table");
+            noOrdersFilter = document.getElementById('no-orders-filter');
+            createTruckButton = document.getElementById("create-truck-btn");
+            searchOrders = document.getElementById('search-orders');
+            filterIboxButton = document.getElementById('filter-ibox-button');
+        }
+        function initfilters() {
+            var _docFrom = @Html.Raw(Json.Serialize(Model.LoadOrderFilter.DocumentFrom));
+            var _docUntil = @Html.Raw(Json.Serialize(Model.LoadOrderFilter.DocumentUntil));
+            var _purFrom = @Html.Raw(Json.Serialize(Model.LoadOrderFilter.PurchaseFrom));
+            var _purUntil = @Html.Raw(Json.Serialize(Model.LoadOrderFilter.PurchaseUntil));
+            var _reqFrom = @Html.Raw(Json.Serialize(Model.LoadOrderFilter.RequestedFrom));
+            var _reqUntil = @Html.Raw(Json.Serialize(Model.LoadOrderFilter.RequestedUntil));
+
+            searchText.value = @Html.Raw(Json.Serialize(Model.LoadOrderFilter.Text));
+            docFromDate.value = (_docFrom != null ? _docFrom.toString().substring(0, 10) : "");
+            docUntilDate.value = (_docUntil != null ? _docUntil.toString().substring(0, 10) : "");
+            purFromDate.value = (_purFrom != null ? _purFrom.toString().substring(0, 10) : "");
+            purUntilDate.value = (_purUntil != null ? _purUntil.toString().substring(0, 10) : "");
+            reqFromDate.value = (_reqFrom != null ? _reqFrom.toString().substring(0, 10) : "");
+            reqUntilDate.value = (_reqUntil != null ? _reqUntil.toString().substring(0, 10) : "");
+        }
+        function displayFilters() {
+            searchOrders.style.display = searchOrders.style.display == "none" ? "block" : "none";
+            filterIboxButton.innerHTML = searchOrders.style.display == "none" ? "Εμφάνιση προσθήκης παραγγελιών \ φίλτρα" :  "Απόκρυψη προσθήκης παραγγελιών \ φίλτρα";
+        }
+    </script>
+
+    <script src="~/vendor/datatables.net/js/jquery.dataTables.js"></script>
+    <script src="~/vendor/datatables.net-bs4/js/dataTables.bootstrap4.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/dataTables.buttons.js"></script>
+    <script src="~/vendor/datatables.net-buttons-bs/js/buttons.bootstrap.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.colVis.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.flash.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.html5.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.print.js"></script>
+    <script src="~/vendor/datatables.net-keytable/js/dataTables.keyTable.js"></script>
+    <script src="~/vendor/datatables.net-responsive/js/dataTables.responsive.js"></script>
+    <script src="~/vendor/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+    <script src="~/vendor/jszip/dist/jszip.js"></script>
+    <script src="~/vendor/pdfmake/build/pdfmake.js"></script>
+    <script src="~/vendor/pdfmake/build/vfs_fonts.js"></script>
+}
+
+

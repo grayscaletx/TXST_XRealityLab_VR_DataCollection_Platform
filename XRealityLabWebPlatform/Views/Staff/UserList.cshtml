@@ -1,0 +1,411 @@
+﻿@model IEnumerable<ARI.Application.UserDTO>
+@using System.Security.Claims;
+@using ARI.Common;
+
+@{
+    ViewBag.Title = "Προσωπικό";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string role = ((ClaimsIdentity)User.Identity).FindAll("http://schemas.microsoft.com/ws/2008/06/identity/claims/role").ToList().LastOrDefault().Value;
+}
+<div class="content-heading">
+    <div>
+        Χρήστες
+    </div>
+</div>
+
+<div class="card" style="max-width:1400px">
+    <div class="card-header">
+        <div class="card-title">Προσωπικό \ Χρήστες</div>
+        <div class="text-sm">Στο παρακάτω πίνακα εμφανίζονται οι χρήστες που έχουν λογαριασμό στο εργοστάσιο.</div>
+        <a id="download-btn" asp-action="DownloadUsers" class="mb-1 btn btn-primary" style="float: right;margin: 0px 0px 0px 5px;display:inline">Εξαγωγή δεδομένων</a>
+        <a onclick="displayAddUserModal()" class="mb-1 btn btn-primary" style="float: right;display:inline">Προσθήκη χρήστη</a>
+    </div>
+    <div class="card-body">
+        <table class="table table-striped my-5 w-100" id="datatable1">
+            <thead>
+                <tr>
+                    <th data-priority="1">Α/Α</th>
+                    <th></th>
+                    <th>Ονοματεπώνυμο</th>
+                    <th class="sort-numeric">Ηλεκτρονική διεύθυνση</th>
+                    <th class="sort-numeric">Τηλέφωνο</th>
+                    <th class="sort-numeric">Τελευταία σύνδεση</th>
+                    <th class="sort-numeric">Ενεργοποιημένος</th>
+                    <th class="sort-numeric">Ρόλος</th>
+                    <th class="sort-numeric"></th>
+                    <th>
+                        <em></em>
+                    </th>
+                    <th>
+                        <em></em>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Where(k => k.RoleId != (int)RoleType.NoRole))
+                {
+                    <tr class="gradeX">
+                        <td>
+                            <a>ΧΡ @item.UserId</a>
+                        </td>
+                        <td class="client-avatar"><img alt="image" src="/images/user.png" width="28" height="28"> </td>
+                        <td>@item.Firstname @item.Lastname</td>
+                        <td>@item.Email</td>
+                        <td>@item.Telephone</td>
+                        <td>@item.LastConnectionDateTime</td>
+                        <td>Ναι</td>
+                        <td>@item.RoleName</td>
+                        <td>
+                        </td>
+                        <td>
+                            <div class="ibox-tools">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                    <i class="fa fa-cog"></i>
+                                </a>
+                                <ul class="dropdown-menu dropdown-user">
+                                    <li>
+                                        @if (item.RoleId == (int)RoleType.ChiefOperator || item.RoleId == (int)RoleType.Administrator || User.Identity.Name == item.Email)
+                                        {
+                                            <a class="dropdown-item" style="opacity:0.5">Επεξεργασία ρόλου</a>
+                                        }
+                                        else
+                                        {
+                                            <a asp-action="EditUser" asp-route-passToken="@item.PassToken" class="dropdown-item">Επεξεργασία ρόλου</a>
+                                        }
+                                        <a onclick="generatePasswordModal('@item.Email')" class="dropdown-item">Δημιουργία νέου κωδικού</a>
+                                        <a onclick="removeUser(@item.UserId)" class="dropdown-item">Διαγραφή χρήστη</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card" style="max-width:1400px">
+    <div class="card-header">
+        <div class="card-title">Προσωπικό \ Αιτήματα</div>
+        <div class="text-sm">Στο παρακάτω πίνακα εμφανίζονται οι χρήστες που έχουν δημιουργήσει λογαριασμό και περιμένουν ανάθεση ρόλου από τον IT για να έχουν πρόσβαση στο σύστημα.</div>
+    </div>
+    <div class="card-body">
+        <table class="table table-striped my-4 w-100" id="datatable1">
+            <thead>
+                <tr>
+                    <th data-priority="1">Α/Α</th>
+                    <th>Ονοματεπώνυμο</th>
+                    <th class="sort-numeric">Ηλεκτρονική διεύθυνση</th>
+                    <th class="sort-numeric">Τηλέφωνο</th>
+                    <th class="sort-numeric">Τελευταία σύνδεση</th>
+                    <th class="sort-numeric">Ενεργοποιημένος</th>
+                    <th class="sort-numeric">Ρόλος</th>
+                    <th>
+                        <em></em>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Where(k => k.RoleId == (int)RoleType.NoRole))
+                {
+                    <tr class="gradeX">
+                        <td>
+                            <a>AI @item.UserId</a>
+                        </td>
+                        <td>@item.Firstname @item.Lastname</td>
+                        <td>@item.Email</td>
+                        <td>@item.Telephone</td>
+                        <td>@item.LastConnectionDateTime</td>
+                        <td>Όχι</td>
+                        <td>@item.RoleName</td>
+                        <td>
+                            <div class="ibox-tools">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                    <i class="fa fa-cog"></i>
+                                </a>
+                                <ul class="dropdown-menu dropdown-user">
+                                    <li>
+                                        @if (item.RoleId == (int)RoleType.ChiefOperator || item.RoleId == (int)RoleType.Administrator || User.Identity.Name == item.Email)
+                                        {
+                                            <a class="dropdown-item" style="opacity:0.5">Προσθήκη ρόλου</a>
+                                        }
+                                        else
+                                        {
+                                            <a asp-action="EditUser" asp-route-passToken="@item.PassToken" class="dropdown-item">Προσθήκη ρόλου</a>
+                                        }
+                                        <a onclick="removeUser(@item.UserId)" class="dropdown-item">Διαγραφή χρήστη</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!--Modal-->
+<div id="modal-container" tabindex="-1">
+
+</div>
+<!--Add new user-->
+<div class="modal inmodal fade" id="add-user" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body" style="align-items:center">
+                <p style="font-size:24px;text-align:center">
+                    <img src="~/images/AriLogo.png" width="50" />
+                    Δημιουργία νέου χρήστη
+                </p>
+                <div class="row">
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            <label>Όνομα</label>
+                            <input class="form-control modal-firstname" type="text" id="modal-firstname" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Επώνυμο</label>
+                            <input class="form-control modal-lastname" type="text" id="modal-lastname" required />
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            <label>Ηλεκτρονική αλληλογραφία</label>
+                            <input class="form-control modal-email" type="email" id="modal-email" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Κωδικός</label>
+                            <input class="form-control modal-password" type="password" id="modal-password" required />
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <label>Ρόλος</label>
+                        <select class="form-control modal-role" id="modal-role">
+                            <option>Διαχειριστής (δεν υπάρχουν δικαιώματα)</option>
+                            <option>Υπεύθυνος Ροών Εταιρίας (δεν υπάρχουν δικαιώματα)</option>
+                            <option>Logistics Supervisor</option>
+                            <option>Υπεύθυνος Συσκευαστηρίου</option>
+                            <option>Υπεύθυνος Παραγωγής</option>
+                            <option>Τμήμα Διασφάλισης της Ποιότητας</option>
+                            <option>Υπέυθυνος εξοπλισμού</option>
+                            <option>Υπεύθυνος Ασφαλείας</option>
+                            <option>IT</option>
+                        </select>
+                    </div>
+                </div>
+                <p style="font-size:20px;text-align:center">
+                    <a class="btn btn-primary" data-dismiss="modal" onclick="addUser(this)" style="width:200px;color:white">Δημιουργία</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Generate new password-->
+<div class="modal inmodal fade" id="generate-password" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body" style="align-items:center">
+                <p style="font-size:24px;text-align:center">
+                    <img src="~/images/AriLogo.png" width="50" />
+                    Δημιουργία νέου κωδικού
+                </p>
+                <p id="modal-generated-email" class="col-lg-3"></p>
+                <p class="col-lg-3">
+                    <label>Κωδικός</label>
+                    <strong>
+                        <input class="form-control error" type="text" id="modal-generated-pass" readonly />
+                    </strong>
+                    <div>
+                        Copy to clipboard: <a onclick="copyToClipboard(document.getElementById('modal-generated-pass').value)" class="btn btn-primary" style="width:50px"><i class="fa fa-copy" style="color:white"></i></a>
+                    </div>
+                </p>
+                <br />
+                <p style="font-size:20px;text-align:center">
+                    <a class="btn btn-primary" data-dismiss="modal" onclick="updatePassword()" style="width:200px;color:white">Ανανέωση</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Error-->
+<div class="modal inmodal fade" id="display-error-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Κλείσιμο</span></button>
+                <h4 class="modal-title"><img src="~/images/AriLogo.png" width="100" /><strong>@ViewData["Title"]</strong></h4>
+            </div>
+            <div class="modal-body" style="align-items:center">
+                <p style="font-size:24px;text-align:center">
+                    Σφάλμα:
+                </p>
+                <p id="error-message" style="font-size:22px;text-align:center;font-style:italic;color:red"> </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/vendor/datatables.net-bs4/css/dataTables.bootstrap4.css">
+    <link rel="stylesheet" href="~/vendor/datatables.net-keytable-bs/css/keyTable.bootstrap.css">
+    <link rel="stylesheet" href="~/vendor/datatables.net-responsive-bs/css/responsive.bootstrap.css">
+}
+
+@section Scripts {
+
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/lib/jquery/dist/jquery-ui.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/vendor/datatables.net/js/jquery.dataTables.js"></script>
+    <script src="~/vendor/datatables.net-bs4/js/dataTables.bootstrap4.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/dataTables.buttons.js"></script>
+    <script src="~/vendor/datatables.net-buttons-bs/js/buttons.bootstrap.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.colVis.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.flash.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.html5.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.print.js"></script>
+    <script src="~/vendor/datatables.net-keytable/js/dataTables.keyTable.js"></script>
+    <script src="~/vendor/datatables.net-responsive/js/dataTables.responsive.js"></script>
+    <script src="~/vendor/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+    <script src="~/vendor/jszip/dist/jszip.js"></script>
+    <script src="~/vendor/pdfmake/build/pdfmake.js"></script>
+    <script src="~/vendor/pdfmake/build/vfs_fonts.js"></script>
+
+    <script>
+
+        function displayAddUserModal() {
+            var modalContainer = document.getElementById('modal-container');
+            removeAllChildNodes(modalContainer);
+            modalTemplate = document.getElementById("add-user");
+
+            var cloneElement = modalTemplate.cloneNode(true);
+            cloneElement.id = 'display-modal';
+            document.getElementById('modal-container').appendChild(cloneElement);
+            jQuery.noConflict();
+            $('#display-modal').appendTo("body").modal('show');
+        }
+        function addUser(obj) {
+            var firstname = obj.parentElement.parentElement.getElementsByClassName('modal-firstname')[0].value;
+            var lastname = obj.parentElement.parentElement.getElementsByClassName('modal-lastname')[0].value;
+            var email = obj.parentElement.parentElement.getElementsByClassName('modal-email')[0].value;
+            var password = obj.parentElement.parentElement.getElementsByClassName('modal-password')[0].value;
+            var role = obj.parentElement.parentElement.getElementsByClassName('modal-role')[0].selectedIndex + 1;
+
+            var formData = new FormData();
+            formData.append('first-name', firstname);
+            formData.append('last-name', lastname);
+            formData.append('email', email);
+            formData.append('password', password);
+            formData.append('role', role);
+
+            $.ajax({
+                type: "post",
+                url: "/Staff/AddUser",
+                contentType: false,
+                processData: false,
+                data: formData,
+                success: function (response) {
+                    if (response.result == "Succeeded") {
+                        window.location = '/Staff/UserList';
+                    }
+                    else {
+                        displayErrorMessage(response);
+                    }
+                },
+                error: function () {
+                    displayErrorMessage("");
+                }
+            });
+        }
+
+        function removeUser(_userId) {
+            var formData = new FormData();
+            formData.append('user-id', _userId);
+
+            $.ajax({
+                type: "post",
+                url: "/Staff/RemoveUser",
+                contentType: false,
+                processData: false,
+                data: formData,
+                success: function (response) {
+                    if (response.result == "Succeeded") {
+                        window.location = '/Staff/UserList';
+                    }
+                    else {
+                        displayErrorMessage(response);
+                    }
+                },
+                error: function () {
+                    displayErrorMessage(response);
+                }
+            });
+        }
+
+        function generatePasswordModal(_email) {
+            var modalContainer = document.getElementById('modal-container');
+            removeAllChildNodes(modalContainer);
+
+            modalTemplate = document.getElementById("generate-password");
+            document.getElementById("modal-generated-pass").value = Array(10).fill("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$%^*()").map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join('');
+
+            var cloneElement = modalTemplate.cloneNode(true);
+            cloneElement.id = 'display-modal';
+            document.getElementById('modal-container').appendChild(cloneElement);
+            jQuery.noConflict();
+            $('#display-modal').appendTo("body").modal('show');
+
+            document.getElementById("modal-generated-email").innerHTML = _email;
+        }
+        function updatePassword() {
+            var password = document.getElementById('modal-generated-pass').value;
+            var email = document.getElementById('modal-generated-email').innerHTML;
+
+            var formData = new FormData();
+            formData.append("email", email);
+            formData.append('password', password);
+
+            $.ajax({
+                type: "post",
+                url: "/Staff/UpdatePassword",
+                contentType: false,
+                processData: false,
+                data: formData,
+                success: function (response) {
+                    if (response.result == "Succeeded") {
+                        window.location = '/Staff/UserList';
+                    }
+                    else {
+                        displayErrorMessage(response);
+                    }
+                },
+                error: function () {
+                    displayErrorMessage(response);
+                }
+            });
+        }
+
+        function displayErrorMessage(response) {
+            $('#display-error-modal').appendTo("body").modal('show');
+            document.getElementById('error-message').innerHTML = 'ActionGUID: ' + response.responseGUID + ' - ' + response.message + ' Result: ' + response.result;
+        }
+        function removeAllChildNodes(parent) {
+            while (parent.firstChild) {
+                parent.removeChild(parent.firstChild);
+            }
+        }
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+            });
+        }
+    </script>
+
+}

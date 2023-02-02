@@ -1,0 +1,1046 @@
+﻿@model ARI.Models.WarehouseDTO
+@using System.Security.Claims;
+@using ARI.Common;
+
+@{
+    ViewBag.Title = "Παλέτες για μεταφορά";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int sala1_available = 264 - Model.PalletDTOs.Where(k => k.LoadingAreaID == 1).Count();
+    int sala1_psigeio_available = 16 - Model.PalletDTOs.Where(k => k.LoadingAreaID == 2).Count();
+    int proektasi_available = 216 - Model.PalletDTOs.Where(k => k.LoadingAreaID == 3).Count();
+    int sala_2_deksia_pteriga_available = 168 - Model.PalletDTOs.Where(k => k.LoadingAreaID == 4).Count();
+    int sala_2_aristeri_pteriga_available = 28 - Model.PalletDTOs.Where(k => k.LoadingAreaID == 5).Count();
+    int sala_2_domatio_available = 64 - Model.PalletDTOs.Where(k => k.LoadingAreaID == 6).Count();
+    int makio_available = 100 - Model.PalletDTOs.Where(k => k.LoadingAreaID == 7).Count();
+    int eikoniki_available = 200 - Model.PalletDTOs.Where(k => k.LoadingAreaID == 8).Count();
+
+    string paragraph_color, div_background_color, palletIcon;
+    paragraph_color = div_background_color = palletIcon = string.Empty;
+}
+
+<!--Header-->
+<div class="content-heading">
+    <div>
+        Χάρτης αποθεμάτων
+    </div>
+</div>
+
+<!--Alert dialog-->
+@if (Model.SucceededPastAction)
+{
+    <div id="success-dialog" class="alert alert-success alert-dismissible fade show" role="alert">
+        <button class="close" type="button" onclick="closeSuccessDialog()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <strong>Φόρτωση</strong> Δημιουργήθηκε η παραγγελία ARI με επιτυχία
+    </div>
+}
+<!--Pallets-->
+<div class="card" style="max-width:1600px">
+    <div class="card-body">
+        <!--Filters-->
+        <div class="col-lg-5">
+            <h4>
+                <img src="~/images/pallet_filter_small_icon.png" style="margin: 0px 0px 0px 0px;width:20px;height:20px" />
+                Φίλτρα
+            </h4>
+            <input id="search-pallet-filter-text1" class="form-control mb-2" type="text" placeholder="Αναζήτηση material, LOT, GTIN, SAPCode etc." />
+            <input id="search-pallet-filter-text2" class="form-control mb-2" type="text" placeholder="Αναζήτηση material, LOT, GTIN, SAPCode etc." />
+            <input id="search-pallet-filter-text3" class="form-control mb-2" type="text" placeholder="Αναζήτηση material, LOT, GTIN, SAPCode etc." />
+            <table style="margin: 0px 0px 0px 0px; display: inline;">
+                <tbody>
+                    <tr class="gradeX" style="vertical-align: top">
+                        <td>
+                            <div>
+                                <label class="col-form-label mb-2">Packaging line date (Από)</label>
+                                <div class="input-group date" id="datetimepicker">
+                                    <input class="form-control" type="date" name="documentDate" id="pac-from-date" />
+                                    <span class="input-group-append input-group-addon">
+                                        <span class="input-group-text fas fa-calendar-alt"></span>
+                                    </span>
+                                </div>
+                                <label class="col-form-label mb-2">Packaging line date (Εώς)</label>
+                                <div class="input-group date" id="datetimepicker">
+                                    <input class="form-control" type="date" name="documentDate" id="pac-until-date" />
+                                    <span class="input-group-append input-group-addon">
+                                        <span class="input-group-text fas fa-calendar-alt"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label class="col-form-label mb-2">Max lager date  (Από)</label>
+                                <div class="input-group date" id="datetimepicker">
+                                    <input class="form-control" type="date" name="documentDate" id="lag-from-date" />
+                                    <span class="input-group-append input-group-addon">
+                                        <span class="input-group-text fas fa-calendar-alt"></span>
+                                    </span>
+                                </div>
+                                <label class="col-form-label mb-2">Max lager date  (Eώς)</label>
+                                <div class="input-group date" id="datetimepicker">
+                                    <input class="form-control" type="date" name="documentDate" id="lag-until-date" />
+                                    <span class="input-group-append input-group-addon">
+                                        <span class="input-group-text fas fa-calendar-alt"></span>
+                                    </span>
+                                </div>
+                            </div>
+
+                        </td>
+                        <td>
+                            <div>
+                                <label class="col-form-label mb-2">Expiration date  (Από)</label>
+                                <div class="input-group date" id="datetimepicker">
+                                    <input class="form-control" type="date" id="exp-from-date" />
+                                    <span class="input-group-append input-group-addon">
+                                        <span class="input-group-text fas fa-calendar-alt"></span>
+                                    </span>
+                                </div>
+                                <label class="col-form-label mb-2">Expiration date  (Εώς)</label>
+                                <div class="input-group date" id="datetimepicker">
+                                    <input class="form-control" type="date" id="exp-until-date" />
+                                    <span class="input-group-append input-group-addon">
+                                        <span class="input-group-text fas fa-calendar-alt"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <button onclick="searchFilterPallets()" class="btn btn-secondary btn-lg">Εφαρμογή</button>
+            <label><strong><i id="no-pallets-filter"></i></strong></label>
+        </div>
+    </div>
+</div>
+<!--Hidden selection-->
+<div class="card" style="width: 1400px; margin: 50px 0px 0px 0px; display: none">
+    <div class="card-body">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="control-label"><strong>Στην αποθήκη:</strong></label>
+                <div>
+                    @Html.DropDownListFor(x => Model.SelectedWarehouseArea, new SelectList(Model.WarehouseAreaListItems, "Value", "Text"), htmlAttributes: new { @class = "form-control", id = "from-warehouse" })
+                    @Html.ValidationMessageFor(x => x.SelectedWarehouseArea, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label"><strong>Στη σειρά:</strong></label>
+                <div>
+                    @Html.DropDownListFor(x => Model.SelectedPosition, new SelectList(Model.PositionListItems, "Value", "Text"), htmlAttributes: new { @class = "form-control", id = "position" })
+                    @Html.ValidationMessageFor(x => x.SelectedPosition, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="overflow-y: scroll">
+    <!--Sala-1-->
+    <div id="sala-1-title" class="card card-default" style="width: 1400px; margin: 0px 0px 0px 0px">
+        <div class="card-body">
+            <div>
+                <p class="lead"><strong>ΣΑΛΑ 1</strong> (Διαθεσιμότητα @sala1_available/264 παλέτες)</p>
+                <div style="float: right;margin:-30px 0px 0px 0px">
+                    <p>
+                        <canvas style="width: 10px; height: 10px; background: green; margin: 0px 0px 0px 0px"></canvas>
+                        <i>Διαθέσιμες</i>
+                        <canvas style="width: 10px; height: 10px; background: yellow; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Δεσμευμένες</i>
+                        <canvas style="width: 10px; height: 10px; background: black; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Δεσμευμένες για φόρτωση</i>
+                        <canvas style="width: 10px; height: 10px; background: purple; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Επικαιροποιημένες για φόρτωση</i>
+                        <canvas style="width: 10px; height: 10px; background: blue; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Προσωρινά επιλεγμένες για φόρτωση</i>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="sala-1-warehouse" style="width: 1400px">
+        @for (int i = 1; i < 23; i++)//Lines
+        {
+            <table style="margin: 0px 0px 0px 0px; display: inline">
+                <tbody class="line-pallet-btn">
+                    <tr class="gradeX">
+                        <td colspan="2">
+                            <div>
+                                <p class="line-description" style="font-size: 25px; text-align: center;margin:0px 0px 0px -30px">L@(i)</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @for (int j = 1; j < 7; j++)//Line
+                    {
+                        <tr class="gradeX">
+                            @for (int l = 1; l < 3; l++)//Position
+                            {
+                                @if (Model.PalletDTOs.Any(k => k.LoadingAreaID == 1 && k.LoadingLine == i && k.LoadingPosition == ((j >= 2) ? (j * 2) + l - 2 : l)))
+                                {
+                                    <td>
+                                        @{
+                                            var palletInfo = Model.PalletDTOs.FirstOrDefault(k => k.LoadingAreaID == 1 && k.LoadingLine == i && k.LoadingPosition == ((j >= 2) ? (j * 2) + l - 2 : l));
+                                            paragraph_color = div_background_color = string.Empty;
+                                            if (palletInfo.StatusId == (int)PalletStatus.AddedToWarehouse)
+                                            { paragraph_color = "black"; div_background_color = "yellow"; }
+                                            if (palletInfo.StatusId == (int)PalletStatus.SelectedForLoad)
+                                            { paragraph_color = "white"; div_background_color = "black"; }
+                                            else if (palletInfo.StatusId == (int)PalletStatus.ConfirmedForLoad)
+                                            { paragraph_color = "white"; div_background_color = "purple"; }
+                                            palletIcon = palletInfo.IsVirtual ? "/images/virtual_pallet__small_icon.png" : "/images/pallet__small_icon.png";
+                                        }
+                                        <div id="@i" hidden></div>
+                                        <div id="sala-1-warehouse" class="card" style="margin: 0px 5px 0px -5px; width: 75px">
+                                            <div id="warehouse-pallet-1-@palletInfo.LoadingLine-@palletInfo.LoadingPosition" class="card-body text-center pallet-line-item pallet-warehouse-btn" style="background: @div_background_color">
+                                                <img class="pallet-icon" src="@palletIcon" style="margin: -25px 0px 0px 0px;width:20px;height:20px" />
+                                                <p style="color: @paragraph_color; margin: -10px 0px 0px 0px;"><strong>@palletInfo.CountryCode</strong></p>
+                                                <p style="color: @paragraph_color;margin: -5px 0px 0px 0px;font-size:12px">@palletInfo.PalletLOT</p>
+                                                <p style="color: @paragraph_color; margin: -5px 0px 0px 0px; font-size: 11px"><strong>*@palletInfo.Material.MaterialSAPID.Substring(palletInfo.Material.MaterialSAPID.Length - 3)</strong></p>
+                                                <p style="color: @paragraph_color;margin: -5px 0px -10px 0px;font-size:11px"><strong>@palletInfo.Material.ExpirationDate.ToString("dd/MM/yy")</strong></p>
+                                                <div class="pallet-identifier" hidden> @palletInfo.PalletId</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td>
+                                        @{var tempposId = (j >= 2) ? (j * 2) + l - 2 : l;}
+                                        <div class="card" style="@(l == 1 ? " margin: 0px 5px 0px -5px;" : "margin: 0px 18px 0px -5px;" )width: 75px">
+                                            <div id="warehouse-pallet-1-@i-@tempposId" class="card-body text-center pallet-line-item" style="background:Green;">
+                                                <img src="~/images/pallet__small_icon.png" style="margin: -25px 0px 0px 0px;width:20px;height:20px" />
+                                                <p style="color: white; margin: -10px 0px 0px 0px;"><strong>-</strong></p>
+                                                <p style="color:white;margin: -5px 0px 0px 0px;font-size:12px">-</p>
+                                                <p style="color: white; margin: -5px 0px 0px 0px; font-size: 11px"><strong>-</strong></p>
+                                                <p style="color:white;margin: -5px 0px -10px 0px;font-size:11px"><strong>-</strong></p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                }
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+    <!--Sala-1 fridge-->
+    <div id="sala-1-psigeio-title" class="card card-default" style="width: 1400px; margin: 0px 0px 30px 0px">
+        <div class="card-body">
+            <div>
+                <p class="lead"><strong>ΣΑΛΑ 1 ΨΗΓΕΙΟ</strong>  (Διαθεσιμότητα @sala1_psigeio_available/16 παλέτες)</p>
+                <div style="float: right;margin:-30px 0px 0px 0px">
+                    <p>
+                        <canvas style="width: 10px; height: 10px; background: green; margin: 0px 0px 0px 0px"></canvas>
+                        <i>Διαθέσιμες</i>
+                        <canvas style="width: 10px; height: 10px; background: yellow; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Δεσμευμένες</i>
+                        <canvas style="width: 10px; height: 10px; background: black; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Δεσμευμένες για φόρτωση</i>
+                        <canvas style="width: 10px; height: 10px; background: purple; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Επικαιροποιημένες για φόρτωση</i>
+                        <canvas style="width: 10px; height: 10px; background: blue; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Προσωρινά επιλεγμένες για φόρτωση</i>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="sala-1-psigeio-warehouse" style="width:1400px">
+        @for (int i = 1; i < 17; i++)
+        {
+            <table style="margin: 0px 0px 0px 0px; display: inline">
+                <tbody>
+                    <tr class="gradeX">
+                        <td>
+                            @if (Model.PalletDTOs.Any(k => k.LoadingAreaID == 2 && k.LoadingLine == 0 && k.LoadingPosition == i))
+                            {
+                                <div id="-" hidden></div>
+                                <div id="sala-1-psigeio-warehouse" class="card" style="margin: 0px -5px 0px 0px; max-width: 75px">
+                                    @{
+                                        var palletInfo = Model.PalletDTOs.FirstOrDefault(k => k.LoadingAreaID == 2 && k.LoadingLine == 0 && k.LoadingPosition == i);
+                                        paragraph_color = div_background_color = string.Empty;
+                                        if (palletInfo.StatusId == (int)PalletStatus.AddedToWarehouse)
+                                        { paragraph_color = "black"; div_background_color = "yellow"; }
+                                        if (palletInfo.StatusId == (int)PalletStatus.SelectedForLoad)
+                                        { paragraph_color = "white"; div_background_color = "black"; }
+                                        else if (palletInfo.StatusId == (int)PalletStatus.ConfirmedForLoad)
+                                        { paragraph_color = "white"; div_background_color = "purple"; }
+                                        palletIcon = palletInfo.IsVirtual ? "/images/virtual_pallet__small_icon.png" : "/images/pallet__small_icon.png";
+                                    }
+                                    <div id="warehouse-pallet-2-0-@i" class="card-body text-center pallet-line-item pallet-warehouse-btn" style="background:@div_background_color">
+                                        <img class="pallet-icon" src="@palletIcon" style="margin: -25px 0px 0px 0px;width:20px;height:20px" />
+                                        <p style="color: @paragraph_color; margin: -10px 0px 0px 0px"><strong>@palletInfo.CountryCode</strong></p>
+                                        <p style="color: @paragraph_color;margin: -5px 0px 0px 0px;font-size:12px">@palletInfo.PalletLOT</p>
+                                        <p style="color: @paragraph_color;margin: -5px 0px 0px 0px;font-size:11px"><strong>*@palletInfo.Material.MaterialSAPID.Substring(palletInfo.Material.MaterialSAPID.Length - 3)</strong></p>
+                                        <p style="color: @paragraph_color;margin: -5px 0px -10px 0px;font-size:11px"><strong>@palletInfo.Material.ExpirationDate.ToString("dd/MM/yy")</strong></p>
+                                        <div class="pallet-identifier" hidden> @palletInfo.PalletId</div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="card" style="margin:0px -5px 0px 0px; width: 75px">
+                                    <div id="warehouse-pallet-2-0-@i" class="card-body pallet-line-item text-center" style="background:Green">
+                                        <img src="~/images/pallet__small_icon.png" style="margin: -25px 0px 0px 0px;width:20px;height:20px" />
+                                        <p style="color: white;margin: -10px 0px 0px 0px;"><strong>-</strong></p>
+                                        <p style="color:white;margin: -5px 0px 0px 0px;font-size:12px">-</p>
+                                        <p style="color:white;margin: -5px 0px 0px 0px;font-size:11px"><strong>-</strong></p>
+                                        <p style="color:white;margin: -5px 0px -10px 0px;font-size:11px"><strong>-</strong></p>
+                                    </div>
+                                </div>
+                            }
+
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        }
+    </div>
+    <!--Proektasi-->
+    <div id="proektasi-title" class="card card-default" style="width: 1400px; margin: 0px 0px 0px 0px">
+        <div class="card-body">
+            <div>
+                <p class="lead"><strong>ΠΡΟΕΚΤΑΣΗ</strong>  (Διαθεσιμότητα @proektasi_available/216 παλέτες)</p>
+                <div style="float: right;margin:-30px 0px 0px 0px">
+                    <p>
+                        <canvas style="width: 10px; height: 10px; background: green; margin: 0px 0px 0px 0px"></canvas>
+                        <i>Διαθέσιμες</i>
+                        <canvas style="width: 10px; height: 10px; background: yellow; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Δεσμευμένες</i>
+                        <canvas style="width: 10px; height: 10px; background: black; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Δεσμευμένες για φόρτωση</i>
+                        <canvas style="width: 10px; height: 10px; background: purple; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Επικαιροποιημένες για φόρτωση</i>
+                        <canvas style="width: 10px; height: 10px; background: blue; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Προσωρινά επιλεγμένες για φόρτωση</i>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="proektasi-warehouse" style="width: 1400px">
+        @for (int i = 1; i < 19; i++)
+        {
+            <table style="margin: 0px 0px 0px 0px; display: inline">
+                <tbody class="line-pallet-btn">
+                    <tr class="gradeX">
+                        <td colspan="2">
+                            <div>
+                                <p class="line-description" style="font-size: 25px; text-align: center;margin:0px 0px 0px -30px">L@(i)</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @for (int j = 1; j < 7; j++)//Line
+                    {
+                        <tr class="gradeX">
+                            @for (int l = 1; l < 3; l++)//Position
+                            {
+                                @if (Model.PalletDTOs.Any(k => k.LoadingAreaID == 3 && k.LoadingLine == i && k.LoadingPosition == ((j >= 2) ? (j * 2) + l - 2 : l)))
+                                {
+                                    <td>
+                                        @{
+                                            var palletInfo = Model.PalletDTOs.FirstOrDefault(k => k.LoadingAreaID == 3 && k.LoadingLine == i && k.LoadingPosition == ((j >= 2) ? (j * 2) + l - 2 : l));
+                                            paragraph_color = div_background_color = string.Empty;
+                                            if (palletInfo.StatusId == (int)PalletStatus.AddedToWarehouse)
+                                            { paragraph_color = "black"; div_background_color = "yellow"; }
+                                            if (palletInfo.StatusId == (int)PalletStatus.SelectedForLoad)
+                                            { paragraph_color = "white"; div_background_color = "black"; }
+                                            else if (palletInfo.StatusId == (int)PalletStatus.ConfirmedForLoad)
+                                            { paragraph_color = "white"; div_background_color = "purple"; }
+                                            palletIcon = palletInfo.IsVirtual ? "/images/virtual_pallet__small_icon.png" : "/images/pallet__small_icon.png";
+                                        }
+                                        <div id="@i" hidden></div>
+                                        <div id="proektasi-warehouse" class="card" style="margin: 0px 5px 0px -5px; width: 75px">
+                                            <div id="warehouse-pallet-3-@palletInfo.LoadingLine-@palletInfo.LoadingPosition" class="card-body text-center pallet-line-item pallet-warehouse-btn" style="background: @div_background_color">
+                                                <img class="pallet-icon" src="@palletIcon" style="margin: -25px 0px 0px 0px;width:20px;height:20px" />
+                                                <p style="color: @paragraph_color;margin: -10px 0px 0px 0px;"><strong>@palletInfo.CountryCode</strong></p>
+                                                <p style="color: @paragraph_color;margin: -5px 0px 0px 0px;font-size:12px">@palletInfo.PalletLOT</p>
+                                                <p style="color: @paragraph_color;margin: -5px 0px 0px 0px;font-size:11px"><strong>*@palletInfo.Material.MaterialSAPID.Substring(palletInfo.Material.MaterialSAPID.Length - 3)</strong></p>
+                                                <p style="color: @paragraph_color;margin: -5px 0px -10px 0px;font-size:11px"><strong>@palletInfo.Material.ExpirationDate.ToString("dd/MM/yy")</strong></p>
+                                                <div class="pallet-identifier" hidden> @palletInfo.PalletId</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td>
+                                        @{var tempposId = (j >= 2) ? (j * 2) + l - 2 : l;}
+                                        <div class="card" style="@(l == 1? " margin: 0px 5px 0px -5px;":"margin: 0px 18px 0px -5px;") width: 75px">
+                                            <div id="warehouse-pallet-3-@i-@tempposId" class="card-body text-center pallet-line-item pallet-line-item" style="background:Green">
+                                                <img src="~/images/pallet__small_icon.png" style="margin: -25px 0px 0px 0px;width:20px;height:20px" />
+                                                <p style="color: white;margin: -10px 0px 0px 0px;"><strong>-</strong></p>
+                                                <p style="color:white;margin: -5px 0px 0px 0px;font-size:12px">-</p>
+                                                <p style="color:white;margin: -5px 0px 0px 0px;font-size:11px"><strong>-</strong></p>
+                                                <p style="color:white;margin: -5px 0px -10px 0px;font-size:11px"><strong>-</strong></p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                }
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+    <!--Sala-2-deksia-->
+    <div id="sala-2-deksia-title" class="card card-default" style="width: 1400px; margin: 40px 0px 0px 0px">
+        <div class="card-body">
+            <div>
+                <p class="lead"><strong>ΣΑΛΑ 2 ΔΕΞΙΑ ΠΤΕΡΥΓΑ</strong>  (Διαθεσιμότητα @sala_2_deksia_pteriga_available/168 παλέτες)</p>
+                <div style="float: right;margin:-30px 0px 0px 0px">
+                    <p>
+                        <canvas style="width: 10px; height: 10px; background: green; margin: 0px 0px 0px 0px"></canvas>
+                        <i>Διαθέσιμες</i>
+                        <canvas style="width: 10px; height: 10px; background: yellow; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Δεσμευμένες</i>
+                        <canvas style="width: 10px; height: 10px; background: black; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Δεσμευμένες για φόρτωση</i>
+                        <canvas style="width: 10px; height: 10px; background: purple; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Επικαιροποιημένες για φόρτωση</i>
+                        <canvas style="width: 10px; height: 10px; background: blue; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Προσωρινά επιλεγμένες για φόρτωση</i>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="sala-2-deksia-warehouse" style="width: 1400px">
+        @for (int i = 1; i < 15; i++)
+        {
+            <table style="margin: 0px 0px 0px 0px;display:inline">
+                <tbody class="line-pallet-btn">
+                    <tr class="gradeX">
+                        <td colspan="2">
+                            <div>
+                                <p class="line-description" style="font-size: 25px; text-align: center;margin:0px 0px 0px -30px">L@(i)</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @for (int j = 1; j < 7; j++)//Line
+                    {
+                        <tr class="gradeX">
+                            @for (int l = 1; l < 3; l++)//Position
+                            {
+                                @if (Model.PalletDTOs.Any(k => k.LoadingAreaID == 4 && k.LoadingLine == i && k.LoadingPosition == ((j >= 2) ? (j * 2) + l - 2 : l)))
+                                {
+                                    <td>
+                                        @{
+                                            var palletInfo = Model.PalletDTOs.FirstOrDefault(k => k.LoadingAreaID == 4 && k.LoadingLine == i && k.LoadingPosition == ((j >= 2) ? (j * 2) + l - 2 : l));
+                                            paragraph_color = div_background_color = string.Empty;
+                                            if (palletInfo.StatusId == (int)PalletStatus.AddedToWarehouse)
+                                            { paragraph_color = "black"; div_background_color = "yellow"; }
+                                            if (palletInfo.StatusId == (int)PalletStatus.SelectedForLoad)
+                                            { paragraph_color = "white"; div_background_color = "black"; }
+                                            else if (palletInfo.StatusId == (int)PalletStatus.ConfirmedForLoad)
+                                            { paragraph_color = "white"; div_background_color = "purple"; }
+                                            palletIcon = palletInfo.IsVirtual ? "/images/virtual_pallet__small_icon.png" : "/images/pallet__small_icon.png";
+                                        }
+                                        <div id="@i" hidden></div>
+                                        <div id="sala-2-deksia-warehouse" class="card" style="margin: 0px 5px 0px -5px; width: 75px">
+                                            <div id="warehouse-pallet-4-@palletInfo.LoadingLine-@palletInfo.LoadingPosition" class="card-body text-center pallet-line-item pallet-warehouse-btn" style="background:@div_background_color">
+                                                <img class="pallet-icon" src="@palletIcon" style="margin: -25px 0px 0px 0px;width:20px;height:20px" />
+                                                <p style="color: @paragraph_color;margin: -10px 0px 0px 0px;"><strong>@palletInfo.CountryCode</strong></p>
+                                                <p style="color: @paragraph_color;margin: -5px 0px 0px 0px;font-size:12px">@palletInfo.PalletLOT</p>
+                                                <p style="color: @paragraph_color;margin: -5px 0px 0px 0px;font-size:11px"><strong>*@palletInfo.Material.MaterialSAPID.Substring(palletInfo.Material.MaterialSAPID.Length - 3)</strong></p>
+                                                <p style="color: @paragraph_color;margin: -5px 0px -10px 0px;font-size:11px"><strong>@palletInfo.Material.ExpirationDate.ToString("dd/MM/yy")</strong></p>
+                                                <div class="pallet-identifier" hidden> @palletInfo.PalletId</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td>
+                                        @{var tempposId = (j >= 2) ? (j * 2) + l - 2 : l;}
+                                        <div class="card" style="@(l == 1? " margin: 0px 5px 0px -5px;":"margin: 0px 18px 0px -5px;") width: 75px">
+                                            <div id="warehouse-pallet-4-@i-@tempposId" class="card-body text-center  pallet-line-item" style="background:Green">
+                                                <img src="~/images/pallet__small_icon.png" style="margin: -25px 0px 0px 0px;width:20px;height:20px" />
+                                                <p style="color: white;margin: -10px 0px 0px 0px;"><strong>-</strong></p>
+                                                <p style="color:white;margin: -5px 0px 0px 0px;font-size:12px">-</p>
+                                                <p style="color:white;margin: -5px 0px 0px 0px;font-size:11px"><strong>-</strong></p>
+                                                <p style="color:white;margin: -5px 0px -10px 0px;font-size:11px"><strong>-</strong></p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                }
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+    <!--Sala-2-aristera-->
+    <div id="sala-2-aristeri-title" class="card card-default" style="width: 1400px; margin: 40px 0px 0px 0px">
+        <div class="card-body">
+            <div>
+                <p class="lead"><strong>ΣΑΛΑ 2 ΑΡΙΣΤΕΡΗ ΠΤΕΡΥΓΑ</strong>  (Διαθεσιμότητα @sala_2_aristeri_pteriga_available/28 παλέτες)</p>
+                <div style="float: right;margin:-30px 0px 0px 0px">
+                    <p>
+                        <canvas style="width: 10px; height: 10px; background: green; margin: 0px 0px 0px 0px"></canvas>
+                        <i>Διαθέσιμες</i>
+                        <canvas style="width: 10px; height: 10px; background: yellow; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Δεσμευμένες</i>
+                        <canvas style="width: 10px; height: 10px; background: black; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Δεσμευμένες για φόρτωση</i>
+                        <canvas style="width: 10px; height: 10px; background: purple; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Επικαιροποιημένες για φόρτωση</i>
+                        <canvas style="width: 10px; height: 10px; background: blue; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Προσωρινά επιλεγμένες για φόρτωση</i>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="sala-2-aristeri-warehouse" style="width: 1400px">
+        @for (int i = 1; i < 8; i++)
+        {
+            <table style="margin: 0px 0px 0px 0px; display: inline">
+                <tbody>
+                    <tr class="gradeX">
+                        <td colspan="2">
+                            <div>
+                                <p class="line-description" style="font-size: 25px; text-align: center;margin:0px 0px 0px -30px">L@(i)</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @for (int j = 1; j < 3; j++)//Line
+                    {
+                        <tr class="gradeX">
+                            @for (int l = 1; l < 3; l++)//Position
+                            {
+                                @if (Model.PalletDTOs.Any(k => k.LoadingAreaID == 5 && k.LoadingLine == i && k.LoadingPosition == ((j >= 2) ? (j * 2) + l - 2 : l)))
+                                {
+                                    <td>
+                                        @{
+                                            var palletInfo = Model.PalletDTOs.FirstOrDefault(k => k.LoadingAreaID == 5 && k.LoadingLine == i && k.LoadingPosition == ((j >= 2) ? (j * 2) + l - 2 : l));
+                                            paragraph_color = div_background_color = string.Empty;
+                                            if (palletInfo.StatusId == (int)PalletStatus.AddedToWarehouse)
+                                            { paragraph_color = "black"; div_background_color = "yellow"; }
+                                            if (palletInfo.StatusId == (int)PalletStatus.SelectedForLoad)
+                                            { paragraph_color = "white"; div_background_color = "black"; }
+                                            else if (palletInfo.StatusId == (int)PalletStatus.ConfirmedForLoad)
+                                            { paragraph_color = "white"; div_background_color = "purple"; }
+                                            palletIcon = palletInfo.IsVirtual ? "/images/virtual_pallet__small_icon.png" : "/images/pallet__small_icon.png";
+                                        }
+                                        <div id="@i" hidden></div>
+                                        <div id="sala-2-aristeri-warehouse" class="card" style="margin: 0px 5px 0px -5px; width: 75px">
+                                            <div id="warehouse-pallet-5-@palletInfo.LoadingLine-@palletInfo.LoadingPosition" class="card-body text-center pallet-line-item pallet-warehouse-btn" style="background:@div_background_color">
+                                                <img class="pallet-icon" src="@palletIcon" style="margin: -25px 0px 0px 0px;width:20px;height:20px" />
+                                                <p style="color: @paragraph_color;margin: -10px 0px 0px 0px;"><strong>@palletInfo.CountryCode</strong></p>
+                                                <p style="color: @paragraph_color;margin: -5px 0px 0px 0px;font-size:12px">@palletInfo.PalletLOT</p>
+                                                <p style="color: @paragraph_color;margin: -5px 0px 0px 0px;font-size:11px"><strong>*@palletInfo.Material.MaterialSAPID.Substring(palletInfo.Material.MaterialSAPID.Length - 3)</strong></p>
+                                                <p style="color: @paragraph_color;margin: -5px 0px -10px 0px;font-size:11px"><strong>@palletInfo.Material.ExpirationDate.ToString("dd/MM/yy")</strong></p>
+                                                <div class="pallet-identifier" hidden> @palletInfo.PalletId</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td>
+                                        @{var tempposId = (j >= 2) ? (j * 2) + l - 2 : l;}
+                                        <div class="card" style="@(l == 1? " margin: 0px 5px 0px -5px;":"margin: 0px 18px 0px -5px;") width: 75px">
+                                            <div id="warehouse-pallet-5-@i-@tempposId" class="card-body text-center pallet-line-item" style="background:Green">
+                                                <img src="~/images/pallet__small_icon.png" style="margin: -25px 0px 0px 0px;width:20px;height:20px" />
+                                                <p style="color: white;margin: -10px 0px 0px 0px;"><strong>-</strong></p>
+                                                <p style="color:white;margin: -5px 0px 0px 0px;font-size:12px">-</p>
+                                                <p style="color:white;margin: -5px 0px 0px 0px;font-size:11px"><strong>-</strong></p>
+                                                <p style="color:white;margin: -5px 0px -10px 0px;font-size:11px"><strong>-</strong></p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                }
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+
+    </div>
+    <!--Sala-2-domatio-->
+    <div id="sala-2-domatio-title" class="card card-default" style="width: 1400px; margin: 40px 0px 0px 0px">
+        <div class="card-body">
+            <div>
+                <p class="lead"><strong>ΣΑΛΑ 2 ΔΩΜΑΤΙΟ</strong>  (Διαθεσιμότητα @sala_2_domatio_available/64 παλέτες)</p>
+                <div style="float: right;margin:-30px 0px 0px 0px">
+                    <p>
+                        <canvas style="width: 10px; height: 10px; background: green; margin: 0px 0px 0px 0px"></canvas>
+                        <i>Διαθέσιμες</i>
+                        <canvas style="width: 10px; height: 10px; background: yellow; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Δεσμευμένες</i>
+                        <canvas style="width: 10px; height: 10px; background: black; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Δεσμευμένες για φόρτωση</i>
+                        <canvas style="width: 10px; height: 10px; background: purple; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Επικαιροποιημένες για φόρτωση</i>
+                        <canvas style="width: 10px; height: 10px; background: blue; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Προσωρινά επιλεγμένες για φόρτωση</i>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="sala-2-domatio-warehouse" sstyle="width: 1400px">
+        @for (int i = 1; i < 9; i++)
+        {
+            <table style="margin: 0px 0px 0px 0px; display: inline">
+                <tbody class="line-pallet-btn">
+                    <tr class="gradeX">
+                        <td colspan="2">
+                            <div>
+                                <p class="line-description" style="font-size: 25px; text-align: center;margin:0px 0px 0px -30px">L@(i)</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @for (int j = 1; j < 5; j++)//Line
+                    {
+                        <tr class="gradeX">
+                            @for (int l = 1; l < 3; l++)//Position
+                            {
+                                @if (Model.PalletDTOs.Any(k => k.LoadingAreaID == 6 && k.LoadingLine == i && k.LoadingPosition == ((j >= 2) ? (j * 2) + l - 2 : l)))
+                                {
+                                    <td>
+                                        @{
+                                            var palletInfo = Model.PalletDTOs.FirstOrDefault(k => k.LoadingAreaID == 6 && k.LoadingLine == i && k.LoadingPosition == ((j >= 2) ? (j * 2) + l - 2 : l));
+                                            paragraph_color = div_background_color = string.Empty;
+                                            if (palletInfo.StatusId == (int)PalletStatus.AddedToWarehouse)
+                                            { paragraph_color = "black"; div_background_color = "yellow"; }
+                                            if (palletInfo.StatusId == (int)PalletStatus.SelectedForLoad)
+                                            { paragraph_color = "white"; div_background_color = "black"; }
+                                            else if (palletInfo.StatusId == (int)PalletStatus.ConfirmedForLoad)
+                                            { paragraph_color = "white"; div_background_color = "purple"; }
+                                            palletIcon = palletInfo.IsVirtual ? "/images/virtual_pallet__small_icon.png" : "/images/pallet__small_icon.png";
+                                        }
+                                        <div id="@i" hidden></div>
+                                        <div id="sala-2-domatio-title" class="card" style="margin: 0px 5px 0px -5px; width: 75px">
+                                            <div id="warehouse-pallet-6-@palletInfo.LoadingLine-@palletInfo.LoadingPosition" class="card-body text-center pallet-line-item pallet-warehouse-btn" style="background: @div_background_color">
+                                                <img class="pallet-icon" src="@palletIcon" style="margin: -25px 0px 0px 0px;width:20px;height:20px" />
+                                                <p style="color: @paragraph_color;margin: -10px 0px 0px 0px;"><strong>@palletInfo.CountryCode</strong></p>
+                                                <p style="color: @paragraph_color;margin: -5px 0px 0px 0px;font-size:12px">@palletInfo.PalletLOT</p>
+                                                <p style="color: @paragraph_color;margin: -5px 0px 0px 0px;font-size:11px"><strong>*@palletInfo.Material.MaterialSAPID.Substring(palletInfo.Material.MaterialSAPID.Length - 3)</strong></p>
+                                                <p style="color: @paragraph_color;margin: -5px 0px -10px 0px;font-size:11px"><strong>@palletInfo.Material.ExpirationDate.ToString("dd/MM/yy")</strong></p>
+                                                <div class="pallet-identifier" hidden> @palletInfo.PalletId</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td>
+                                        @{var tempposId = (j >= 2) ? (j * 2) + l - 2 : l;}
+                                        <div class="card" style="@(l == 1? " margin: 0px 5px 0px -5px;":"margin: 0px 18px 0px -5px;") width: 75px">
+                                            <div id="warehouse-pallet-6-@i-@tempposId" class="card-body text-center pallet-line-item" style="background:Green">
+                                                <img src="~/images/pallet__small_icon.png" style="margin: -25px 0px 0px 0px;width:20px;height:20px" />
+                                                <p style="color: white;margin: -10px 0px 0px 0px;"><strong>-</strong></p>
+                                                <p style="color:white;margin: -5px 0px 0px 0px;font-size:12px">-</p>
+                                                <p style="color:white;margin: -5px 0px 0px 0px;font-size:11px"><strong>-</strong></p>
+                                                <p style="color:white;margin: -5px 0px -10px 0px;font-size:11px"><strong>-</strong></p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                }
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+    <!--Makio-->
+    <div id="makio-title" class="card card-default" style="width: 1400px; margin: 40px 0px 30px 0px">
+        <div class="card-body">
+            <div>
+                <p class="lead"><strong>MAKIO</strong>  (Διαθεσιμότητα @makio_available/100 παλέτες)</p>
+                <div style="float: right;margin:-30px 0px 0px 0px">
+                    <p>
+                        <canvas style="width: 10px; height: 10px; background: green; margin: 0px 0px 0px 0px"></canvas>
+                        <i>Διαθέσιμες</i>
+                        <canvas style="width: 10px; height: 10px; background: yellow; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Δεσμευμένες</i>
+                        <canvas style="width: 10px; height: 10px; background: black; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Δεσμευμένες για φόρτωση</i>
+                        <canvas style="width: 10px; height: 10px; background: purple; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Επικαιροποιημένες για φόρτωση</i>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="makio-warehouse" style="width: 1400px">
+        @for (int i = 1; i < 101; i++)
+        {
+            <table style="margin: 0px 0px 0px 0px; display: inline">
+                <tbody>
+                    <tr class="gradeX">
+                        <td>
+                            @if (Model.PalletDTOs.Any(k => k.LoadingAreaID == 7 && k.LoadingLine == 0 && k.LoadingPosition == i))
+                            {
+                                <div id="-" hidden></div>
+                                <div id="makio-warehouse" class="card" style="margin: 0px -5px 0px 0px; max-width: 75px">
+                                    @{
+                                        var palletInfo = Model.PalletDTOs.FirstOrDefault(k => k.LoadingAreaID == 7 && k.LoadingLine == 0 && k.LoadingPosition == i);
+                                        paragraph_color = div_background_color = string.Empty;
+                                        if (palletInfo.StatusId == (int)PalletStatus.AddedToWarehouse)
+                                        { paragraph_color = "black"; div_background_color = "yellow"; }
+                                        if (palletInfo.StatusId == (int)PalletStatus.SelectedForLoad)
+                                        { paragraph_color = "white"; div_background_color = "black"; }
+                                        else if (palletInfo.StatusId == (int)PalletStatus.ConfirmedForLoad)
+                                        { paragraph_color = "white"; div_background_color = "purple"; }
+                                        palletIcon = palletInfo.IsVirtual ? "/images/virtual_pallet__small_icon.png" : "/images/pallet__small_icon.png";
+                                    }
+                                    <div id="warehouse-pallet-7-0-@i" class="card-body text-center pallet-warehouse-btn" style="background: @div_background_color">
+                                        <img class="pallet-icon" src="@palletIcon" style="margin: -25px 0px 0px 0px;width:20px;height:20px" />
+                                        <p style="color: @paragraph_color;margin: -10px 0px 0px 0px;"><strong>@palletInfo.CountryCode</strong></p>
+                                        <p style="color: @paragraph_color;margin: -5px 0px 0px 0px;font-size:12px">@palletInfo.PalletLOT</p>
+                                        <p style="color: @paragraph_color;margin: -5px 0px 0px 0px;font-size:11px"><strong>*@palletInfo.Material.MaterialSAPID.Substring(palletInfo.Material.MaterialSAPID.Length - 3)</strong></p>
+                                        <p style="color: @paragraph_color;margin: -5px 0px -10px 0px;font-size:11px"><strong>@palletInfo.Material.ExpirationDate.ToString("dd/MM/yy")</strong></p>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div id="makio-warehouse" class="card" style="margin:0px -5px 0px 0px; width: 75px">
+                                    <div id="warehouse-pallet-7-0-@i" class="card-body text-center" style="background:Green">
+                                        <img src="~/images/pallet__small_icon.png" style="margin: -25px 0px 0px 0px;width:20px;height:20px" />
+                                        <p style="color: white;margin: -10px 0px 0px 0px;"><strong>-</strong></p>
+                                        <p style="color:white;margin: -5px 0px 0px 0px;font-size:12px">-</p>
+                                        <p style="color:white;margin: -5px 0px 0px 0px;font-size:11px"><strong>-</strong></p>
+                                        <p style="color:white;margin: -5px 0px -10px 0px;font-size:11px"><strong>-</strong></p>
+                                    </div>
+                                </div>
+                            }
+
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        }
+    </div>
+    <!--Eikoniki-->
+    <div id="eikoniki-title" class="card card-default" style="width: 1400px; margin: 40px 0px 30px 0px">
+        <div class="card-body">
+            <div>
+                <p class="lead"><strong>ΕΙΚΟΝΙΚΗ</strong>  (Διαθεσιμότητα @eikoniki_available/200 παλέτες)</p>
+                <div style="float: right;margin:-30px 0px 0px 0px">
+                    <p>
+                        <canvas style="width: 10px; height: 10px; background: green; margin: 0px 0px 0px 0px"></canvas>
+                        <i>Διαθέσιμες</i>
+                        <canvas style="width: 10px; height: 10px; background: yellow; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Δεσμευμένες</i>
+                        <canvas style="width: 10px; height: 10px; background: black; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Δεσμευμένες για φόρτωση</i>
+                        <canvas style="width: 10px; height: 10px; background: purple; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Επικαιροποιημένες για φόρτωση</i>
+                        <canvas style="width: 10px; height: 10px; background: blue; margin: 0px 0px 0px 10px "></canvas>
+                        <i>Προσωρινά επιλεγμένες για φόρτωση</i>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="eikoniki-warehouse" style="width: 1400px">
+        @for (int i = 1; i < 201; i++)
+        {
+            <table style="margin: 0px 0px 0px 0px; display: inline">
+                <tbody>
+                    <tr class="gradeX">
+                        <td>
+                            @if (Model.PalletDTOs.Any(k => k.LoadingAreaID == 8 && k.LoadingLine == 0 && k.LoadingPosition == i))
+                            {
+                                <div id="-" hidden></div>
+                                <div id="eikoniki-warehouse" class="card" style="margin: 0px -5px 0px 0px; max-width: 75px">
+                                    @{
+                                        var palletInfo = Model.PalletDTOs.FirstOrDefault(k => k.LoadingAreaID == 8 && k.LoadingLine == 0 && k.LoadingPosition == i);
+                                        paragraph_color = div_background_color = string.Empty;
+                                        if (palletInfo.StatusId == (int)PalletStatus.AddedToWarehouse)
+                                        { paragraph_color = "black"; div_background_color = "yellow"; }
+                                        if (palletInfo.StatusId == (int)PalletStatus.SelectedForLoad)
+                                        { paragraph_color = "white"; div_background_color = "black"; }
+                                        else if (palletInfo.StatusId == (int)PalletStatus.ConfirmedForLoad)
+                                        { paragraph_color = "white"; div_background_color = "purple"; }
+                                        palletIcon = palletInfo.IsVirtual ? "/images/virtual_pallet__small_icon.png" : "/images/pallet__small_icon.png";
+                                    }
+                                    <div id="warehouse-pallet-8-0-@i" class="card-body text-center pallet-warehouse-btn" style="background: @div_background_color">
+                                        <img class="pallet-icon" src="@palletIcon" style="margin: -25px 0px 0px 0px;width:20px;height:20px" />
+                                        <p style="color: @paragraph_color;margin: -10px 0px 0px 0px;"><strong>@palletInfo.CountryCode</strong></p>
+                                        <p style="color: @paragraph_color;margin: -5px 0px 0px 0px;font-size:12px">@palletInfo.PalletLOT</p>
+                                        <p style="color: @paragraph_color;margin: -5px 0px 0px 0px;font-size:11px"><strong>*@palletInfo.Material.MaterialSAPID.Substring(palletInfo.Material.MaterialSAPID.Length - 3)</strong></p>
+                                        <p style="color: @paragraph_color;margin: -5px 0px -10px 0px;font-size:11px"><strong>@palletInfo.Material.ExpirationDate.ToString("dd/MM/yy")</strong></p>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div id="eikoniki-warehouse" class="card" style="margin:0px -5px 0px 0px; width: 75px">
+                                    <div id="warehouse-pallet-8-0-@i" class="card-body text-center" style="background:Green">
+                                        <img src="~/images/pallet__small_icon.png" style="margin: -25px 0px 0px 0px;width:20px;height:20px" />
+                                        <p style="color: white;margin: -10px 0px 0px 0px;"><strong>-</strong></p>
+                                        <p style="color:white;margin: -5px 0px 0px 0px;font-size:12px">-</p>
+                                        <p style="color:white;margin: -5px 0px 0px 0px;font-size:11px"><strong>-</strong></p>
+                                        <p style="color:white;margin: -5px 0px -10px 0px;font-size:11px"><strong>-</strong></p>
+                                    </div>
+                                </div>
+                            }
+
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        }
+    </div>
+
+    <div id="container-area-2" hidden>@Model.PalletDTOs.Where(k => k.LoadingAreaID == 2).Count()</div>
+    <div id="container-area-7" hidden>@Model.PalletDTOs.Where(k => k.LoadingAreaID == 7).Count()</div>
+    <div id="container-area-8" hidden>@Model.PalletDTOs.Where(k => k.LoadingAreaID == 8).Count()</div>
+    <br />
+    <br />
+</div>
+
+
+<br />
+<br />
+@section BodyArea {
+    <!--Pallet info dialog-->
+    <div class="modal fade" id="PalletDialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="align-content:center">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="modal-pallet-label">Προβολή παλέτας</h4>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body" style="align-items: center">
+                    <div id="modal-pallet-status-badge" class="badge" style="display: block; margin-left: auto; margin-right: auto;width:240px">Επιβ. για φορτ.</div>
+                    <br />
+                    <img id="modal-pallet-material-virtual" src="~/images/pallet_icon.png" style="display:block;margin-left:auto;margin-right:auto" width="50" height="50" />
+                    <br />
+                    <p style="font-size:16px">Κωδικοποίηση παλέτας: <strong id="modal-pallet-material-description">-</strong></p>
+                    <p style="font-size:16px">Κωδικός SAP προϊόντος: <strong id="modal-pallet-sapid">-</strong></p>
+                    <p style="font-size:16px">LOT παλέτας: <strong id="modal-pallet-lot">-</strong></p>
+                    <p style="font-size:16px">Χώρα: <strong id="modal-pallet-country">-</strong></p>
+                    <p style="font-size:16px">Αριθμός χαρτοκιβωτίων: <strong id="modal-pallet-pallet-boxes">-</strong></p>
+                    <p style="font-size:16px">Ώρα συσκευασίας: <strong id="modal-pallet-creation-time">-</strong></p>
+                    <p style="font-size:16px">Μέγιστη ημερομηνία παράδοσης: <strong id="modal-pallet-max-delivery-date">-</strong></p>
+                    <p style="font-size:16px">Ημερομηνία λήξης της παλέτας: <strong id="modal-pallet-expiration-date">-</strong></p>
+                    <p style="font-size:16px">QR παλέτας:</p>
+                    <img style="display: block; margin-left: auto; margin-right: auto" id="modal-qr-image" width="300" height="300" />
+                    <p style="font-size:16px">Barcode παλέτας:</p>
+                    <img style="display: block; margin-left: auto; margin-right: auto" id="modal-barcode-image" width="300" height="80" />
+                </div>
+                <a href="" id="modal-pallet-palletcard" target="_blank" class="btn btn-primary" style="display:block;margin-left:auto;margin-right:auto;max-width:200px">Εκτύπωση παλετοκάρτας ARI</a>
+                <a href="" id="modal-pallet-palletcard-lidl" target="_blank" class="btn btn-primary" style="display:block;margin-left:auto;margin-right:auto;margin-top:10px;max-width:200px">Εκτύπωση παλετοκάρτας LIDL</a>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Κλείσιμο</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Styles{
+    <style>
+        .pallet-btn {
+            opacity: 1.0;
+        }
+
+            .pallet-btn:hover {
+                opacity: 0.6;
+                cursor: pointer;
+            }
+
+        .pallet-warehouse-btn {
+            opacity: 1.0;
+        }
+
+            .pallet-warehouse-btn:hover {
+                opacity: 0.6;
+                cursor: pointer;
+            }
+    </style>
+    <link rel="stylesheet" href="~/vendor/datatables.net-bs4/css/dataTables.bootstrap4.css">
+    <link rel="stylesheet" href="~/vendor/datatables.net-keytable-bs/css/keyTable.bootstrap.css">
+    <link rel="stylesheet" href="~/vendor/datatables.net-responsive-bs/css/responsive.bootstrap.css">
+}
+
+@section Scripts {
+    <script src="~/js/popper.min.js"></script>
+    <script src="~/js/moment.js"></script>
+    <script>
+        //Initialize
+        var [pallet_btns, pallet_warehouse_btns, line_pallet_btns] = [];
+        var [modalVirtual, modalLabel, modalDescription, modalSAPId, modalLOT, modalCountry, modalBoxes,
+            modalCreation, modalDeliveryDate, modalExpirationDate, modalQR, modalBarcode, modalCardARI, modalCardLidl] = [];
+        var [sala1Title, sala1Warehouse, sala1PsigeioTitle, sala1PsigeioWarehouse, proektasiTitle, proektasiWarehouse, sala2DeksiaTitle, sala2DeksiaWarehouse, sala2AristeriTitle,
+            sala2AristeriWarehouse, sala2DomatioTitle, sala2DomatioWarehouse, makioTitle, makioWarehouse, eikonikiTitle, eikonikiWarehouse] = []
+        init();
+
+
+        //Info for warehouse pallets (dbclick)
+        for (var i = 0; i < pallet_btns.length; i++) {
+            //PackagingLine
+            pallet_btns[i].addEventListener('dblclick', function (event) {
+                $.get("GetPalletInfo/?palletId=" + event.currentTarget.id.split('-')[4], function (data) {
+                    modalLabel.innerHTML = "Κωδικός παλέτας ΚΠ" + data.palletId;
+                    modalDescription.innerHTML = data.material.materialDescription;
+                    modalVirtual.src = data.isVirtual ? "/images/virtual_pallet__icon.png" : "/images/pallet_icon.png";
+                    modalSAPId.innerHTML = data.material.materialSAPID;
+                    modalLOT.innerHTML = data.palletLOT;
+                    modalCountry.innerHTML = data.countryCode;
+                    modalBoxes.innerHTML = data.noPalletBox;
+                    modalCreation.innerHTML = data.creationDateTime;
+                    modalCreation.innerHTML = formatDate(data.material.maxDeliveryDate);
+                    modalExpirationDate.innerHTML = formatDate(data.material.expirationDate);
+                    modalQR.src = data.qrCodeLink;
+                    modalBarcode.src = data.barCodeLink;
+                    modalCardARI.href = data.palletCardLink;
+                    modalCardLidl.href = data.palletCardLIDL;
+                    modalCardLidl.hidden = data.palletCardLIDL == null ? true : false;
+
+                    modalStatusBadge.innerHTML = data.selectedStatus
+                    modalStatusBadge.className = "";
+                    modalStatusBadge.classList.add('badge');
+                    modalStatusBadge.classList.add(data.statusId == 0 ? 'badge-warning' : data.statusId == 1 ?
+                        'badge-success' : data.statusId == 2 ? 'badge-info' : data.statusId == 3 ? 'badge-dark' : data.statusId == 4 ?
+                            'badge-danger' : data.statusId == -1 ? 'badge-success' : '');
+                    modalStatusBadge.style.color = (data.statusId == 2) ? 'black' : 'white';
+                });
+                $('#PalletDialog').modal('toggle');
+            });
+        }
+        for (var i = 0; i < pallet_warehouse_btns.length; i++) {
+            pallet_warehouse_btns[i].addEventListener('dblclick', function (event) {
+                var urlString = "?warehouseName=" + event.currentTarget.parentElement.id + "&loadinglineId=" + event.currentTarget.parentNode.parentNode.childNodes[1].id + "&itemId=" + event.currentTarget.id.split('-')[4];
+
+                $.get("GetPalletWarehouseInfo/" + urlString, function (data) {
+                    modalLabel.innerHTML = "Κωδικός παλέτας ΚΠ" + data.palletId;
+                    modalDescription.innerHTML = data.material.materialDescription;
+                    modalVirtual.src = data.isVirtual ? "/images/virtual_pallet__icon.png" : "/images/pallet_icon.png";
+                    modalSAPId.innerHTML = data.material.materialSAPID;
+                    modalLOT.innerHTML = data.palletLOT;
+                    modalCountry.innerHTML = data.countryCode;
+                    modalBoxes.innerHTML = data.noPalletBox;
+                    modalCreation.innerHTML = data.creationDateTime;
+                    modalDeliveryDate.innerHTML = formatDate(data.material.maxDeliveryDate);
+                    modalExpirationDate.innerHTML = formatDate(data.material.expirationDate);
+                    modalQR.src = data.qrCodeLink;
+                    modalBarcode.src = data.barCodeLink;
+                    modalCardARI.href = data.palletCardLink;
+                    modalCardLidl.href = data.palletCardLIDL;
+                    modalCardLidl.hidden = data.palletCardLIDL == null ? true : false;
+
+                    modalStatusBadge.innerHTML = data.selectedStatus
+                    modalStatusBadge.className = "";
+                    modalStatusBadge.classList.add('badge');
+                    modalStatusBadge.classList.add(data.statusId == 0 ? 'badge-warning' : data.statusId == 1 ?
+                        'badge-success' : data.statusId == 2 ? 'badge-info' : data.statusId == 3 ? 'badge-dark' : data.statusId == 4 ?
+                            'badge-danger' : data.statusId == -1 ? 'badge-success' : '');
+                    modalStatusBadge.style.color = (data.statusId == 2) ? 'black' : 'white';
+                });
+                $('#PalletDialog').modal('toggle');
+            });
+        }
+
+        ///search pallet
+        selectedPalletIds = [];
+        hasHidepalletFilter = true;
+        function searchFilterPallets() {
+            var formData = new FormData();
+            formData.append('search-text1', document.getElementById('search-pallet-filter-text1').value);
+            formData.append('search-text2', document.getElementById('search-pallet-filter-text2').value);
+            formData.append('search-text3', document.getElementById('search-pallet-filter-text3').value);
+            formData.append('pac-from-date', document.getElementById('pac-from-date').value);
+            formData.append('pac-until-date', document.getElementById('pac-until-date').value);
+            formData.append('lag-from-date', document.getElementById('lag-from-date').value);
+            formData.append('lag-until-date', document.getElementById('lag-until-date').value);
+            formData.append('exp-from-date', document.getElementById('exp-from-date').value);
+            formData.append('exp-until-date', document.getElementById('exp-until-date').value);
+
+            $.ajax({
+                type: "post",
+                url: "/Warehouse/GetFilterPallets",
+                contentType: false,
+                processData: false,
+                data: formData,
+                success: function (message) {
+                    //revert pallet icon
+                    for (const pallet_icon of document.getElementsByClassName("pallet-icon")) {
+                        if (pallet_icon.src.includes("pallet_filter_small_icon")) {
+                            pallet_icon.src = "/images/pallet__small_icon.png";
+                        }
+                    }
+
+                    for (const element of message) {
+                        for (const pallet_identifier of document.getElementsByClassName("pallet-identifier")) {
+                            if (pallet_identifier.innerHTML == element) {
+                                pallet_identifier.parentElement.firstElementChild.src = "/images/pallet_filter_small_icon.png";
+                                break;
+                            }
+                        }
+                    }
+                    document.getElementById('no-pallets-filter').innerHTML = "(" + message.length + " παλέτες βρέθηκαν στην αποθήκη)";
+                },
+                error: function () {
+                    alert("there was error uploading files!");
+                }
+            });
+        }
+
+        //Helpers
+        function init() {
+            pallet_btns = document.getElementsByClassName('pallet-btn');
+            pallet_warehouse_btns = document.getElementsByClassName('pallet-warehouse-btn');
+
+            modalVirtual = document.getElementById("modal-pallet-material-virtual")
+            modalLabel = document.getElementById("modal-pallet-label");
+            modalDescription = document.getElementById("modal-pallet-material-description");
+            modalSAPId = document.getElementById("modal-pallet-sapid");
+            modalLOT = document.getElementById("modal-pallet-lot");
+            modalCountry = document.getElementById("modal-pallet-country");
+            modalBoxes = document.getElementById("modal-pallet-pallet-boxes");
+            modalCreation = document.getElementById("modal-pallet-creation-time");
+            modalDeliveryDate = document.getElementById("modal-pallet-max-delivery-date");
+            modalExpirationDate = document.getElementById("modal-pallet-expiration-date");
+            modalQR = document.getElementById("modal-qr-image");
+            modalBarcode = document.getElementById("modal-barcode-image");
+            modalCardARI = document.getElementById("modal-pallet-palletcard");
+            modalCardLidl = document.getElementById("modal-pallet-palletcard-lidl");
+            modalStatusBadge = document.getElementById("modal-pallet-status-badge");
+        }
+        function formatDate(date) {
+            var d = new Date(date),
+                month = '' + (d.getMonth() + 1),
+                day = '' + d.getDate(),
+                year = d.getFullYear();
+
+            if (month.length < 2)
+                month = '0' + month;
+            if (day.length < 2)
+                day = '0' + day;
+
+            return [day, month, year].join('-');
+        }
+    </script>
+
+    <script src="~/vendor/datatables.net/js/jquery.dataTables.js"></script>
+    <script src="~/vendor/datatables.net-bs4/js/dataTables.bootstrap4.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/dataTables.buttons.js"></script>
+    <script src="~/vendor/datatables.net-buttons-bs/js/buttons.bootstrap.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.colVis.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.flash.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.html5.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.print.js"></script>
+    <script src="~/vendor/datatables.net-keytable/js/dataTables.keyTable.js"></script>
+    <script src="~/vendor/datatables.net-responsive/js/dataTables.responsive.js"></script>
+    <script src="~/vendor/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+    <script src="~/vendor/jszip/dist/jszip.js"></script>
+    <script src="~/vendor/pdfmake/build/pdfmake.js"></script>
+    <script src="~/vendor/pdfmake/build/vfs_fonts.js"></script>
+}
+
+

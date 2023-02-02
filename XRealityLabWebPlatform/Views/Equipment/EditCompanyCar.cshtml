@@ -1,0 +1,92 @@
+﻿@model ARI.Models.CompanyCarReservationDTO
+
+@{
+    ViewData["Title"] = "Προσθήκη στοιχείων κράτησης";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-heading">
+    <div>
+        ΧΡ @Model.CompanyCarReservationId
+    </div>
+    <!-- END Language list-->
+</div>
+
+<div class="card" style="max-width:1400px">
+    <div class="card-header">
+        <div class="card-title">Εξοπλισμός \ Εταιρικά αυτοκίνητα</div>
+        <div class="text-sm">Πρόσθεσε τις πληροφορίες για την ολοκλήρωση της αποδέσμευσης του εταιρικού αυτοκινήτου</div>
+    </div>
+    <div class="card-body">
+        <div class="col-md-4">
+            <form asp-action="EditCompanyCar">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="PassToken" />
+                <div class="form-group">
+                    <label asp-for="InKilometers" class="control-label"></label> <small> (*)</small>
+                    <input asp-for="InKilometers" class="form-control" />
+                    <span asp-validation-for="InKilometers" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="OutKilometers" class="control-label"></label> <small> (*)</small>
+                    <input asp-for="OutKilometers" class="form-control" />
+                    <span asp-validation-for="OutKilometers" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="FuelLitre" class="control-label"></label> <i>(λίτρα)</i>
+                    <input asp-for="FuelLitre" class="form-control" />
+                    <span asp-validation-for="FuelLitre" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="FuelCost" class="control-label"></label>  <i>(€)</i>
+                    <input asp-for="FuelCost" class="form-control" />
+                    <span asp-validation-for="FuelCost" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Observations" class="control-label"></label>
+                    <input asp-for="Observations" class="form-control" />
+                    <span asp-validation-for="Observations" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="MaintenanceType" class="control-label"></label>
+                    <input asp-for="MaintenanceType" class="form-control" />
+                    <span asp-validation-for="MaintenanceType" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="MaintenanceCost" class="control-label"></label>  <i>(€)</i>
+                    <input asp-for="MaintenanceCost" class="form-control" />
+                    <span asp-validation-for="MaintenanceCost" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="DepartureDateTime" class="control-label"></label> <small> (*)</small>
+                    <input asp-for="DepartureDateTime" class="form-control datepicker" type="datetime" name="DepartureDateTime" id="departureDatePicker" />
+                    <span asp-validation-for="DepartureDateTime" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Ανανέωση" class="mb-1 btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="CompanyCarsList">Επιστροφή στη λίστα των κρατήσεων</a>
+</div>
+
+@section Scripts {
+    <script src="~/js/jquery-3.6.0.slim.min.js"></script>
+    <script src="~/js/popper.min.js"></script>
+    <script src="~/js/moment.js"></script>
+
+    <link rel="stylesheet" href="~/css/bootstrap-datetimepicker.min.css">
+    <script src="~/js/bootstrap-datetimepicker.min.js"></script>
+    @*<script src="~/js/signature_pad.min.js"></script>*@
+    <script>
+    $(function () {
+        $('#departureDatePicker').datetimepicker();
+    });
+    </script>
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+}

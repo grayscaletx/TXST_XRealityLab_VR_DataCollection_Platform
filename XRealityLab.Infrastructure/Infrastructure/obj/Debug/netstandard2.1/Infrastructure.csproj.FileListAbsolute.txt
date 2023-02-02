@@ -1,0 +1,9 @@
+C:\NIH\XRealityLab\XRealityLab.Infrastructure\Infrastructure\bin\Debug\netstandard2.1\Infrastructure.deps.json
+C:\NIH\XRealityLab\XRealityLab.Infrastructure\Infrastructure\bin\Debug\netstandard2.1\Infrastructure.dll
+C:\NIH\XRealityLab\XRealityLab.Infrastructure\Infrastructure\bin\Debug\netstandard2.1\Infrastructure.pdb
+C:\NIH\XRealityLab\XRealityLab.Infrastructure\Infrastructure\obj\Debug\netstandard2.1\Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\NIH\XRealityLab\XRealityLab.Infrastructure\Infrastructure\obj\Debug\netstandard2.1\Infrastructure.AssemblyInfoInputs.cache
+C:\NIH\XRealityLab\XRealityLab.Infrastructure\Infrastructure\obj\Debug\netstandard2.1\Infrastructure.AssemblyInfo.cs
+C:\NIH\XRealityLab\XRealityLab.Infrastructure\Infrastructure\obj\Debug\netstandard2.1\Infrastructure.csproj.CoreCompileInputs.cache
+C:\NIH\XRealityLab\XRealityLab.Infrastructure\Infrastructure\obj\Debug\netstandard2.1\Infrastructure.dll
+C:\NIH\XRealityLab\XRealityLab.Infrastructure\Infrastructure\obj\Debug\netstandard2.1\Infrastructure.pdb

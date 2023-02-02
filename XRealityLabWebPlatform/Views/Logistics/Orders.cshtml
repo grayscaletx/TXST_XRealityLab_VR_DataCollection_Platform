@@ -1,0 +1,161 @@
+﻿@model IEnumerable<ARI.Models.EDIOrderDTO>
+@using System.Security.Claims;
+@using ARI.Common;
+
+@{
+    ViewBag.Title = "Παραγγελίες (EDIs)";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!--Header-->
+<div class="content-heading">
+    <div>
+        Δελτία Παραγγελιών
+    </div>
+</div>
+
+<!--Alert dialog-->
+@if (ViewBag.actionMessage != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        @ViewBag.actionMessage
+    </div>
+}
+
+<!--List of orders-->
+<div class="card" style="max-width:1800px">
+    <div class="card-header">
+        <div class="card-title">Παραγγελίες \ Δελτία παραγγελιών</div>
+        <div class="text-sm">Στο παρακάτω πίνακα εμφανίζονται οι παραγγελίες που έχουν φορτωθεί από τα έγγραφα EDI.</div>
+        <div class="text-sm"><strong>Η παραγγελίες που δεν έχουν τιμή για Ship-to-Party ή Sold-To-Party δεν εμφανίζονται για picking.</strong></div>
+        <a asp-action="AddOrderManually" class="mb-1 btn btn-primary" style="float: right; margin: 0px 0px 0px 5px; display: inline">Προσθήκη παραγγελίας</a>
+        <a asp-action="AddEDIFile" class="mb-1 btn btn-primary" style="float: right;">Προσθήκη EDI αρχείου</a>
+    </div>
+    <div class="card-body" style="overflow-y: scroll">
+        <table class="table table-striped my-5 w-100" id="datatable1">
+            <thead>
+                <tr>
+                    <th data-priority="1">Α/Α</th>
+                    <th style="text-align: center" class="sort-numeric">Reference number</th>
+                    <th style="text-align: center" class="sort-numeric">Material</th>
+                    <th style="text-align: center" class="sort-numeric">Quantity</th>
+                    <th style="text-align: center" class="sort-numeric">No pallet box</th>
+                    <th style="text-align: center" class="sort-numeric">GTIN</th>
+                    <th style="text-align: center" class="sort-numeric">Ship-To-Party</th>
+                    <th style="text-align: center" class="sort-numeric">Sold-To-Party</th>
+                    <th style="text-align: center" class="sort-numeric">Document date</th>
+                    <th style="text-align: center" class="sort-numeric">Purchase order date</th>
+                    <th style="text-align: center" class="sort-numeric">Requested delivery date</th>
+                    <th style="text-align: center" class="sort-numeric"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                <tr class="gradeX">
+                    <td>
+                        ΠΑ @item.OrderId
+                    </td>
+                    <td style="text-align: center">@item.ReferenceNumber</td>
+                    <td style="text-align: center">@item.Material.MaterialDescription</td>
+                    <td style="text-align: center">@item.Quantity</td>
+                    <td style="text-align: center">@item.NoPalletBox</td>
+                    <td style="text-align: center">@item.Material.GTIN</td>
+                    <td style="text-align: center">@item.ShipToParty.Name1</td>
+                    <td style="text-align: center">@item.SoldToParty.Name1</td>
+                    <td style="text-align: center">@item.DocumentDate.ToString("dd/MM/yyyy")</td>
+                    <td style="text-align: center">@item.PurchaseOrderDate.ToString("dd/MM/yyyy")</td>
+                    <td style="text-align: center">@item.RequestedDeliveryDate.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        @if (item.SelectedStatus == "0")
+                        {<div class="badge badge-warning">Προστέθηκε</div>}
+                        else if (item.SelectedStatus == "1")
+                        {<div class="badge badge-success">Επιλ. για picking</div>}
+                        else if (item.SelectedStatus == "2")
+                        {<div class="badge badge-success">Έγινε picking</div>}
+                        else if (item.SelectedStatus == "3")
+                        {<div class="badge badge-dark">Ολοκληρώθηκε</div>}
+                        else if (item.SelectedStatus == "-1")
+                        {<div class="badge badge-danger">Άκυρο</div>}
+                    </td>
+                    <td class="ibox-tools">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-cog"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-user">
+                            <li style="margin:2px 0">
+                                @if (item.SelectedStatus == "0")
+                                {
+                                    <a class="btn btn-primary" asp-action="EditOrder" asp-route-passToken="@item.PassToken" style="margin: 0 10px 0 0">Επεξεργασία</a>
+                                }
+                            </li>
+                            <li style="margin:2px 0">
+                                @if (item.SelectedStatus != "2")
+                                {
+                                    <a class="open-AddDeleteDialog btn btn-primary" data-id="@item.PassToken" data-placement="top" style="margin: 0 10px 0 0" data-toggle="modal" data-target="#DeleteDialog">Διαγραφή</a>
+                                }
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section BodyArea {
+    <!--???-->
+    <div class="modal fade" id="DeleteDialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">Είστε σίγουρος για αυτή την ενέργεια</h4>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">Αφού διαγράψετε την παραγγελία δεν υπάρχει δυνατότητα ανάκτησης από το σύστημα.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Κλείσιμο</button>
+                    <a name="deleteId" id="deleteId" class="btn btn-primary">Διαγραφή παραγγελίας</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/vendor/datatables.net-bs4/css/dataTables.bootstrap4.css">
+    <link rel="stylesheet" href="~/vendor/datatables.net-keytable-bs/css/keyTable.bootstrap.css">
+    <link rel="stylesheet" href="~/vendor/datatables.net-responsive-bs/css/responsive.bootstrap.css">
+}
+
+@section Scripts {
+    <script src="~/vendor/datatables.net/js/jquery.dataTables.js"></script>
+    <script src="~/vendor/datatables.net-bs4/js/dataTables.bootstrap4.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/dataTables.buttons.js"></script>
+    <script src="~/vendor/datatables.net-buttons-bs/js/buttons.bootstrap.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.colVis.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.flash.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.html5.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.print.js"></script>
+    <script src="~/vendor/datatables.net-keytable/js/dataTables.keyTable.js"></script>
+    <script src="~/vendor/datatables.net-responsive/js/dataTables.responsive.js"></script>
+    <script src="~/vendor/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+    <script src="~/vendor/jszip/dist/jszip.js"></script>
+    <script src="~/vendor/pdfmake/build/pdfmake.js"></script>
+    <script src="~/vendor/pdfmake/build/vfs_fonts.js"></script>
+
+    <script>
+        $(document).on("click", ".open-AddDeleteDialog", function () {
+            var registerId = $(this).data('id');
+            var a = document.getElementById("deleteId");
+            a.href = "DeleteOrder/?passToken=" + registerId;
+        });
+    </script>
+}

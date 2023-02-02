@@ -1,0 +1,158 @@
+﻿@{
+    ViewBag.Title = "Κατάσταση παραγωγής";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-heading">
+    <div>
+        Κατάσταση Παραγωγής
+    </div>
+</div>
+
+
+<div class="card card-default" style="max-width:1100px">
+    <div class="card-body">
+        <h2 class="lead bb"><strong>Έντυπα Συσκευαστηρίου</strong></h2>
+        <div class="row">
+            <img width="800" height="140" src="/images/pallet_status_1.jpg" />
+        </div>
+        <br />
+        <p class="lead bb">Περιγραφή</p>
+        <div class="form-group row">
+            <div class="badge badge-success" style="margin:0px 10px;height:20px">Δημιουργήθηκε</div>
+            <div class="col-md-8">
+                <p style="text-align:justify;margin:0px 0px 0px 65px;width:800px">
+                    <i>Η κατάσταση <strong>Δημιουργήθηκε</strong> περιγράφει τη δημιουργία ενός νέου εντύπου της γραμμής συσκευαστηρίου. Ο υπεύθυνος συσκευαστηρίου στο παρελθόν συμπλήρωνε χειρόγραφη φόρμα για κάθε παλέτα (υπόδειγμα κάτω).</i>
+                    <br />
+                    <img width="150" height="230" src="~/images/old_entipo_paletas.png" />
+                    <br />
+                    <i>
+                        Πλέον ο υπεύθυνος συσκευαστηρίου επιλέγει <strong>Δημιουργία νέου εντύπου</strong> στην καρτέλα <strong>Έντυπα παλετών</strong> και στη συνέχεια προσθέτει τις πληροφορίες της παραγωγής. Με την <strong>αποθήκευση του εντύπου</strong> δημιουργείται μία νέα εγγραφή στο σύστημα και αναγνωριστικοί κωδικοί QRCode και BarCode ανά παλέτα.
+                        Επίσης δημιουργείται το αυτοκόλλητο ARI που τοποθετείται πλευρικά της παλέτας κατά την ολοκλήρωση της
+                    </i>
+                </p>
+            </div>
+        </div>
+        <p class="lead bb"></p>
+        <div class="form-group row">
+            <div class="badge badge-warning" style="margin:0px 10px;height:20px">Φόρτωση παλετών</div>
+            <div class="col-md-8">
+                <p style="text-align:justify;margin:0px 0px 0px 50px;width:800px">
+                    <i>Η κατάσταση <strong>Φόρτωση παλετών</strong> περιγράφει τη διαδικασία προσθήκης των κιβωτίων στη παλέτα. Ο υπεύθυνος συσκευαστηρίου στο παρελθόν συμπλήρωνε χειρόγραφη φόρμα την ώρα που ολοκληρωνόταν η κατασκευή κάθε παλέτας (υπόδειγμα κάτω).</i>
+                    <br />
+                    <img width="350" height="100" src="~/images/old_entipo_paletas_time.png" />
+                    <br />
+                    <i>
+                        Πλέον ο υπεύθυνος συσκευαστηρίου επιλέγει <strong>Επεξεργασία εντύπου</strong> <strong>επιλέγοντας την ώρα</strong> που δημιουργήθηκε η παλέτα. Ανάλογα με το είδος του προιόντος πρέπει να φορτωθεί άλλος αριθμός παλετοκιβωτίων
+                        σε κάθε παλέτα.
+                    </i>
+                </p>
+            </div>
+        </div>
+        <p class="lead bb"></p>
+        <div class="form-group row">
+            <div class="badge badge-dark" style="margin:0px 10px;height:20px">Ολοκληρώθηκε</div>
+            <div class="col-md-8">
+                <p style="text-align:justify;margin:0px 0px 0px 70px;width:800px">
+                    <i>
+                        Η κατάσταση <strong>Ολοκληρώθηκε</strong> περιγράφει τη διαδικασία της ολοκλήρωσης όλων των παλετών από το έντυπο.
+                    </i>
+                    <br />
+                    <img width="250" height="150" src="~/images/palets_draw.jpg" />
+                </p>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="badge badge-danger" style="margin:0px 10px;height:20px">Άκυρο</div>
+            <div class="col-md-8">
+                <p style="text-align:justify;margin:0px 0px 0px 115px;width:800px">
+                    <i>Η κατάσταση <strong>Άκυρο</strong> επιλέγεται όταν γίνει λάθος στην παραγωγή και πρέπει να ακυρωθεί ένα έντυπο συσκευαστηρίου.</i>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card card-default" style="max-width:1100px">
+    <div class="card-body">
+        <h2 class="lead bb"><strong>Κατάσταση Παλέτας</strong></h2>
+        <div class="row">
+            <img width="800" height="380" src="/images/pallet_status_2.jpg" />
+        </div>
+        <p class="lead bb">Περιγραφή</p>
+        <div class="form-group row">
+            <div class="badge badge-warning" style="margin:0px 10px;height:20px">Αναμονή για φόρτωση χαρτοκιβωτίων</div>
+            <div class="col-md-8">
+                <p style="text-align:justify;margin:0px 0px 0px 0px;width:700px">
+                    <i>Η κατάσταση <strong>Αναμονή για φόρτωση χαρτοκιβωτίων</strong> περιγράφει τη διαδικασία που κατασκευάζεται εικονικά η παλέτα. Ο υπεύθυνος συσκευαστηρίου όταν τοποθετήσει όλα τα χαρτοκιβώτια και σφραγίσει την παλέτα μπορεί να προχωρήσει στο επόμενο στάδιο.</i>
+                </p>
+            </div>
+        </div>
+        <p class="lead bb"></p>
+        <div class="form-group row">
+            <div class="badge badge-success" style="margin:0px 10px;height:20px">Δημιουργήθηκε</div>
+            <div class="col-md-8">
+                <p style="text-align:justify;margin:0px 0px 0px 115px;width:700px">
+                    <i>Η κατάσταση <strong>Δημιουργήθηκε</strong> περιγράφει το στάδιο που ο υπεύθυνος συσκευαστηρίου έχει ολοκληρωθεί η παλέτα. Η επικύρωση πραγματοποιείται
+                    με την προσθήκη της τωρινής ώρας</i>
+                </p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="badge badge-info" style="margin:0px 10px;height:20px">Προστέθηκε στην αποθήκη</div>
+            <div class="col-md-8">
+                <p style="text-align:justify;margin:0px 0px 0px 55px;width:700px">
+                    <i>
+                        Η κατάσταση <strong>Προστέθηκε στην αποθήκη</strong> περιγράφει την διαδικασία κατά την οποία προστίθεται μία νέα παλέτα στην αποθήκη. Ο υπεύθυνος του συσκευαστηρίου <strong>κολλάει το ARI αυτοκόλλητο</strong> πλευρικά της παλέτας και μεταφέρει τη παλέτα σε μία <strong>θέση στην αποθήκη, διαλέγοντας μία σειρά με διαθεσιμότητα</strong>.
+                    </i>
+                </p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="badge badge-inverse" style="margin:0px 10px;height:20px">Επιλέχθηκε για φόρτωση</div>
+            <div class="col-md-8">
+                <p style="text-align:justify;margin:0px 0px 0px 65px;width:700px">
+                    <i>
+                        Η κατάσταση <strong>Επιλέχθηκε για φόρτωση</strong> περιγράφει την διαδικασία κατά την οποία ο υπεύθυνος παραγωγής είτε ο supervisor logistics 
+                        επίλέγει ένα πακέτο από παλέτες για φόρτωση σε φορτηγό. Ο υπεύθυνος παραγωγής ή ο supervisor logistics 
+                        <strong>επιλέγει από το χάρτη της αποθήκης</strong> 
+                        ένα πακέτο από παλέτες τέτοιο αριθμό ώστε να δημιουργηθεί μία φόρτωση για ένα νέο φορτηγό. 
+                        Η συγκεκριμένη ενέργεια είναι ένα προσχέδιο που χρειάζεται επικαιροποίηση.
+                    </i>
+                </p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="badge badge-pink" style="margin:0px 10px;height:20px">Επιβεβαιώθηκε για φόρτωση</div>
+            <div class="col-md-8">
+                <p style="text-align:justify;margin:0px 0px 0px 40px;width:700px">
+                    <i>
+                        Η κατάσταση <strong>Επιβεβαιώθηκε για φόρτωση</strong> περιγράφει την διαδικασία κατά την οποία ο υπεύθυνος παραγωγής επικαιροποιεί τη εγγραφή της φόρτωσης.
+                        Ο υπεύθυνος παραγωγής επικαιροποιεί και διαμορφώνει τη φόρτωση με βάση τις ανάγκες της αποθήκης.
+                    </i>
+                </p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="badge badge-purple" style="margin:0px 10px;height:20px">Φορτώθηκε</div>
+            <div class="col-md-8">
+                <p style="text-align:justify;margin:0px 0px 0px 130px;width:600px">
+                    <i>
+                        Η κατάσταση <strong>Φορτώθηκε</strong> περιγράφει την διαδικασία κατά την οποία οι παλέτες φορτώθηκαν στο φορτηγό.
+                        Ο υπεύθυνος παραγωγής επικαιροποιεί τις δύο παλετοκάρτες ARI και LIDL. Για την παλετοκάρτα ARI σκανάρει το μοναδικό barcode που περιέχει και για την
+                        παλετοκάρτα LIDL χτυπάει το barcode <strong>SSCC</strong>.
+                    </i>
+                </p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="badge badge-danger" style="margin:0px 10px;height:20px">Άκυρο</div>
+            <div class="col-md-8">
+                <p style="text-align:justify;margin:0px 0px 0px 155px;width:600px">
+                    <i>Η κατάσταση <strong>Άκυρο</strong> επιλέγεται όταν γίνει λάθος στην παραγωγή και πρέπει να σβηστεί μία παλέτα.</i>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

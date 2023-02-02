@@ -1,0 +1,533 @@
+﻿@model ARI.Models.EDIOrderDTO
+
+@{
+    ViewData["Title"] = "Επεξεργασία δεδομένων παραγγελίας";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="content-heading">
+    <div>
+        Επεξεργασία δεδομένων παραγγελίας
+        <small>Στην παρακάτω φόρμα μπορείτε να επεργαστείτε τα στοιχεία της παραγγελίας</small>
+    </div>
+</div>
+
+@if (Model.ActionMessage != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <strong>Ανανέωση! </strong>@Model.ActionMessage
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card card-default" style="width:1400px">
+            <div class="card-header"></div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <p class="lead bb">Παραγγελία @Model.OrderId - @Model.ReferenceNumber</p>
+                        <p id="error-message" style="text-align:right;color:red"></p>
+                        <div class="form-group row">
+                            <div class="col-md-3">Κατάσταση:</div>
+                            <div class="col-md-2">
+                                @if (Model.SelectedStatus == "0")
+                                {<div class="badge badge-warning">Προστέθηκε</div>}
+                                else if (Model.SelectedStatus == "1")
+                                {<div class="badge badge-success">Επιλ. για picking</div>}
+                                else if (Model.SelectedStatus == "2")
+                                {<div class="badge badge-success">Έγινε picking</div>}
+                                else if (Model.SelectedStatus == "3")
+                                {<div class="badge badge-dark">Ολοκληρώθηκε</div>}
+                                else if (Model.SelectedStatus == "-1")
+                                {<div class="badge badge-danger">Άκυρο</div>}
+                            </div>
+                            <div class="col-md-2" id="status-edit">
+                                <button class="mb-1 btn btn-primary" onclick='EditClick(this)' style="display:none">Επεξεργασία</button>
+                            </div>
+                            <div class="col-md-2" id="status-edit-field" style="display:none">
+                                @Html.DropDownListFor(x => Model.SelectedStatus, new SelectList(Model.StatusListItems, "Value", "Text"), htmlAttributes: new { @class = "form-control", id = "Status" })
+                                @Html.ValidationMessageFor(x => x.SelectedStatus, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="col-md-2" id="status-save" style="display:none">
+                                <button class="mb-1 btn btn-primary" onclick='updateEDIOrder(this)'>Ανανέωση</button>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">Reference Number:</div>
+                            <div class="col-md-2">
+                                <strong>@Model.ReferenceNumber</strong>
+                            </div>
+                            <div class="col-md-2" id="refnum-edit">
+                                <button class="mb-1 btn btn-primary" onclick='EditClick(this)'>Επεξεργασία</button>
+                            </div>
+                            <div class="col-md-2" id="refnum-edit-field" style="display:none">
+                                <input class="form-control" id="ref" />
+                            </div>
+                            <div class="col-md-2" id="refnum-save" style="display:none">
+                                <button class="mb-1 btn btn-primary" onclick='updateEDIOrder(this)'>Ανανέωση</button>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">Material:</div>
+                            <div class="col-md-2">
+                                <strong>@Model.Material.MaterialDescription</strong>
+                            </div>
+                            <div class="col-md-2" id="material-edit">
+                                <button class="mb-1 btn btn-primary" onclick='EditClick(this)'>Επεξεργασία</button>
+                            </div>
+                            <div class="col-md-2" id="material-edit-field" style="display:none">
+                                @Html.DropDownListFor(x => Model.SelectedMaterial, new SelectList(Model.MaterialListItems, "Value", "Text"), htmlAttributes: new { @class = "form-control", id = "Material" })
+                                @Html.ValidationMessageFor(x => x.SelectedMaterial, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="col-md-2" id="material-save" style="display:none">
+                                <button class="mb-1 btn btn-primary" onclick='updateEDIOrder(this)'>Ανανέωση</button>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">Ποσότητα:</div>
+                            <div class="col-md-2">
+                                <strong>@Model.Quantity</strong>
+                            </div>
+                            <div class="col-md-2" id="quant-edit">
+                                <button class="mb-1 btn btn-primary" onclick='EditClick(this)'>Επεξεργασία</button>
+                            </div>
+                            <div class="col-md-2" id="quant-edit-field" style="display:none">
+                                <input class="form-control" id="quant" />
+                            </div>
+                            <div class="col-md-2" id="quant-save" style="display:none">
+                                <button class="mb-1 btn btn-primary" onclick='updateEDIOrder(this)'>Ανανέωση</button>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">Ship-To-Party:</div>
+                            <div class="col-md-2">
+                                @if (Model.ShipToParty != null)
+                                {
+                                    <strong>@Model.ShipToParty.Name1</strong>
+                                }
+                            </div>
+                            <div class="col-md-2" id="shiptoparty-edit">
+                                <button class="mb-1 btn btn-primary" onclick='EditClick(this)'>Επεξεργασία</button>
+                            </div>
+                            <div class="col-md-2" id="shiptoparty-edit-field" style="display:none">
+                                @Html.DropDownListFor(x => Model.SelectedShipToParty, new SelectList(Model.ShipToPartyListItems, "Value", "Text"), htmlAttributes: new { @class = "form-control", id = "ShipToParty" })
+                                @Html.ValidationMessageFor(x => x.SelectedShipToParty, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="col-md-2" id="shiptoparty-save" style="display:none">
+                                <button class="mb-1 btn btn-primary" onclick='updateEDIOrder(this)'>Ανανέωση</button>
+                            </div>
+                            <div id="ship-to-party-term" hidden>
+                                @if (Model.ShipToParty != null)
+                                {
+                                    @Model.ShipToParty.SearchTermCode
+                                }
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">Sold-To-Party:</div>
+                            <div class="col-md-2">
+                                @if (Model.SoldToParty != null)
+                                {
+                                    <strong>@Model.SoldToParty.Name1</strong>
+                                }
+                            </div>
+                            <div class="col-md-2" id="soldtoparty-edit">
+                                <button class="mb-1 btn btn-primary" onclick='EditClick(this)'>Επεξεργασία</button>
+                            </div>
+                            <div class="col-md-2" id="soldtoparty-edit-field" style="display:none">
+                                @Html.DropDownListFor(x => Model.SelectedSoldToParty, new SelectList(Model.SoldToPartyListItems, "Value", "Text"), htmlAttributes: new { @class = "form-control", id = "SoldToParty" })
+                                @Html.ValidationMessageFor(x => x.SelectedSoldToParty, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="col-md-2" id="soldtoparty-save" style="display:none">
+                                <button class="mb-1 btn btn-primary" onclick='updateEDIOrder(this)'>Ανανέωση</button>
+                            </div>
+                            <div id="sold-to-party-term" hidden>
+                                @if (Model.SoldToParty != null)
+                                {
+                                    @Model.SoldToParty.SearchTermCode
+                                }
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">Document date:</div>
+                            <div class="col-md-2">
+                                <strong>@Model.DocumentDate.ToString("dd/MM/yyyy")</strong>
+                            </div>
+                            <div class="col-md-2" id="documentdate-edit">
+                                <button class="mb-1 btn btn-primary" onclick='EditClick(this)'>Επεξεργασία</button>
+                            </div>
+                            <div class="col-md-2" id="documentdate-edit-field" style="display:none">
+                                <input class="form-control datepicker" type="date" name="PurchaseOrderDate" id="documentdate-value" />
+                            </div>
+                            <div class="col-md-2" id="documentdate-save" style="display:none">
+                                <button class="mb-1 btn btn-primary" onclick='updateEDIOrder(this)'>Ανανέωση</button>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">Purchase order date:</div>
+                            <div class="col-md-2">
+                                <strong>@Model.PurchaseOrderDate.ToString("dd/MM/yyyy")</strong>
+                            </div>
+                            <div class="col-md-2" id="purchdate-edit">
+                                <button class="mb-1 btn btn-primary" onclick='EditClick(this)'>Επεξεργασία</button>
+                            </div>
+                            <div class="col-md-2" id="purchdate-edit-field" style="display:none">
+                                <input class="form-control datepicker" type="date" name="PurchaseOrderDate" id="purchdate-value" />
+                            </div>
+                            <div class="col-md-2" id="purchdate-save" style="display:none">
+                                <button class="mb-1 btn btn-primary" onclick='updateEDIOrder(this)'>Ανανέωση</button>
+                            </div>
+                            <div id="po-date" hidden>@Model.PurchaseOrderDate</div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">Requested delivery date:</div>
+                            <div class="col-md-2">
+                                <strong>@Model.RequestedDeliveryDate.ToString("dd/MM/yyyy")</strong>
+                            </div>
+                            <div class="col-md-2" id="requestdate-edit">
+                                <button class="mb-1 btn btn-primary" onclick='EditClick(this)'>Επεξεργασία</button>
+                            </div>
+                            <div class="col-md-2" id="requestdate-edit-field" style="display:none">
+                                <input class="form-control datepicker" type="date" name="RequestedDeliveryDate" id="requestdate-value" />
+                            </div>
+                            <div class="col-md-2" id="requestdate-save" style="display:none">
+                                <button class="mb-1 btn btn-primary" onclick='updateEDIOrder(this)'>Ανανέωση</button>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">Ημερ. εισαγωγής:</div>
+                            <div class="col-md-2">
+                                <strong>@Model.InsertionDateTime.ToString("dd/MM/yyyy hh:mm")</strong>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">Πηγή εισαγωγής:</div>
+                            <div class="col-md-2">
+                                <strong>@Model.FileName</strong>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">Ημερ. τελευταίας τροπ.:</div>
+                            <div class="col-md-2">
+                                <strong>@Model.LastModificationDateTime.Value.ToString("dd/MM/yyyy hh:mm")</strong>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input id="pass-token" value="@Model.PassToken" type="hidden" />
+
+@section Scripts {
+    <script>
+
+        function updateEDIOrder(objButton) {
+
+            if (!Validation(objButton))
+                return;
+
+            var selectedValue = '';
+            if (objButton.parentElement.id == "refnum-save" || objButton.parentElement.id == "status-save" || objButton.parentElement.id == "quant-save"
+                || objButton.parentElement.id == "shiptoparty-save" || objButton.parentElement.id == "material-save"
+                || objButton.parentElement.id == "soldtoparty-save" || objButton.parentElement.id == "documentdate-save"
+                || objButton.parentElement.id == "purchdate-save" || objButton.parentElement.id == "requestdate-save") {
+                selectedValue = objButton.parentElement.parentElement.children[3].children[0].value;
+            }
+            else {
+            }
+
+            var orderData = { category: objButton.parentElement.id, passToken: document.getElementById("pass-token").value, selectedItem: selectedValue };
+            $.ajax({
+                type: "post",
+                url: "/Logistics/UpdateEDIOrderValue",
+                dataType: "json",
+                traditional: true,
+                data: orderData,
+                success: function (result) {
+                    window.location = '/Logistics/EditOrder?passToken=' + document.getElementById("pass-token").value;
+                },
+                error: function () {
+                }
+            });
+        }
+
+
+    _model = '';
+
+    function Validation(objButton) {
+
+        if (objButton.parentElement.id == "refnum-save") {
+            var letterNumber = /^[0-9a-zA-Z]+$/;
+            if (!objButton.parentElement.parentElement.children[3].children[0].value.match(letterNumber) || objButton.parentElement.parentElement.children[3].children[0].value.length < 3 ||
+                objButton.parentElement.parentElement.children[3].children[0].value.length > 20) {
+                document.getElementById("error-message").textContent = "Το μέγεθος των χαρακτήρων ή οι χαρακτήρες που χρησιμοποίησες δεν είναι εφικτοί";
+                return false;
+            }
+        }
+        if (objButton.parentElement.id == "quant-save") {
+            var number = /^[0-9]+$/;
+            if (!objButton.parentElement.parentElement.children[3].children[0].value.match(number)) {
+                document.getElementById("error-message").textContent = "Συμπληρώστε το πεδίο ποσότητα";
+                return false;
+            }
+            if (objButton.parentElement.parentElement.children[3].children[0].value.length > 4) {
+                document.getElementById("error-message").textContent = "Προσθέστε λιγότερους χαρακτήρες";
+                return false;
+            }
+        }
+        else if (objButton.parentElement.id == "status-save") {
+            if (objButton.parentElement.parentElement.children[3].children[0].value < 0 || objButton.parentElement.parentElement.children[3].children[0].value > 3) {
+                document.getElementById("error-message").textContent = "Η επιλογή που δώσατε δεν είναι εφικτή";
+                return false;
+            }
+        }
+        else if (objButton.parentElement.id == "documentdate-save" || objButton.parentElement.id == "purchdate-save"
+            || objButton.parentElement.id == "requestdate-save") {
+            if (objButton.parentElement.parentElement.children[3].children[0].value == "") {
+                document.getElementById("error-message").textContent = "Η ημερομηνία δεν είναι σωστή";
+                return false;
+            }
+        }
+        else if (objButton.parentElement.id == "soldtoparty-save" || objButton.parentElement.id == "shiptoparty-save") {
+            if (objButton.parentElement.parentElement.children[3].children[0].value == "-") {
+                document.getElementById("error-message").textContent = "Η επιλογή που δώσατε δεν είναι σωστή";
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    function UpdateMaterial(objButton) {
+            if (!Validation(objButton))
+                return;
+
+        var orderData = {
+            passToken: document.getElementById("pass-token").value, selectedItem: objButton.parentElement.parentElement.children[0].value,
+            materialId: objButton.parentElement.parentElement.children[6].children[0].value, quantity: objButton.parentElement.parentElement.children[7].children[0].value  };
+        $.ajax({
+            type: "post",
+            url: "/Logistics/UpdatedOrderMaterialValue",
+            dataType: "json",
+            traditional: true,
+            data: orderData,
+            success: function (result) {
+                window.location = '/Logistics/EditOrder?passToken=' + document.getElementById("pass-token").value;
+            },
+            error: function () {
+                //    alert("there was error uploading files!");
+            }
+        });
+    }
+
+    function AddMaterial(objButton) {
+        if (!Validation(objButton))
+            return;
+
+        var orderData = {
+            passToken: document.getElementById("pass-token").value, materialId: objButton.parentElement.parentElement.children[2].children[0].value,
+            quantity: objButton.parentElement.parentElement.children[3].children[0].value
+        };
+        $.ajax({
+            type: "post",
+            url: "/Logistics/AddOrderMaterialValue",
+            dataType: "json",
+            traditional: true,
+            data: orderData,
+            success: function (result) {
+                window.location = '/Logistics/EditOrder?passToken=' + document.getElementById("pass-token").value;
+            },
+            error: function () {
+                //    alert("there was error uploading files!");
+            }
+        });
+    }
+
+    function RemoveMaterial(objButton) {
+        var orderData = {
+            passToken: document.getElementById("pass-token").value, selectedItem: objButton.parentElement.parentElement.children[0].value
+        };
+        $.ajax({
+            type: "post",
+            url: "/Logistics/RemoveOrderMaterialValue",
+            dataType: "json",
+            traditional: true,
+            data: orderData,
+            success: function (result) {
+                window.location = '/Logistics/EditOrder?passToken=' + document.getElementById("pass-token").value;
+            },
+            error: function () {
+                //    alert("there was error uploading files!");
+            }
+        });
+    }
+
+    function CloneMaterial(objButton) {
+        var itm = document.getElementById("material-add-template");
+        var cln = itm.cloneNode(true);
+        cln.style.display = "block";
+        document.getElementById("material-container").appendChild(cln);
+    }
+
+    function DeleteEmptyMaterial(objButton) {
+        objButton.parentElement.parentElement.parentElement.remove();
+    }
+
+
+
+    function EditClick(objButton) {
+        //change button value
+        objButton.textContent = (objButton.textContent == "Επεξεργασία") ? "Απόκρυψη" : "Επεξεργασία";
+
+        //Load Date
+        var date = new Date();
+        var day = date.getDate();
+        var month = date.getMonth() + 1;
+        var year = date.getFullYear();
+        if (month < 10) month = "0" + month;
+        if (day < 10) day = "0" + day;
+        var today = year + "-" + month + "-" + day;
+
+        //Enable\Disable edit fields
+        if (objButton.parentElement.id == "status-edit") {
+            if (document.getElementById("status-edit-field").style.display == "none") {
+                document.getElementById("status-edit-field").style.display = "block";
+                document.getElementById("status-save").style.display = "block";
+            }
+            else {
+                document.getElementById("status-edit-field").style.display = "none";
+                document.getElementById("status-save").style.display = "none";
+            }
+        }
+        else if (objButton.parentElement.id == "refnum-edit") {
+            if (document.getElementById("refnum-edit-field").style.display == "none") {
+                var pODate = new Date(@Model.PurchaseOrderDate.Year, @Model.PurchaseOrderDate.Month , @Model.PurchaseOrderDate.Day );
+                var purchaseDateTime = pODate.getFullYear().toString().substring(2) + ((pODate.getMonth() > 8) ? (pODate.getMonth() + 1) : ('0' + (pODate.getMonth() + 1))) + ((pODate.getDate() > 9) ? pODate.getDate() : ('0' + pODate.getDate()))
+                document.getElementById("ref").value = document.getElementById('sold-to-party-term').innerHTML.trim() + purchaseDateTime + document.getElementById('ship-to-party-term').innerHTML.trim();
+                document.getElementById("refnum-edit-field").style.display = "block";
+                document.getElementById("refnum-save").style.display = "block";
+            }
+            else {
+                document.getElementById("refnum-edit-field").style.display = "none";
+                document.getElementById("refnum-save").style.display = "none";
+            }
+        }
+        else if (objButton.parentElement.id == "quant-edit") {
+            if (document.getElementById("quant-edit-field").style.display == "none") {
+                document.getElementById("quant-edit-field").style.display = "block";
+                document.getElementById("quant-save").style.display = "block";
+            }
+            else {
+                document.getElementById("quant-edit-field").style.display = "none";
+                document.getElementById("quant-save").style.display = "none";
+            }
+        }
+        else if (objButton.parentElement.id == "material-edit") {
+            if (document.getElementById("material-edit-field").style.display == "none") {
+                document.getElementById("material-edit-field").style.display = "block";
+                document.getElementById("material-save").style.display = "block";
+            }
+            else {
+                document.getElementById("material-edit-field").style.display = "none";
+                document.getElementById("material-save").style.display = "none";
+            }
+        }
+        else if (objButton.parentElement.id == "shiptoparty-edit") {
+            if (document.getElementById("shiptoparty-edit-field").style.display == "none") {
+                document.getElementById("shiptoparty-edit-field").style.display = "block";
+                document.getElementById("shiptoparty-save").style.display = "block";
+            }
+            else {
+                document.getElementById("shiptoparty-edit-field").style.display = "none";
+                document.getElementById("shiptoparty-save").style.display = "none";
+            }
+        }
+        else if (objButton.parentElement.id == "soldtoparty-edit") {
+            if (document.getElementById("soldtoparty-edit-field").style.display == "none") {
+                document.getElementById("soldtoparty-edit-field").style.display = "block";
+                document.getElementById("soldtoparty-save").style.display = "block";
+            }
+            else {
+                document.getElementById("soldtoparty-edit-field").style.display = "none";
+                document.getElementById("soldtoparty-save").style.display = "none";
+            }
+        }
+        else if (objButton.parentElement.id == "documentdate-edit") {
+            if (document.getElementById("documentdate-edit-field").style.display == "none") {
+                document.getElementById("documentdate-edit-field").style.display = "block";
+                document.getElementById("documentdate-save").style.display = "block";
+                document.getElementById("documentdate-value").value = today;
+            }
+            else {
+                document.getElementById("documentdate-edit-field").style.display = "none";
+                document.getElementById("documentdate-save").style.display = "none";
+            }
+        }
+        else if (objButton.parentElement.id == "purchdate-edit") {
+            if (document.getElementById("purchdate-edit-field").style.display == "none") {
+                document.getElementById("purchdate-edit-field").style.display = "block";
+                document.getElementById("purchdate-save").style.display = "block";
+                document.getElementById("purchdate-value").value = today;
+            }
+            else {
+                document.getElementById("purchdate-edit-field").style.display = "none";
+                document.getElementById("purchdate-save").style.display = "none";
+            }
+        }
+        else if (objButton.parentElement.id == "requestdate-edit") {
+            if (document.getElementById("requestdate-edit-field").style.display == "none") {
+                document.getElementById("requestdate-edit-field").style.display = "block";
+                document.getElementById("requestdate-save").style.display = "block";
+                document.getElementById("requestdate-value").value = today;
+            }
+            else {
+                document.getElementById("requestdate-edit-field").style.display = "none";
+                document.getElementById("requestdate-save").style.display = "none";
+            }
+        }
+        else if (objButton.parentElement.id == "material-edit") {
+            if (objButton.parentElement.parentElement.children[6].style.display == "none") {
+                objButton.parentElement.parentElement.children[6].style.display = "block";
+                objButton.parentElement.parentElement.children[7].style.display = "block";
+                objButton.parentElement.parentElement.children[8].style.display = "block";
+            }
+            else {
+                objButton.parentElement.parentElement.children[6].style.display = "none";
+                objButton.parentElement.parentElement.children[7].style.display = "none";
+                objButton.parentElement.parentElement.children[8].style.display = "none";
+            }
+        }
+    }
+
+    function formatDate(date) {
+        var d = new Date(date),
+            month = '' + (d.getMonth() + 1),
+            day = '' + d.getDate(),
+            year = d.getFullYear();
+
+        if (month.length < 2)
+            month = '0' + month;
+        if (day.length < 2)
+            day = '0' + day;
+
+        return [day, month, year].join('-');
+    }
+    function parseDate(input) {
+        var parts = input.match(/(\d+)/g);
+        // new Date(year, month [, date [, hours[, minutes[, seconds[, ms]]]]])
+        return new Date(parts[0], parts[1] - 1, parts[2]); // months are 0-based
+    }
+    function isNumeric(str) {
+        if (typeof str != "string") return false // we only process strings!
+        return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+            !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+    }
+
+    </script>
+}

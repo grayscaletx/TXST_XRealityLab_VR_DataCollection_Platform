@@ -1,0 +1,100 @@
+﻿@{
+    ViewBag.Title = "Έντυπα παλετών";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-heading">
+    <div>
+        Έντυπα συσκευαστηρίου
+    </div>
+</div>
+
+@if (ViewBag.actionMessage != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        @ViewBag.actionMessage
+    </div>
+}
+
+<div class="card" style="max-width:1300px">
+    <div class="card-header">
+        <div class="card-title">Γραμμή συσκευαστηρίου \ Εξαγωγή δεδομένων</div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <form>
+                    @*<div asp-validation-summary="ModelOnly" class="text-danger"></div>*@
+                    <div class="form-group">
+                        <label class="control-label">Αναζήτηση από</label>
+                        <input class="form-control" type="date" name="FormDate" id="minPalletDatePicker" value="@DateTime.Now" />
+                        <span class="text-danger"></span>
+                        <br />
+                        <label class="control-label">εώς</label>
+                        <input class="form-control" type="date" name="FormDate" id="maxPalletDatePicker" value="@DateTime.Now" />
+                        <span class="text-danger"></span>
+                    </div>
+                    <a id="download-btn" asp-action="DownloaPackagingData" class="mb-1 btn btn-primary">Εξαγωγή</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div>
+    <a asp-action="PackagingLineForms">Επιστροφή στη λίστα των εντύπων</a>
+</div>
+
+
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="~/js/popper.min.js"></script>
+    <script src="~/js/moment.js"></script>
+    <link rel="stylesheet" href="~/css/bootstrap-datetimepicker.min.css">
+    <script src="~/js/bootstrap-datetimepicker.min.js"></script>
+    <script>
+        tempExpirationDays = 0;
+        $(function () {
+            $('#minPalletDatePicker').datepicker({
+                format: 'dd/mm/yyyy'
+            });
+            //$('#palletDatePicker').datepicker('setDate', '31/12/2020');
+        });
+        $("#minPalletDatePicker").change(function () {
+            var formDate = new Date(document.getElementById('minPalletDatePicker').value);
+            if (isNaN(formDate)) {
+                //document.getElementById('expiration-pallet-date').innerText = "Μη εφικτή ημερομηνία";
+                return;
+            }
+        });
+        $(function () {
+            $("#download-btn").click(function (e) {
+                // Stop the normal navigation
+                e.preventDefault();
+                // a comment
+                //Build the new URL
+                var url = $(this).attr("href");
+                var minDate = document.getElementById('minPalletDatePicker').value
+                var maxDate = document.getElementById('maxPalletDatePicker').value
+                url = url + "\?minDateToString=" + minDate + "&maxDateToString=" + maxDate;
+
+                //Navigate to the new URL
+                window.location.href = url;
+
+            });
+        });
+                                                                        //function setRouteParameter() {
+                                                                        //    var _date = document.getElementById('palletDatePicker').value;
+                                                                        //    var newhref = $("#DownloadPalletData").attr('href') + '/' + _date;
+                                                                        //    $("#DownloadPalletData").attr("href", newhref);
+                                                                        //}
+    </script>
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+}

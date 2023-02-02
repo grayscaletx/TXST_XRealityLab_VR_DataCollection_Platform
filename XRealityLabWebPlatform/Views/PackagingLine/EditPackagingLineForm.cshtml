@@ -1,0 +1,1026 @@
+﻿@model ARI.Models.PackagingLineFormDTO
+@{
+    ViewBag.Title = "Έντυπα παλετών";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string badgeClass = "badge-" + (Model.StatusId == -1 ? "danger" : Model.StatusId == 0 ? "success" :
+        Model.StatusId == 1 ? "warning" : Model.StatusId == 2 ? "dark" : "");
+    string badgeHourClass, badgeTitle, palletIcon, warehouseStyleDisplay, submitStyleDisplay;
+    badgeHourClass = badgeTitle = palletIcon = warehouseStyleDisplay = submitStyleDisplay = string.Empty;
+    string box_no, box_no_10, box_no_20, box_no_30, box_no_40, box_no_50, box_no_60, box_no_70, box_no_80, box_no_90;
+    box_no = box_no_10 = box_no_20 = box_no_30 = box_no_40 = box_no_50 = box_no_60 = box_no_70 = box_no_80 = box_no_90 = string.Empty;
+}
+
+<!--Header-->
+<div class="content-heading">
+    <div>
+        ΚΕΣ @Model.PackagingLineId
+    </div>
+</div>
+
+<!--Alert dialog-->
+<div id="success-dialog" style="display:none" class="alert alert-success alert-dismissible fade show" role="alert">
+    <button class="close" type="button" onclick="CloseSuccessDialog()" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <strong>Ανανεώση</strong> Η εγγραφή ανανεώθηκε με επιτυχία
+</div>
+<br />
+<!--Packaging line info-->
+<div class="card card-default" style="max-width:1300px">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-6">
+                <p class="lead bb">Γραμμή συσκευαστηρίου \ ΚΕΣ @Model.PackagingLineId <i style="font-size:11px"> (Ημερομηνία και ώρα δημιουργίας:@Model.RegistrationDateTime.ToString("dd/MM/yyyy HH:mm"))</i></p>
+                <form class="form-horizontal">
+                    <div class="form-group row">
+                        <div class="col-md-4">Κατάσταση παραγωγής:</div>
+                        <div class="badge @badgeClass" style="margin:0px 10px">@Model.SelectedStatus</div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">Ημερομηνία εντύπου:</div>
+                        <div class="col-md-8">
+                            <strong>@Model.FormDate.ToString("dd/MM/yyyy")</strong>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">Κωδικοποίηση παλέτας:</div>
+                        <div class="col-md-8">
+                            <strong>@Model.MaterialDescription</strong>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">LOT παραγωγής:</div>
+                        <div class="col-md-2">
+                            <strong>@Model.MaterialLOT</strong>
+                        </div>
+                        <div class="col-md-2" id="lot-edit" style="display:none">
+                            <a id="lot-edit-in" class="mb-1 btn btn-primary" onclick='EditClick(this)'>Επεξ. LOT</a>
+                        </div>
+                        <div class="col-md-2" id="lot-edit-field" style="display:none">
+                            <input maxlength="4" size="4" class="form-control" id="lot" />
+                        </div>
+                        <div class="col-md-2" id="lot-save" style="display:none">
+                            <a class="mb-1 btn btn-primary" onclick='ChangeAllPalletLot(this)'>Αποθ.</a>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">Αριθμός χαρτοκιβωτίων ανά παλέτα:</div>
+                        <div class="col-md-8">
+                            <strong>@Model.Material.PalletFactor</strong>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">Αριθμός δημιουργημένων παλετών:</div>
+                        <div class="col-md-8">
+                            <strong id="no-created-box">@Model.NoCompletedPallets</strong>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">Συνολικός αριθμός παλετών εντύπου γραμμής συσκευαστηρίου:</div>
+                        <div class="col-md-8">
+                            <strong>@Model.NoPalletToCreated</strong>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-lg-6">
+                <div class="text-sm" style="float: right">
+                    <div class="ibox">
+                        <div class="ibox-tools">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-cog"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-user">
+                                <li style="margin:2px 0">
+                                    <a class="btn btn-danger" asp-action="ChangeFormAllVirtualStatus" asp-route-passToken="@Model.PassToken" asp-route-isVirtual="1">Μετατροπή όλων των παλετών σε εικονικές</a>
+                                </li>
+                                <li style="margin:2px 0">
+                                    <a class="btn btn-primary" asp-action="ChangeFormAllVirtualStatus" asp-route-passToken="@Model.PassToken" asp-route-isVirtual="0">Μετατροπή όλων των παλετών σε πραγματικές</a>
+                                </li>
+                                <li style="margin:2px 0">
+                                    @if (Model.StatusId == 1)
+                                    {
+                                        <a class="btn btn-primary" asp-action="ChangeFormAllStatus" asp-route-formStatus="0" asp-route-passToken="@Model.PassToken" asp-route-isEditView="1">Αναίρεση επικαιροποίησης</a>
+                                    }
+                                    else
+                                    {
+                                        <a class="btn btn-primary" asp-action="ChangeFormAllStatus" asp-route-formStatus="1" asp-route-passToken="@Model.PassToken" asp-route-isEditView="1">Επικαιροποιήση εντύπου παραγωγής</a>
+                                    }
+                                </li>
+                                <li style="margin:2px 0">
+                                    @if (Model.StatusId != -1)
+                                    {
+                                        <a class="btn btn-primary" asp-action="ChangeFormAllStatus" asp-route-formStatus="-1" asp-route-passToken="@Model.PassToken" asp-route-isEditView="1">Ακύρωση εντύπου παραγωγής</a>
+                                    }
+                                </li>
+                                <li style="margin:2px 0">
+                                    @if (Model.StatusId != -1)
+                                    {
+                                    <a id="lot-edit-cog" class="mb-1 btn btn-primary" onclick='EditClick(this)'>Επεξ. LOT</a>
+                                    }
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <p class="lead bb" style="margin:31px 0px 10px 0px"></p>
+                <p>
+                </p>
+                <p class="lead bb" style="margin:31px 0px 10px 0px"></p>
+                <a href="@Model.PalletCardAriLink" target="_blank" class="btn btn-primary" style="display:none; float: right;max-width:250px">Εκτύπωση των ARI παλετοκαρτών της συγκεκριμένης παραγωγής</a>
+                <form class="form-horizontal" style="margin:10px 0px 0px 0px">
+                    <div class="form-group row">
+                        <div class="col-md-4">Κωδικός SAP:</div>
+                        <div class="col-md-8">
+                            <strong>@Model.Material.MaterialSAPID</strong>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">Χώρα:</div>
+                        <div class="col-md-8">
+                            <strong>@Model.CountryCode</strong>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">Ημερομηνία λήξης των παλετών της παραγωγής:</div>
+                        <div class="col-md-8">
+                            <strong>@Model.Material.ExpirationDate.ToString("dd/MM/yyyy")</strong>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">Σημειώσεις:</div>
+                        <div class="col-md-8">
+                            <strong>@Model.Notes</strong>
+                        </div>
+                    </div>
+                    <div style="float: right;text-align:right;margin:20px 0px 0px 0px">
+                        @if (Model.StatusId < 2)
+                        {
+                            <br />
+                            <br />
+                            <br />
+                            <p>
+                                Δημιουργήθηκαν <strong id="no-created-box-1">@Model.NoCompletedPallets παλέτες</strong>. <br />
+                                Υπολείπονται <strong id="no-remaining-box">@(Model.NoPalletToCreated - Model.NoCompletedPallets) παλέτες</strong><br />
+                            </p>
+                        }
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<!--Tracking hours header-->
+<div class="card card-default" style="max-width:1300px;margin:0px 10px -10px 0px">
+    <div class="card-body">
+        <div>
+            <p class="lead">Καταγραφή ωρών παλετών</p>
+            <div style="float: right;margin:-30px 0px 0px 0px">
+                <p>
+                    <canvas style="width: 10px; height: 10px; background: orange; margin: 0px 0px 0px 0px"></canvas>
+                    <i>Εικονική παλέτα</i>
+                    <canvas style="width: 10px; height: 10px; background: green; margin: 0px 0px 0px 10px"></canvas>
+                    <i>Διαθέσιμες</i>
+                    <canvas style="width: 10px; height: 10px; background: yellow; margin: 0px 0px 0px 10px "></canvas>
+                    <i>Δεσμευμένες</i>
+                    <canvas style="width: 10px; height: 10px; background: black; margin: 0px 0px 0px 10px "></canvas>
+                    <i>Δεσμευμένες για φόρτωση</i>
+                    <canvas style="width: 10px; height: 10px; background: purple; margin: 0px 0px 0px 10px "></canvas>
+                    <i>Επικαιροποιημένες για φόρτωση</i>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+
+<!--Submit hour table-->
+@for (int i = 0; i < 10; i++)
+{
+    @if (Model.palletDTOs.Any(k => k.PackagingLinePalletNo == i))
+        box_no = (Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i).FirstOrDefault().CreationDateTime != null) ?
+   Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i).FirstOrDefault().CreationDateTime : "0.00";
+
+    @if (Model.palletDTOs.Any(k => k.PackagingLinePalletNo == i + 10))
+        box_no_10 = (Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 10).FirstOrDefault().CreationDateTime != null) ?
+           Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 10).FirstOrDefault().CreationDateTime : "0.00";
+
+    @if (Model.palletDTOs.Any(k => k.PackagingLinePalletNo == i + 20))
+        box_no_20 = (Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 20).FirstOrDefault().CreationDateTime != null) ?
+            Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 20).FirstOrDefault().CreationDateTime : "0.00";
+
+    @if (Model.palletDTOs.Any(k => k.PackagingLinePalletNo == i + 30))
+        box_no_30 = (Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 30).FirstOrDefault().CreationDateTime != null) ?
+            Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 30).FirstOrDefault().CreationDateTime : "0.00";
+
+    @if (Model.palletDTOs.Any(k => k.PackagingLinePalletNo == i + 40))
+        box_no_40 = (Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 40).FirstOrDefault().CreationDateTime != null) ?
+            Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 40).FirstOrDefault().CreationDateTime : "0.00";
+
+    @if (Model.palletDTOs.Any(k => k.PackagingLinePalletNo == i + 50))
+        box_no_50 = (Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 50).FirstOrDefault().CreationDateTime != null) ?
+            Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 50).FirstOrDefault().CreationDateTime : "0.00";
+
+    @if (Model.palletDTOs.Any(k => k.PackagingLinePalletNo == i + 60))
+        box_no_60 = (Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 60).FirstOrDefault().CreationDateTime != null) ?
+            Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 60).FirstOrDefault().CreationDateTime : "0.00";
+
+    @if (Model.palletDTOs.Any(k => k.PackagingLinePalletNo == i + 70))
+        box_no_70 = (Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 70).FirstOrDefault().CreationDateTime != null) ?
+            Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 70).FirstOrDefault().CreationDateTime : "0.00";
+
+    @if (Model.palletDTOs.Any(k => k.PackagingLinePalletNo == i + 80))
+        box_no_80 = (Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 80).FirstOrDefault().CreationDateTime != null) ?
+            Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 80).FirstOrDefault().CreationDateTime : "0.00";
+
+    @if (Model.palletDTOs.Any(k => k.PackagingLinePalletNo == i + 90))
+        box_no_90 = (Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 90).FirstOrDefault().CreationDateTime != null) ?
+            Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 90).FirstOrDefault().CreationDateTime : "0.00";
+
+    <table style="width:150px;display:inline;margin:0px 12px 0px 0px">
+        <tbody>
+            @if (Model.NoPalletToCreated > i)
+            {
+                <tr class="gradeX">
+                    @{ var statusId = Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i).FirstOrDefault().StatusId;
+                        badgeHourClass = "badge-" + (statusId == -1 ? "danger" : statusId == 0 ? "warning" :
+                            statusId == 1 ? "success" : statusId == 2 ? "info" : statusId == 3 ? "dark" :
+                            statusId == 4 ? "purple" : "");
+                        badgeTitle = (statusId == -1 ? "Άκυρο" : statusId == 0 ? "Αναμ. για φορτ." :
+                            statusId == 1 ? "Δημιουργήθ." : statusId == 2 ? "Προστ. στην αποθ." : statusId == 3 ? "Επιλ. για φορτ." :
+                            statusId == 4 ? "Επιβ. για φορτ." : "");
+                        palletIcon = Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i).FirstOrDefault().IsVirtual
+                            ? "/images/virtual_pallet__icon.png" : "/images/pallet_icon.png";
+                        warehouseStyleDisplay = statusId == 1 ? "block" : "none";
+                        submitStyleDisplay = Model.palletDTOs.Exists(k => k.PackagingLinePalletNo == i && k.CreationDateTime == null) ? "block" : "none";
+                    }
+                    <td>
+                        <div class="card">
+                            <div class="card-body text-center">
+                                @if (Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i).Count() != 0)
+                                {
+                                    <a class="open-palletDialog" data-id="@Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i).FirstOrDefault().PalletId" data-placement="top" data-toggle="modal" data-target="#PalletDialog" style="cursor:pointer;font-size:30px">@(i + 1)</a>
+                                }
+                                <br />
+                                <img src="@palletIcon" style="margin: 0px 0px 10px 0px" />
+                                <p class="mb-3">Ώρα <strong>@box_no</strong></p>
+                                <div id="status-badge" class="badge @badgeHourClass" style="margin: 0px 0px; width: 84px">@badgeTitle</div>
+                                <br />
+                                <br />
+                                <a id="warehouse-a" class="btn btn-primary" asp-controller="Warehouse" asp-action="TopView" style="display: @warehouseStyleDisplay; white-space: normal; width: 80px; height: 50px; text-align: center; line-height: 30px; font-size: 12px; background-color: forestgreen; border-color: green">Αποθήκη</a>
+                                <button id="add-time-btn" onclick="DisplayBtnData(this)" class="btn btn-primary open-AddTime" type="button" data-toggle="modal" data-target="#AddTimeDialog" style="display: @submitStyleDisplay; white-space: normal; width: 80px; height: 50px; font-size: 12px; background-color: orange; border-color: darkorange ">Υποβολή ώρας</button>
+                                @if (Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i).FirstOrDefault().StatusId >= 2 && Model.palletDTOs.Where(k => k.StatusId >= 2).Count() != Model.palletDTOs.Count())
+                                {
+                                    <div style="width:80px;height:50px"></div>
+                                }
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (Model.NoPalletToCreated > 10 + i)
+            {
+                <tr class="gradeX">
+                    @{ var statusId = Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 10).FirstOrDefault().StatusId;
+                        badgeHourClass = "badge-" + (statusId == -1 ? "danger" : statusId == 0 ? "warning" :
+                            statusId == 1 ? "success" : statusId == 2 ? "info" : statusId == 3 ? "dark" :
+                            statusId == 4 ? "purple" : "");
+                        badgeTitle = (statusId == -1 ? "Άκυρο" : statusId == 0 ? "Αναμ. για φορτ." :
+                            statusId == 1 ? "Δημιουργήθ." : statusId == 2 ? "Προστ. στην αποθ." : statusId == 3 ? "Επιλ. για φορτ." :
+                            statusId == 4 ? "Επιβ. για φορτ." : "");
+                        palletIcon = Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 10).FirstOrDefault().IsVirtual
+                            ? "/images/virtual_pallet__icon.png" : "/images/pallet_icon.png";
+                        warehouseStyleDisplay = statusId == 1 ? "block" : "none";
+                        submitStyleDisplay = Model.palletDTOs.Exists(k => k.PackagingLinePalletNo == i + 10 && k.CreationDateTime == null) ? "block" : "none";
+                    }
+                    <td>
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <a class="open-palletDialog" data-id="@Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 10).FirstOrDefault().PalletId" data-placement="top" data-toggle="modal" data-target="#PalletDialog" style="cursor:pointer;font-size:30px">@(i + 11)</a>
+                                <br />
+                                <img src="@palletIcon" style="margin: 0px 0px 10px 0px" />
+                                <p class="mb-3">Ώρα <strong>@box_no_10</strong></p>
+                                <div id="status-badge" class="badge @badgeHourClass" style="margin: 0px 0px; width: 84px">@badgeTitle</div>
+                                <br />
+                                <br />
+                                <a id="warehouse-a" class="btn btn-primary" asp-controller="Warehouse" asp-action="TopView" style="display: @warehouseStyleDisplay; white-space: normal; width: 80px; height: 50px; text-align: center; line-height: 30px; font-size: 12px; background-color: forestgreen; border-color: green">Αποθήκη</a>
+                                <button id="add-time-btn" onclick="DisplayBtnData(this)" class="btn btn-primary open-AddTime" type="button" data-toggle="modal" data-target="#AddTimeDialog" style="display: @submitStyleDisplay; white-space: normal; width: 80px; height: 50px; font-size: 12px; background-color: orange; border-color: darkorange ">Υποβολή ώρας</button>
+                                @if (Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 10).FirstOrDefault().StatusId >= 2 && Model.palletDTOs.Where(k => k.StatusId >= 2).Count() != Model.palletDTOs.Count())
+                                {
+                                    <div style="width:80px;height:50px"></div>
+                                }
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (Model.NoPalletToCreated > 20 + i)
+            {
+                <tr class="gradeX">
+                    @{ var statusId = Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 20).FirstOrDefault().StatusId;
+                        badgeHourClass = "badge-" + (statusId == -1 ? "danger" : statusId == 0 ? "warning" :
+                            statusId == 1 ? "success" : statusId == 2 ? "info" : statusId == 3 ? "dark" :
+                            statusId == 4 ? "purple" : "");
+                        badgeTitle = (statusId == -1 ? "Άκυρο" : statusId == 0 ? "Αναμ. για φορτ." :
+                            statusId == 1 ? "Δημιουργήθ." : statusId == 2 ? "Προστ. στην αποθ." : statusId == 3 ? "Επιλ. για φορτ." :
+                            statusId == 4 ? "Επιβ. για φορτ." : "");
+                        palletIcon = Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 20).FirstOrDefault().IsVirtual
+                            ? "/images/virtual_pallet__icon.png" : "/images/pallet_icon.png";
+                        warehouseStyleDisplay = statusId == 1 ? "block" : "none";
+                        submitStyleDisplay = Model.palletDTOs.Exists(k => k.PackagingLinePalletNo == i + 20 && k.CreationDateTime == null) ? "block" : "none";
+                    }
+                    <td>
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <a class="open-palletDialog" data-id="@Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 20).FirstOrDefault().PalletId" data-placement="top" data-toggle="modal" data-target="#PalletDialog" style="cursor:pointer;font-size:30px">@(i + 21)</a>
+                                <br />
+                                <img src="@palletIcon" style="margin: 0px 0px 10px 0px" />
+                                <p class="mb-3">Ώρα <strong>@box_no_20</strong></p>
+                                <div id="status-badge" class="badge @badgeHourClass" style="margin: 0px 0px; width: 84px">@badgeTitle</div>
+                                <br />
+                                <br />
+                                <a id="warehouse-a" class="btn btn-primary" asp-controller="Warehouse" asp-action="TopView" style="display: @warehouseStyleDisplay; white-space: normal; width: 80px; height: 50px; text-align: center; line-height: 30px; font-size: 12px; background-color: forestgreen; border-color: green">Αποθήκη</a>
+                                <button id="add-time-btn" onclick="DisplayBtnData(this)" class="btn btn-primary open-AddTime" type="button" data-toggle="modal" data-target="#AddTimeDialog" style="display: @submitStyleDisplay; white-space: normal; width: 80px; height: 50px; font-size: 12px; background-color: orange; border-color: darkorange ">Υποβολή ώρας</button>
+                                @if (Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 20).FirstOrDefault().StatusId >= 2 && Model.palletDTOs.Where(k => k.StatusId >= 2).Count() != Model.palletDTOs.Count())
+                                {
+                                    <div style="width:80px;height:50px"></div>
+                                }
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (Model.NoPalletToCreated > 30 + i)
+            {
+                <tr class="gradeX">
+                    @{ var statusId = Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 30).FirstOrDefault().StatusId;
+                        badgeHourClass = "badge-" + (statusId == -1 ? "danger" : statusId == 0 ? "warning" :
+                            statusId == 1 ? "success" : statusId == 2 ? "info" : statusId == 3 ? "dark" :
+                            statusId == 4 ? "purple" : "");
+                        badgeTitle = (statusId == -1 ? "Άκυρο" : statusId == 0 ? "Αναμ. για φορτ." :
+                            statusId == 1 ? "Δημιουργήθ." : statusId == 2 ? "Προστ. στην αποθ." : statusId == 3 ? "Επιλ. για φορτ." :
+                            statusId == 4 ? "Επιβ. για φορτ." : "");
+                        palletIcon = Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 30).FirstOrDefault().IsVirtual
+                            ? "/images/virtual_pallet__icon.png" : "/images/pallet_icon.png";
+                        warehouseStyleDisplay = statusId == 1 ? "block" : "none";
+                        submitStyleDisplay = Model.palletDTOs.Exists(k => k.PackagingLinePalletNo == i + 30 && k.CreationDateTime == null) ? "block" : "none";
+                    }
+                    <td>
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <a class="open-palletDialog" data-id="@Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 30).FirstOrDefault().PalletId" data-placement="top" data-toggle="modal" data-target="#PalletDialog" style="cursor:pointer;font-size:30px">@(i + 31)</a>
+                                <br />
+                                <img src="@palletIcon" style="margin: 0px 0px 10px 0px" />
+                                <p class="mb-3">Ώρα <strong>@box_no_30</strong></p>
+                                <div id="status-badge" class="badge @badgeHourClass" style="margin: 0px 0px; width: 84px">@badgeTitle</div>
+                                <br />
+                                <br />
+                                <a id="warehouse-a" class="btn btn-primary" asp-controller="Warehouse" asp-action="TopView" style="display: @warehouseStyleDisplay; white-space: normal; width: 80px; height: 50px; text-align: center; line-height: 30px; font-size: 12px; background-color: forestgreen; border-color: green">Αποθήκη</a>
+                                <button id="add-time-btn" onclick="DisplayBtnData(this)" class="btn btn-primary open-AddTime" type="button" data-toggle="modal" data-target="#AddTimeDialog" style="display: @submitStyleDisplay; white-space: normal; width: 80px; height: 50px; font-size: 12px; background-color: orange; border-color: darkorange ">Υποβολή ώρας</button>
+                                @if (Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 30).FirstOrDefault().StatusId >= 2 && Model.palletDTOs.Where(k => k.StatusId >= 2).Count() != Model.palletDTOs.Count())
+                                {
+                                    <div style="width:80px;height:50px"></div>
+                                }
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (Model.NoPalletToCreated > 40 + i)
+            {
+                <tr class="gradeX">
+                    @{ var statusId = Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 40).FirstOrDefault().StatusId;
+                        badgeHourClass = "badge-" + (statusId == -1 ? "danger" : statusId == 0 ? "warning" :
+                            statusId == 1 ? "success" : statusId == 2 ? "info" : statusId == 3 ? "dark" :
+                            statusId == 4 ? "purple" : "");
+                        badgeTitle = (statusId == -1 ? "Άκυρο" : statusId == 0 ? "Αναμ. για φορτ." :
+                            statusId == 1 ? "Δημιουργήθ." : statusId == 2 ? "Προστ. στην αποθ." : statusId == 3 ? "Επιλ. για φορτ." :
+                            statusId == 4 ? "Επιβ. για φορτ." : "");
+                        palletIcon = Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 40).FirstOrDefault().IsVirtual
+                            ? "/images/virtual_pallet__icon.png" : "/images/pallet_icon.png";
+                        warehouseStyleDisplay = statusId == 1 ? "block" : "none";
+                        submitStyleDisplay = Model.palletDTOs.Exists(k => k.PackagingLinePalletNo == i + 40 && k.CreationDateTime == null) ? "block" : "none";
+                    }
+                    <td>
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <a class="open-palletDialog" data-id="@Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 40).FirstOrDefault().PalletId" data-placement="top" data-toggle="modal" data-target="#PalletDialog" style="cursor:pointer;font-size:30px">@(i + 41)</a>
+                                <br />
+                                <img src="@palletIcon" style="margin: 0px 0px 10px 0px" />
+                                <p class="mb-3">Ώρα <strong>@box_no_40</strong></p>
+                                <div id="status-badge" class="badge @badgeHourClass" style="margin: 0px 0px; width: 84px">@badgeTitle</div>
+                                <br />
+                                <br />
+                                <a id="warehouse-a" class="btn btn-primary" asp-controller="Warehouse" asp-action="TopView" style="display: @warehouseStyleDisplay; white-space: normal; width: 80px; height: 50px; text-align: center; line-height: 30px; font-size: 12px; background-color: forestgreen; border-color: green">Αποθήκη</a>
+                                <button id="add-time-btn" onclick="DisplayBtnData(this)" class="btn btn-primary open-AddTime" type="button" data-toggle="modal" data-target="#AddTimeDialog" style="display: @submitStyleDisplay; white-space: normal; width: 80px; height: 50px; font-size: 12px; background-color: orange; border-color: darkorange ">Υποβολή ώρας</button>
+                                @if (Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 40).FirstOrDefault().StatusId >= 2 && Model.palletDTOs.Where(k => k.StatusId >= 2).Count() != Model.palletDTOs.Count())
+                                {
+                                    <div style="width:80px;height:50px"></div>
+                                }
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (Model.NoPalletToCreated > 50 + i)
+            {
+                <tr class="gradeX">
+                    @{ var statusId = Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 50).FirstOrDefault().StatusId;
+                        badgeHourClass = "badge-" + (statusId == -1 ? "danger" : statusId == 0 ? "warning" :
+                            statusId == 1 ? "success" : statusId == 2 ? "info" : statusId == 3 ? "dark" :
+                            statusId == 4 ? "purple" : "");
+                        badgeTitle = (statusId == -1 ? "Άκυρο" : statusId == 0 ? "Αναμ. για φορτ." :
+                            statusId == 1 ? "Δημιουργήθ." : statusId == 2 ? "Προστ. στην αποθ." : statusId == 3 ? "Επιλ. για φορτ." :
+                            statusId == 4 ? "Επιβ. για φορτ." : "");
+                        palletIcon = Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 50).FirstOrDefault().IsVirtual
+                            ? "/images/virtual_pallet__icon.png" : "/images/pallet_icon.png";
+                        warehouseStyleDisplay = statusId == 1 ? "block" : "none";
+                        submitStyleDisplay = Model.palletDTOs.Exists(k => k.PackagingLinePalletNo == i + 50 && k.CreationDateTime == null) ? "block" : "none";
+                    }
+                    <td>
+                        <div class="card">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <a class="open-palletDialog" data-id="@Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 50).FirstOrDefault().PalletId" data-placement="top" data-toggle="modal" data-target="#PalletDialog" style="cursor:pointer;font-size:30px">@(i + 51)</a>
+                                    <br />
+                                    <img src="@palletIcon" style="margin: 0px 0px 10px 0px" />
+                                    <p class="mb-3">Ώρα <strong>@box_no_50</strong></p>                                <p class="mb-3">Ώρα <strong>@box_no_50</strong></p>
+                                    <div id="status-badge" class="badge @badgeHourClass" style="margin: 0px 0px; width: 84px">@badgeTitle</div>
+                                    <br />
+                                    <br />
+                                    <a id="warehouse-a" class="btn btn-primary" asp-controller="Warehouse" asp-action="TopView" style="display: @warehouseStyleDisplay; white-space: normal; width: 80px; height: 50px; text-align: center; line-height: 30px; font-size: 12px; background-color: forestgreen; border-color: green">Αποθήκη</a>
+                                    <button id="add-time-btn" onclick="DisplayBtnData(this)" class="btn btn-primary open-AddTime" type="button" data-toggle="modal" data-target="#AddTimeDialog" style="display: @submitStyleDisplay; white-space: normal; width: 80px; height: 50px; font-size: 12px; background-color: orange; border-color: darkorange ">Υποβολή ώρας</button>
+                                    @if (Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 50).FirstOrDefault().StatusId >= 2 && Model.palletDTOs.Where(k => k.StatusId >= 2).Count() != Model.palletDTOs.Count())
+                                    {
+                                        <div style="width:80px;height:50px"></div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (Model.NoPalletToCreated > 60 + i)
+            {
+                <tr class="gradeX">
+                    @{ var statusId = Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 60).FirstOrDefault().StatusId;
+                        badgeHourClass = "badge-" + (statusId == -1 ? "danger" : statusId == 0 ? "warning" :
+                            statusId == 1 ? "success" : statusId == 2 ? "info" : statusId == 3 ? "dark" :
+                            statusId == 4 ? "purple" : "");
+                        badgeTitle = (statusId == -1 ? "Άκυρο" : statusId == 0 ? "Αναμ. για φορτ." :
+                            statusId == 1 ? "Δημιουργήθ." : statusId == 2 ? "Προστ. στην αποθ." : statusId == 3 ? "Επιλ. για φορτ." :
+                            statusId == 4 ? "Επιβ. για φορτ." : "");
+                        palletIcon = Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 60).FirstOrDefault().IsVirtual
+                            ? "/images/virtual_pallet__icon.png" : "/images/pallet_icon.png";
+                        warehouseStyleDisplay = statusId == 1 ? "block" : "none";
+                        submitStyleDisplay = Model.palletDTOs.Exists(k => k.PackagingLinePalletNo == i + 60 && k.CreationDateTime == null) ? "block" : "none";
+                    }
+                    <td>
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <a class="open-palletDialog" data-id="@Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 60).FirstOrDefault().PalletId" data-placement="top" data-toggle="modal" data-target="#PalletDialog" style="cursor:pointer;font-size:30px">@(i + 61)</a>
+                                <br />
+                                <img src="@palletIcon" style="margin: 0px 0px 10px 0px" />
+                                <p class="mb-3">Ώρα <strong>@box_no_60</strong></p>                               <p class="mb-3">Ώρα <strong>@box_no_60</strong></p>
+                                <div id="status-badge" class="badge @badgeHourClass" style="margin: 0px 0px; width: 84px">@badgeTitle</div>
+                                <br />
+                                <br />
+                                <a id="warehouse-a" class="btn btn-primary" asp-controller="Warehouse" asp-action="TopView" style="display: @warehouseStyleDisplay; white-space: normal; width: 80px; height: 50px; text-align: center; line-height: 30px; font-size: 12px; background-color: forestgreen; border-color: green">Αποθήκη</a>
+                                <button id="add-time-btn" onclick="DisplayBtnData(this)" class="btn btn-primary open-AddTime" type="button" data-toggle="modal" data-target="#AddTimeDialog" style="display: @submitStyleDisplay; white-space: normal; width: 80px; height: 50px; font-size: 12px; background-color: orange; border-color: darkorange ">Υποβολή ώρας</button>
+                                @if (Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 60).FirstOrDefault().StatusId >= 2 && Model.palletDTOs.Where(k => k.StatusId >= 2).Count() != Model.palletDTOs.Count())
+                                {
+                                    <div style="width:80px;height:50px"></div>
+                                }
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (Model.NoPalletToCreated > 70 + i)
+            {
+                <tr class="gradeX">
+                    @{ var statusId = Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 70).FirstOrDefault().StatusId;
+                        badgeHourClass = "badge-" + (statusId == -1 ? "danger" : statusId == 0 ? "warning" :
+                            statusId == 1 ? "success" : statusId == 2 ? "info" : statusId == 3 ? "dark" :
+                            statusId == 4 ? "purple" : "");
+                        badgeTitle = (statusId == -1 ? "Άκυρο" : statusId == 0 ? "Αναμ. για φορτ." :
+                            statusId == 1 ? "Δημιουργήθ." : statusId == 2 ? "Προστ. στην αποθ." : statusId == 3 ? "Επιλ. για φορτ." :
+                            statusId == 4 ? "Επιβ. για φορτ." : "");
+                        palletIcon = Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 70).FirstOrDefault().IsVirtual
+                            ? "/images/virtual_pallet__icon.png" : "/images/pallet_icon.png";
+                        warehouseStyleDisplay = statusId == 1 ? "block" : "none";
+                        submitStyleDisplay = Model.palletDTOs.Exists(k => k.PackagingLinePalletNo == i + 70 && k.CreationDateTime == null) ? "block" : "none";
+                    }
+                    <td>
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <a class="open-palletDialog" data-id="@Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 70).FirstOrDefault().PalletId" data-placement="top" data-toggle="modal" data-target="#PalletDialog" style="cursor:pointer;font-size:30px">@(i + 71)</a>
+                                <br />
+                                <img src="@palletIcon" style="margin: 0px 0px 10px 0px" />
+                                <p class="mb-3">Ώρα <strong>@box_no_70</strong></p>                              <p class="mb-3">Ώρα <strong>@box_no_70</strong></p>
+                                <div id="status-badge" class="badge @badgeHourClass" style="margin: 0px 0px; width: 84px">@badgeTitle</div>
+                                <br />
+                                <br />
+                                <a id="warehouse-a" class="btn btn-primary" asp-controller="Warehouse" asp-action="TopView" style="display: @warehouseStyleDisplay; white-space: normal; width: 80px; height: 50px; text-align: center; line-height: 30px; font-size: 12px; background-color: forestgreen; border-color: green">Αποθήκη</a>
+                                <button id="add-time-btn" onclick="DisplayBtnData(this)" class="btn btn-primary open-AddTime" type="button" data-toggle="modal" data-target="#AddTimeDialog" style="display: @submitStyleDisplay; white-space: normal; width: 80px; height: 50px; font-size: 12px; background-color: orange; border-color: darkorange ">Υποβολή ώρας</button>
+                                @if (Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 70).FirstOrDefault().StatusId >= 2 && Model.palletDTOs.Where(k => k.StatusId >= 2).Count() != Model.palletDTOs.Count())
+                                {
+                                    <div style="width:80px;height:50px"></div>
+                                }
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (Model.NoPalletToCreated > 80 + i)
+            {
+                <tr class="gradeX">
+                    @{ var statusId = Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 80).FirstOrDefault().StatusId;
+                        badgeHourClass = "badge-" + (statusId == -1 ? "danger" : statusId == 0 ? "warning" :
+                            statusId == 1 ? "success" : statusId == 2 ? "info" : statusId == 3 ? "dark" :
+                            statusId == 4 ? "purple" : "");
+                        badgeTitle = (statusId == -1 ? "Άκυρο" : statusId == 0 ? "Αναμ. για φορτ." :
+                            statusId == 1 ? "Δημιουργήθ." : statusId == 2 ? "Προστ. στην αποθ." : statusId == 3 ? "Επιλ. για φορτ." :
+                            statusId == 4 ? "Επιβ. για φορτ." : "");
+                        palletIcon = Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 80).FirstOrDefault().IsVirtual
+                            ? "/images/virtual_pallet__icon.png" : "/images/pallet_icon.png";
+                        warehouseStyleDisplay = statusId == 1 ? "block" : "none";
+                        submitStyleDisplay = Model.palletDTOs.Exists(k => k.PackagingLinePalletNo == i + 80 && k.CreationDateTime == null) ? "block" : "none";
+                    }
+                    <td>
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <a class="open-palletDialog" data-id="@Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 80).FirstOrDefault().PalletId" data-placement="top" data-toggle="modal" data-target="#PalletDialog" style="cursor:pointer;font-size:30px">@(i + 81)</a>
+                                <br />
+                                <img src="@palletIcon" style="margin: 0px 0px 10px 0px" />
+                                <p class="mb-3">Ώρα <strong>@box_no_80</strong></p>                           <p class="mb-3">Ώρα <strong>@box_no_80</strong></p>
+                                <div id="status-badge" class="badge @badgeHourClass" style="margin: 0px 0px; width: 84px">@badgeTitle</div>
+                                <br />
+                                <br />
+                                <a id="warehouse-a" class="btn btn-primary" asp-controller="Warehouse" asp-action="TopView" style="display: @warehouseStyleDisplay; white-space: normal; width: 80px; height: 50px; text-align: center; line-height: 30px; font-size: 12px; background-color: forestgreen; border-color: green">Αποθήκη</a>
+                                <button id="add-time-btn" onclick="DisplayBtnData(this)" class="btn btn-primary open-AddTime" type="button" data-toggle="modal" data-target="#AddTimeDialog" style="display: @submitStyleDisplay; white-space: normal; width: 80px; height: 50px; font-size: 12px; background-color: orange; border-color: darkorange ">Υποβολή ώρας</button>
+                                @if (Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 80).FirstOrDefault().StatusId >= 2 && Model.palletDTOs.Where(k => k.StatusId >= 2).Count() != Model.palletDTOs.Count())
+                                {
+                                    <div style="width:80px;height:50px"></div>
+                                }
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (Model.NoPalletToCreated > 90 + i)
+            {
+                <tr class="gradeX">
+                    @{ var statusId = Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 90).FirstOrDefault().StatusId;
+                        badgeHourClass = "badge-" + (statusId == -1 ? "danger" : statusId == 0 ? "warning" :
+                            statusId == 1 ? "success" : statusId == 2 ? "info" : statusId == 3 ? "dark" :
+                            statusId == 4 ? "purple" : "");
+                        badgeTitle = (statusId == -1 ? "Άκυρο" : statusId == 0 ? "Αναμ. για φορτ." :
+                            statusId == 1 ? "Δημιουργήθ." : statusId == 2 ? "Προστ. στην αποθ." : statusId == 3 ? "Επιλ. για φορτ." :
+                            statusId == 4 ? "Επιβ. για φορτ." : "");
+                        palletIcon = Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 90).FirstOrDefault().IsVirtual
+                            ? "/images/virtual_pallet__icon.png" : "/images/pallet_icon.png";
+                        warehouseStyleDisplay = statusId == 1 ? "block" : "none";
+                        submitStyleDisplay = Model.palletDTOs.Exists(k => k.PackagingLinePalletNo == i + 90 && k.CreationDateTime == null) ? "block" : "none";
+                    }
+                    <td>
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <a class="open-palletDialog" data-id="@Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 90).FirstOrDefault().PalletId" data-placement="top" data-toggle="modal" data-target="#PalletDialog" style="cursor:pointer;font-size:30px">@(i + 91)</a>
+                                <br />
+                                <img src="@palletIcon" style="margin: 0px 0px 10px 0px" />
+                                <p class="mb-3">Ώρα <strong>@box_no_90</strong></p>                                <p class="mb-3">Ώρα <strong>@box_no_90</strong></p>
+                                <div id="status-badge" class="badge @badgeHourClass" style="margin: 0px 0px; width: 84px">@badgeTitle</div>
+                                <br />
+                                <br />
+                                <a id="warehouse-a" class="btn btn-primary" asp-controller="Warehouse" asp-action="TopView" style="display: @warehouseStyleDisplay; white-space: normal; width: 80px; height: 50px; text-align: center; line-height: 30px; font-size: 12px; background-color: forestgreen; border-color: green">Αποθήκη</a>
+                                <button id="add-time-btn" onclick="DisplayBtnData(this)" class="btn btn-primary open-AddTime" type="button" data-toggle="modal" data-target="#AddTimeDialog" style="display: @submitStyleDisplay; white-space: normal; width: 80px; height: 50px; font-size: 12px; background-color: orange; border-color: darkorange ">Υποβολή ώρας</button>
+                                @if (Model.palletDTOs.Where(k => k.PackagingLinePalletNo == i + 90).FirstOrDefault().StatusId >= 2 && Model.palletDTOs.Where(k => k.StatusId >= 2).Count() != Model.palletDTOs.Count())
+                                {
+                                    <div style="width:80px;height:50px"></div>
+                                }
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@section BodyArea {
+    <!--Add pallet hour-->
+    <div class="modal fade" id="AddTimeDialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">Ενημέρωση ώρας παλέτοκιβωτίου</h4>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Στο παρακατώ πεδίο προσθέστε την ώρα που ολοκληρώθηκε το παλετοκιβώτιο
+                    <br />
+                    <p class="mb-3">Κιβώτιο <strong id="box-no">1</strong> - Ώρα <strong id="box-time">0:00</strong></p>
+                    <button id="now-time-btn" class="btn btn-dark" type="button" onclick="DateTimeNow()">Τωρινή ώρα</button>
+                    <button id="different-hour-btn" onclick="DisplayDifferentHour()" class="btn btn-danger" type="button" style="pointer-events: none; cursor: not-allowed; opacity: 0.2">Διαφορετική ώρα</button>
+                    <input type="text" id="time" name="appt" min="04:00" max="23:00" style="width:50px;display:none">
+                    <button id="modify-different-hour-btn" onclick="ModifyDifferentHour()" class="btn btn-dark" type="button" style="display:none">Διαμόρφωση ώρας</button>
+                    <button id="cancel-different-hour-btn" onclick="HideDifferentHour()" class="btn btn-secondary" type="button" style="display:none">x</button>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Κλείσιμο</button>
+                    <button onclick="UpdateBoxHour()" name="updateId" id="updateId" class="btn btn-primary" style="display:none" data-dismiss="modal">Ενημέρωση</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Pallet info dialog-->
+    <div class="modal fade" id="PalletDialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="align-content:center">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="modal-pallet-label">Προβολή παλέτας </h4>&nbsp;&nbsp;
+                    <div class="ibox">
+                        <div class="ibox-tools">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-cog"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-user">
+                                <li style="margin:2px 0">
+                                    <a id="modal-pallet-action-isvirtual" class="btn btn-danger">Μετατροπή της παλέτας σε εικονική</a>
+                                </li>
+                                <li style="margin:2px 0">
+                                    <a id="modal-pallet-action-status" class="btn btn-primary" asp-action="ChangeFormStatus" asp-route-passToken="@Model.PassToken" asp-route-formStatus="-1">Ακύρωση παλέτας</a>
+                                </li>
+                                <li style="margin:2px 0">
+                                    <a id="edit-pallet-lot-cog" onclick="EditClick(this)" class="btn btn-primary">Επεξ. LOT</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body" style="align-items: center">
+                    <div id="modal-pallet-status-badge" class="badge" style="display: block; margin-left: auto; margin-right: auto;width:240px">Επιβ. για φορτ.</div>
+                    <br />
+                    <img id="modal-pallet-material-virtual" src="~/images/pallet_icon.png" style="display:block;margin-left:auto;margin-right:auto" width="50" height="50" />
+                    <br />
+                    <p style="font-size:16px">Κωδικοποίηση παλέτας: <strong id="modal-pallet-material-description">-</strong></p>
+                    <p style="font-size:16px">Κωδικός SAP προϊόντος: <strong id="modal-pallet-sapid">-</strong></p>
+                    <p id="pallet-lot" style="font-size:16px">LOT παλέτας: <strong id="modal-pallet-lot">-</strong> <a style="margin-left: 30px;display:none" id="modal-pallet-edit-lot" onclick="EditClick(this)" class="btn btn-primary" >Επεξ.</a> <input id="modal-new-lot" maxlength="4" size="4" style="display:none" /> <a id="modal-pallet-action-lot" onclick="ChangePalletLot(this)" class="btn btn-primary" style="display:none">Αποθ.</a> </p>
+                    <p style="font-size:16px">Χώρα: <strong id="modal-pallet-country">-</strong></p>
+                    <p style="font-size:16px">Αριθμός χαρτοκιβωτίων: <strong id="modal-pallet-pallet-boxes">-</strong></p>
+                    <p style="font-size:16px">Ώρα συσκευασίας: <strong id="modal-pallet-creation-time">-</strong></p>
+                    <p style="font-size:16px">Μέγιστη ημερομηνία παράδοσης: <strong id="modal-pallet-max-delivery-date">-</strong></p>
+                    <p style="font-size:16px">Ημερομηνία λήξης της παλέτας: <strong id="modal-pallet-expiration-date">-</strong></p>
+                    <p style="font-size:16px">QR παλέτας:</p>
+                    <img style="display: block; margin-left: auto; margin-right: auto" id="modal-qr-image" width="300" height="300" />
+                    <p style="font-size:16px">Barcode παλέτας:</p>
+                    <img style="display: block; margin-left: auto; margin-right: auto" id="modal-barcode-image" width="300" height="80" />
+                </div>
+                <a href="" id="modal-pallet-palletcard" target="_blank" class="btn btn-primary" style="display:block;margin-left:auto;margin-right:auto;max-width:200px">Εκτύπωση παλετοκάρτας ARI</a>
+                <a href="" id="modal-pallet-palletcard-lidl" target="_blank" class="btn btn-primary" style="display:block;margin-left:auto;margin-right:auto;margin-top:10px;max-width:200px">Εκτύπωση παλετοκάρτας LIDL</a>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Κλείσιμο</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<input id="pass-token" value="@Model.PassToken" type="hidden" />
+
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="~/js/popper.min.js"></script>
+    <script src="~/js/moment.js"></script>
+    <script src="https://cdn.jsdelivr.net/timepicker.js/latest/timepicker.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/timepicker.js/latest/timepicker.min.css" rel="stylesheet" />
+
+    <script>
+        lastClickedButton = "";
+        $(function () {
+            var timepicker = new TimePicker('time', {
+                lang: 'en',
+                theme: 'dark'
+            });
+            timepicker.on('change', function (evt) {
+                var value = (evt.hour || '00') + ':' + (evt.minute || '00');
+                evt.element.value = value;
+            });
+
+
+        });
+
+
+        //Change packaging line form LOT
+        function ChangeAllPalletLot(objButton) {
+
+            if (!Validation(objButton))
+                return;
+
+            var selectedValue = '';
+            if (objButton.parentElement.id == "lot-save" ) {
+                selectedValue = objButton.parentElement.parentElement.children[3].children[0].value;
+            }
+            else {
+            }
+
+            var packagingLineFormData = { passToken: document.getElementById("pass-token").value, selectedItem: selectedValue };
+            $.ajax({
+                type: "post",
+                url: "/PackagingLine/ChangeAllPalletLot",
+                dataType: "json",
+                traditional: true,
+                data: packagingLineFormData,
+                success: function (result) {
+                    window.location = '/PackagingLine/EditPackagingLineForm?passToken=' + document.getElementById("pass-token").value;
+                },
+                error: function () {
+                }
+            });
+
+
+
+        }
+
+
+        //Validation
+        function Validation(objButton) {
+
+            var number = /^[0-9]+$/;
+            if (objButton.parentElement.id == "lot-save") {
+                if (!objButton.parentElement.parentElement.children[3].children[0].value.match(number)) {
+                    //document.getElementById("error-message").textContent = "Συμπληρώστε το πεδίο ποσότητα";
+                    return false;
+                }
+                else if (objButton.parentElement.parentElement.children[3].children[0].value > 2000 || objButton.parentElement.parentElement.children[3].children[0].value < 1) {
+                    //document.getElementById("error-message").textContent = "Καταχωρήστε LOT μεταξυ 1000 και 2000";
+                    return false;
+                }
+            }
+            else if (objButton.parentElement.id == "pallet-lot") {
+                if (!document.getElementById('modal-new-lot').value.match(number)) {
+                    return false;
+                }
+                else if (document.getElementById('modal-new-lot').value > 2000 || document.getElementById('modal-new-lot').value  < 1) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        //Hide buttons
+        function EditClick(objButton) {
+            //change button value
+            objButton.textContent = (objButton.textContent == "Επεξ. LOT") ? "Απόκρ." : "Επεξ. LOT";
+
+        
+            //Enable\Disable edit fields
+        
+            if (objButton.id == "lot-edit-cog") {
+                if (document.getElementById("lot-edit-field").style.display == "none") {
+                    document.getElementById("lot-edit").style.display = "block";
+                    document.getElementById("lot-edit-in").textContent = "Απόκρ.";
+                    document.getElementById("lot-edit-field").style.display = "block";
+                    document.getElementById("lot-save").style.display = "block";
+                }
+                else {
+                    document.getElementById("lot-edit").style.display = "none";
+                    document.getElementById("lot-edit-field").style.display = "none";
+                    document.getElementById("lot-save").style.display = "none";
+                }
+            }
+            else if (objButton.id == "lot-edit-in") {
+                document.getElementById("lot-edit").style.display = "none"
+                document.getElementById("lot-edit-field").style.display = "none";
+                document.getElementById("lot-save").style.display = "none";
+                document.getElementById("lot-edit-cog").textContent = "Επεξ. LOT";
+
+            }
+            else if (objButton.id == "edit-pallet-lot-cog") {
+                if (document.getElementById("modal-new-lot").style.display == "none") {
+                    document.getElementById("modal-pallet-edit-lot").style.display = "inline-block";
+                    document.getElementById("modal-pallet-edit-lot").textContent = "Απόκρ.";
+                    document.getElementById("modal-new-lot").style.display = "inline-block";
+                    document.getElementById("modal-pallet-action-lot").style.display = "inline-block";
+                }
+                else {
+                    document.getElementById("modal-pallet-edit-lot").style.display = "none";
+                    document.getElementById("modal-new-lot").style.display = "none";
+                    document.getElementById("modal-pallet-action-lot").style.display = "none";
+                }
+            }
+            else if (objButton.id == "modal-pallet-edit-lot") {
+                document.getElementById("modal-pallet-edit-lot").style.display = "none";
+                document.getElementById("modal-new-lot").style.display = "none";
+                document.getElementById("modal-pallet-action-lot").style.display = "none";
+                document.getElementById("edit-pallet-lot-cog").textContent = "Επεξ. LOT";
+            }
+
+        
+        }
+
+        //Change Pallet LOT
+        function ChangePalletLot(objButton) {
+
+            if (!Validation(objButton))
+                return;
+
+            var selectedValue = document.getElementById('modal-new-lot').value;
+            var selectedPallet = document.getElementById("modal-pallet-label").innerHTML.replace("Κωδικός παλέτας ΚΠ", "");
+            var palletFormData = { passToken: document.getElementById("pass-token").value, palletId: selectedPallet, selectedItem: selectedValue };
+            $.ajax({
+                type: "post",
+                url: "/PackagingLine/ChangePalletLot",
+                dataType: "json",
+                traditional: true,
+                data: palletFormData,
+                success: function (result) {
+                    window.location = '/PackagingLine/EditPackagingLineForm?passToken=' + document.getElementById("pass-token").value;
+                },
+                error: function () {
+                }
+            });
+        }
+
+        //Update hour
+        function UpdateBoxHour() {
+            const reg = '^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$';
+            if (document.getElementById("box-time").innerHTML.match(reg)) {
+                var urlString = "?packagingLineId=" + @Model.PackagingLineId + "&palleteNo=" + document.getElementById("box-no").innerHTML + "&time=" + document.getElementById("box-time").innerHTML;
+
+                var box_id = document.getElementById("box-no").innerHTML;
+                var box_time = document.getElementById("box-time").innerHTML;
+                console.log(box_time);
+                $.post("SetPalletHour/" + urlString, function (nobox) {
+                    if (nobox != 0) {
+                        lastClickedButton.parentNode.querySelectorAll("p")[0].innerHTML = "Ώρα  <strong>" + box_time + "</strong>";
+                        lastClickedButton.parentNode.querySelectorAll("img")[0].src = "/images/pallet_icon.png";
+                        lastClickedButton.parentNode.querySelector("#status-badge").innerHTML = "Δημιουργήθ.";
+                        lastClickedButton.parentNode.querySelector("#status-badge").classList.remove('badge-warning');
+                        lastClickedButton.parentNode.querySelector("#status-badge").classList.add('badge-success');
+                        lastClickedButton.parentNode.querySelector("#warehouse-a").style.display = 'block';
+                        lastClickedButton.parentNode.querySelector("#add-time-btn").style.display  = "none";
+                        document.getElementById("success-dialog").style.display = "inline-block";
+                        document.getElementById("no-created-box").innerText = nobox;
+                        document.getElementById("no-created-box-1").innerText = nobox + " παλέτες";
+                        document.getElementById("no-remaining-box").innerText = (@Model.NoPalletToCreated - nobox) + " παλέτες";
+                        if (nobox == @Model.NoPalletToCreated) {
+                            document.getElementById("finalize-pallete-form").style.opacity = "1.0";
+                            document.getElementById("finalize-pallete-form").style.pointerEvents = "auto";
+                            document.getElementById("finalize-pallete-form").style.cursor = "auto";
+                        }
+                    }
+                });
+            }
+        }
+
+        //Handle UI, dialogs
+        $(document).on("click", ".open-palletDialog", function () {
+            var pallet_id = $(this).data('id');
+            $.get("GetPalletInfo/?palletId=" + pallet_id, function (data) {
+                document.getElementById("modal-pallet-action-isvirtual").innerHTML = data.isVirtual ? "Μετατροπή της παλέτας σε πραγματική" : "Μετατροπή της παλέτας σε εικονική";
+                document.getElementById("modal-pallet-action-isvirtual").href = "/PackagingLine/ChangeFormVirtualStatus?passToken=" + data.passToken + "&isVirtual=" + (data.isVirtual ? "0" : "1");
+                document.getElementById("modal-pallet-action-isvirtual").className = "";
+                document.getElementById("modal-pallet-action-isvirtual").classList.add('btn');
+                document.getElementById("modal-pallet-action-isvirtual").classList.add(data.isVirtual ? 'btn-primary' : 'btn-danger');
+                document.getElementById("modal-pallet-action-status").innerHTML = data.statusId == -1 ? "Ενεργοποίηση παλέτας" : "Ακύρωση παλέτας";
+                document.getElementById("modal-pallet-action-status").href = "/PackagingLine/ChangeFormStatus?passToken=" + data.passToken + "&formStatus=" + (data.statusId == -1 ? "0" : "-1");
+
+
+
+                document.getElementById("modal-pallet-label").innerHTML = "Κωδικός παλέτας ΚΠ" + data.palletId;
+                document.getElementById("modal-pallet-material-virtual").src = data.isVirtual ? "/images/virtual_pallet__icon.png" : "/images/pallet_icon.png";
+                document.getElementById("modal-pallet-material-description").innerHTML = data.material.materialDescription;
+                document.getElementById("modal-pallet-sapid").innerHTML = data.material.materialSAPID;
+                document.getElementById("modal-pallet-lot").innerHTML = data.palletLOT;
+                document.getElementById("modal-pallet-country").innerHTML = data.countryCode;
+                document.getElementById("modal-pallet-pallet-boxes").innerHTML = data.noPalletBox;
+                document.getElementById("modal-pallet-creation-time").innerHTML = data.creationDateTime;
+                document.getElementById("modal-pallet-max-delivery-date").innerHTML = formatDate(data.material.maxDeliveryDate);
+                document.getElementById("modal-pallet-expiration-date").innerHTML = formatDate(data.material.expirationDate);
+                document.getElementById("modal-qr-image").src = data.qrCodeLink;
+                document.getElementById("modal-barcode-image").src = data.barCodeLink;
+                document.getElementById("modal-pallet-palletcard").href = data.palletCardLink;
+                document.getElementById("modal-pallet-palletcard-lidl").href = data.palletCardLIDLLink;
+                if (data.palletCardLIDLLink == null) {
+                    document.getElementById("modal-pallet-palletcard-lidl").hidden = true;
+                }
+                else {
+                    document.getElementById("modal-pallet-palletcard-lidl").hidden = false;
+                }
+
+                //Status
+                document.getElementById("modal-pallet-status-badge").innerHTML = data.selectedStatus
+                document.getElementById("modal-pallet-status-badge").className = "";
+                document.getElementById("modal-pallet-status-badge").classList.add('badge');
+                if (data.statusId == 0) {
+                    document.getElementById("modal-pallet-status-badge").innerHTML = data.selectedStatus;
+                    document.getElementById("modal-pallet-status-badge").classList.add('badge-warning');
+                }
+                else if (data.statusId == 1) {
+                    document.getElementById("modal-pallet-status-badge").classList.add('badge-success');
+                }
+                else if (data.statusId == 2) {
+                    document.getElementById("modal-pallet-status-badge").classList.add('badge-info');
+                }
+                else if (data.statusId == 3) {
+                    document.getElementById("modal-pallet-status-badge").classList.add('badge-dark');
+                }
+                else if (data.statusId == 4) {
+                    document.getElementById("modal-pallet-status-badge").classList.add('badge-purple');
+                }
+                else if (data.statusId == -1) {
+                    document.getElementById("modal-pallet-status-badge").classList.add('badge-success');
+                }
+
+                if (data.statusId >= 4 || data.statusId == -1) {
+                    document.getElementById("modal-pallet-action-status").style.display = "none";
+                    document.getElementById("edit-pallet-lot-cog").style.display = "none";
+                    document.getElementById("modal-pallet-action-isvirtual").style.display = "none";
+                }
+                else {
+                    document.getElementById("modal-pallet-action-status").style.display = "block";
+                    document.getElementById("edit-pallet-lot-cog").style.display = "block";
+                    document.getElementById("modal-pallet-action-isvirtual").style.display = "block";
+                }
+                
+                if (data.statusId >= 1 || data.statusId == -1) {
+                    document.getElementById("modal-pallet-action-isvirtual").style.display = "none";
+                }
+                else {
+                    document.getElementById("modal-pallet-action-isvirtual").style.display = "block";
+                }
+            });
+        });
+        function HideDifferentHour() {
+            document.getElementById("now-time-btn").style.display = "inline-block";
+            document.getElementById("different-hour-btn").style.display = "inline-block";
+            document.getElementById("time").style.display = "none";
+            document.getElementById("modify-different-hour-btn").style.display = "none";
+            document.getElementById("cancel-different-hour-btn").style.display = "none";
+        }
+        function DisplayDifferentHour() {
+            document.getElementById("now-time-btn").style.display = "none";
+            document.getElementById("different-hour-btn").style.display = "none";
+            document.getElementById("time").style.display = "inline-block";
+            document.getElementById("modify-different-hour-btn").style.display = "inline-block";
+            document.getElementById("cancel-different-hour-btn").style.display = "inline-block";
+        }
+        function ModifyDifferentHour() {
+            const reg = '^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$';
+
+            if (time.value.match(reg)) {
+                document.getElementById("box-time").innerHTML = time.value;
+
+                document.getElementById("now-time-btn").style.display = "inline-block";
+                document.getElementById("different-hour-btn").style.display = "inline-block";
+                document.getElementById("time").style.display = "none";
+                document.getElementById("modify-different-hour-btn").style.display = "none";
+                document.getElementById("cancel-different-hour-btn").style.display = "none";
+                document.getElementById("updateId").style.display = "inline-block";
+            }
+        }
+        function CloseSuccessDialog() {
+            document.getElementById("success-dialog").style.display = "none";
+        }
+        function DisplayBtnData(el) {
+            lastClickedButton = el;
+            document.getElementById("box-no").innerHTML = el.parentNode.querySelectorAll("a")[0].innerText;
+            document.getElementById("box-time").innerHTML = el.parentNode.querySelectorAll("p")[0].innerText.slice(4);
+            if (el.parentNode.querySelectorAll("p")[0].innerText.slice(4) != "0:00") {
+                document.getElementById("updateId").style.display = "inline-block";
+            }
+        }
+
+        //Utils
+        function formatDate(date) {
+            var d = new Date(date),
+                month = '' + (d.getMonth() + 1),
+                day = '' + d.getDate(),
+                year = d.getFullYear();
+
+            if (month.length < 2)
+                month = '0' + month;
+            if (day.length < 2)
+                day = '0' + day;
+
+            return [day, month, year].join('-');
+        }
+        function DateTimeNow() {
+            var date = new Date();
+            document.getElementById("box-time").innerHTML = moment(date, ["h:mm A"]).format("HH:mm");
+            document.getElementById("updateId").style.display = "inline-block";
+        }
+    </script>
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+}

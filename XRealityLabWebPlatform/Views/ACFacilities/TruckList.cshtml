@@ -1,0 +1,246 @@
+﻿@model IEnumerable<ARI.Models.GuestDTO>
+    @{
+        ViewBag.Title = "Φορτηγά";
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+    <div class="content-heading">
+        <div>
+            Φορτηγά
+        </div>
+    </div>
+
+
+    <!-- START cards box-->
+    <div class="card" style="max-width:1400px">
+        <div class="card-header">
+            <div class="card-title">Έλεγχος πρόσβασης \ Φορτηγά</div>
+            <div class="text-sm">Στο παρακάτω πίνακα αναγράφονται τα φορτηγά που εισήχθησαν μέσα στο εργοστάσιο.</div>
+            <a id="download-btn" asp-action="DownloadTruckList" class="mb-1 btn btn-primary" style="float: right;margin: 0px 0px 0px 5px;display:inline">Εξαγωγή δεδομένων</a>
+            <a asp-action="AddTruck" class="mb-1 btn btn-primary" type="button" style="float: right;display:inline">Προσθήκη νέου φορτηγού</a>
+
+        </div>
+
+        <div class="card-body">
+            <table class="table table-striped my-5 w-100" id="TrucksDataTable">
+                <thead>
+                    <tr>
+                        <th>Α/Α</th>
+                        <th>Ονοματεπώνυμο</th>
+                        <th style="text-align: center">Εταιρία</th>
+                        <th style="text-align: center">Σκοπός επίσκεψης</th>
+                        <th style="text-align: center">Πινακίδα οχήματος</th>
+                        <th style="text-align: center">Τηλέφωνο</th>
+                        <th style="text-align: center">Ημερομηνία Εισόδου</th>
+                        <th style="text-align: center">Ημερομηνία Εξόδου</th>
+                        <th style="text-align: center">Χρόνος εντός της εταιρίας</th>
+                        <th>Υπέγραψε</th>
+                        <th>Κατάσταση</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.OrderByDescending(k => k.ArrivalDateTime))
+                    {
+                        <tr class="gradeX">
+                            @if (item.DepartureDateTime == null)@*|| item.Sign == null*@
+                            {
+                                <td data-sort="@item.GuestId">
+                                    <a asp-action="EditTruck" asp-route-passToken="@item.PassToken">ΚΦ @item.GuestId</a>
+                                </td>
+                            }
+                            else
+                            {
+                                //data-sort="@item.GuestId" asp-route-sortOrder="@item.GuestId"
+                                <td data-sort="@item.GuestId">
+                                    <a>ΚΦ @item.GuestId</a>
+                                </td>
+                            }
+                            <td data-sort="@item.FirstName @item.LastName">@item.FirstName @item.LastName</td>
+                            <td data-sort="@item.CompanyName">@item.CompanyName</td>
+                            <td data-sort="@item.VisitationPurpose" style="text-align: center">@item.VisitationPurpose</td>
+                            @if (item.LicensePlate != null)
+                            {
+                                <td data-sort="@item.LicensePlate" style="text-align:center;">@item.LicensePlate</td>
+                            }
+                            else
+                            {
+                                <td data-sort="@item.LicensePlate" style="text-align:center">-</td>
+                            }
+
+                            @if (item.Telephone != null)
+                            {
+                                <td data-sort="@item.Telephone" style="text-align:center">@item.Telephone</td>
+                            }
+                            else
+                            {
+                                <td data-sort="@item.Telephone" style="text-align:center">-</td>
+                            }
+                            <td data-sort="@Convert.ToInt64(((DateTimeOffset)item.ArrivalDateTime).ToUnixTimeSeconds())">@item.ArrivalDateTime.ToString("MM/dd/yyyy H:mm")</td>
+
+                            @if (item.DepartureDateTime != null)
+                            {
+                                <td data-sort="@Convert.ToInt64(((DateTimeOffset)item.DepartureDateTime).ToUnixTimeSeconds())" asp-route-sortOrder="@item.DepartureDateTime">@item.DepartureDateTime.Value.ToString("MM/dd/yyyy H:mm")</td>
+                            }
+                            else
+                            {
+                                <td style="text-align:center">-</td>
+                            }
+
+                            @{
+                                if (item.VisitingDuration >= 60)
+                                {
+                                    <td asp-route-sortOrder="@item.VisitingDuration" data-sort="@item.VisitingDuration">@Convert.ToInt32(item.VisitingDuration / 60.0f) ώρες,  @Convert.ToInt32(item.VisitingDuration % 60.0f) λεπτά</td>
+                                }
+                                else
+                                {
+                                    <td asp-route-sortOrder="@item.VisitingDuration" data-sort="@item.VisitingDuration">@Convert.ToInt32(item.VisitingDuration % 60.0f) λεπτά</td>
+                                }
+                            }
+
+                            @if (@item.Sign != null)
+                            {
+                                <td>Done</td>
+                            }
+                            else
+                            {
+                                <td style="text-align:center">-</td>
+                            }
+                            @if (item.IsIncorrect == false)
+                            {
+                                @if (item.ArrivalDateTime < DateTime.UtcNow.AddHours(3))
+                                {
+                                    @if (item.DepartureDateTime != null)
+                                    {
+                                        @if (item.DepartureDateTime > DateTime.UtcNow.AddHours(3))
+                                        {
+                                            <td style="text-align: center"> <div class="badge badge-success" style="min-height:20px;text-align:center">Έντός της εταιρίας</div></td>
+                                        }
+                                        else
+                                        {
+                                            <td style="text-align: center"> <div class="badge badge-warning" style="min-height:20px;text-align:center">Έχει αποχωρήσει</div></td>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <td style="text-align: center"> <div class="badge badge-success" style="min-height:20px;text-align:center">Έντός της εταιρίας</div></td>
+                                    }
+                                }
+                                else
+                                {
+                                    <td style="text-align: center"> <div class="badge badge-warning" style="min-height:20px;text-align:center">Έχει αποχωρήσει</div></td>
+                                }
+                            }
+                            else
+                            {
+                                <td style="text-align: center"> <div class="badge badge-danger" style="min-height:20px;text-align:center">Άκυρο</div></td>
+                            }
+                            <td>
+                                @{
+                                    string titleMessage = string.Empty;
+                                    if (item.IsIncorrect == true)
+                                    {
+                                        titleMessage = "Επαναφορά εγγραφής";
+                                    }
+                                    else
+                                    {
+                                        titleMessage = "Άκυρη ενέργεια";
+                                    }
+                                }
+                                <a asp-action="CleanGuest" asp-route-passToken="@item.PassToken" data-toggle="tooltip" data-placement="top"
+                                   title="@titleMessage" style="margin: 0 10px 0 0">
+                                    @if (item.IsIncorrect == true)
+                                    {
+                                        <em class="mr-2 fas fa-undo"></em>
+                                    }
+                                    else
+                                    {
+                                        <em class="mr-2 fas fa-archive"></em>
+                                    }
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    @section Styles {
+        <environment names="Development">
+            <link rel="stylesheet" href="~/vendor/datatables.net-bs4/css/dataTables.bootstrap4.css">
+            <link rel="stylesheet" href="~/vendor/datatables.net-keytable-bs/css/keyTable.bootstrap.css">
+            <link rel="stylesheet" href="~/vendor/datatables.net-responsive-bs/css/responsive.bootstrap.css">
+        </environment>
+        <environment names="Staging,Production">
+            <link rel="stylesheet" href="~/vendor/datatables.net-bs4/css/dataTables.bootstrap4.css">
+            <link rel="stylesheet" href="~/vendor/datatables.net-keytable-bs/css/keyTable.bootstrap.css">
+            <link rel="stylesheet" href="~/vendor/datatables.net-responsive-bs/css/responsive.bootstrap.css">
+        </environment>
+
+
+    }
+
+    @section Scripts {
+
+        <environment names="Development">
+            <script src="~/vendor/datatables.net/js/jquery.dataTables.js"></script>
+            <script src="~/vendor/datatables.net-bs4/js/dataTables.bootstrap4.js"></script>
+            <script src="~/vendor/datatables.net-buttons/js/dataTables.buttons.js"></script>
+            <script src="~/vendor/datatables.net-buttons-bs/js/buttons.bootstrap.js"></script>
+            <script src="~/vendor/datatables.net-buttons/js/buttons.colVis.js"></script>
+            <script src="~/vendor/datatables.net-buttons/js/buttons.flash.js"></script>
+            <script src="~/vendor/datatables.net-buttons/js/buttons.html5.js"></script>
+            <script src="~/vendor/datatables.net-buttons/js/buttons.print.js"></script>
+            <script src="~/vendor/datatables.net-keytable/js/dataTables.keyTable.js"></script>
+            <script src="~/vendor/datatables.net-responsive/js/dataTables.responsive.js"></script>
+            <script src="~/vendor/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+            <script src="~/vendor/jszip/dist/jszip.js"></script>
+            <script src="~/vendor/pdfmake/build/pdfmake.js"></script>
+            <script src="~/vendor/pdfmake/build/vfs_fonts.js"></script>
+        </environment>
+        <environment names="Staging,Production">
+            <script src="~/vendor/datatables.net/js/jquery.dataTables.js"></script>
+            <script src="~/vendor/datatables.net-bs4/js/dataTables.bootstrap4.js"></script>
+            <script src="~/vendor/datatables.net-buttons/js/dataTables.buttons.js"></script>
+            <script src="~/vendor/datatables.net-buttons-bs/js/buttons.bootstrap.js"></script>
+            <script src="~/vendor/datatables.net-buttons/js/buttons.colVis.js"></script>
+            <script src="~/vendor/datatables.net-buttons/js/buttons.flash.js"></script>
+            <script src="~/vendor/datatables.net-buttons/js/buttons.html5.js"></script>
+            <script src="~/vendor/datatables.net-buttons/js/buttons.print.js"></script>
+            <script src="~/vendor/datatables.net-keytable/js/dataTables.keyTable.js"></script>
+            <script src="~/vendor/datatables.net-responsive/js/dataTables.responsive.js"></script>
+            <script src="~/vendor/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+            <script src="~/vendor/jszip/dist/jszip.js"></script>
+            <script src="~/vendor/pdfmake/build/pdfmake.js"></script>
+            <script src="~/vendor/pdfmake/build/vfs_fonts.js"></script>
+            <script>
+                if ($('#TrucksDataTable').DataTable)
+                    $('#TrucksDataTable').DataTable({
+                        'paging': true,
+                        // Table pagination
+                        'ordering': true,
+                        // Column ordering
+                        'info': true,
+                        // Bottom left status text
+                        responsive: true,
+                        'order': [[6, 'desc']],
+                        // Text translation options
+                        // Note the required keywords between underscores (e.g _MENU_)
+                        oLanguage: {
+                            sSearch: '<em class="fas fa-search"></em>',
+                            sLengthMenu: '_MENU_ records per page',
+                            info: 'Σελίδα _PAGE_ από _PAGES_',
+                            zeroRecords: 'Nothing found - sorry',
+                            infoEmpty: 'No records available',
+                            infoFiltered: '(filtered from _MAX_ total records)',
+                            oPaginate: {
+                                sNext: '<em class="fa fa-caret-right"></em>',
+                                sPrevious: '<em class="fa fa-caret-left"></em>'
+                            }
+                        }
+                    });
+            </script>
+        </environment>
+
+    }

@@ -1,0 +1,42 @@
+﻿@{
+    ViewData["Title"] = "Email verification";
+    Layout = "~/Views/Shared/_AuthLayout.cshtml";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ARI ΑΕ | @ViewData["Title"]</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <environment names="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css" />
+        <link rel="stylesheet" href="~/css/animate.css" />
+        <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
+    </environment>
+    <environment names="Staging,Production">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.min.css" />
+        <link rel="stylesheet" href="~/css/animate.css" />
+        <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
+    </environment>
+</head>
+
+<body class="gray-bg">
+    <div class="passwordBox animated fadeInDown">
+        <div class="row">
+            <div class="col-md-12">
+                <img src="https://arisa.blob.core.windows.net/web-application-images/AriLogo.png" class="imcnt" />
+                <div class="ibox-content">
+                    <h2>Δημιουργήθηκε ο λογαριασμός</h2>
+                    <p>Έχει σταλθεί στην ηλεκτρονική σας διεύθυνση σύνδεσμος που απαιτεί ενέργεια για να ενεργοποιηθεί ο λογαριασμού σας.</p>
+                </div>
+            </div>
+        </div>
+        <hr />
+    </div>
+</body>
+</html>

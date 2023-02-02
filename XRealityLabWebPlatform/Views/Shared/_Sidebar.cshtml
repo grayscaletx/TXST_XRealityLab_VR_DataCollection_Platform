@@ -1,0 +1,285 @@
+﻿@using System.Security.Claims;
+@using ARI.Common;
+
+@{
+    string role = string.Empty;
+    if (((ClaimsIdentity)User.Identity).FindAll("http://schemas.microsoft.com/ws/2008/06/identity/claims/role").Count() != 0)
+    {
+        role = ((ClaimsIdentity)User.Identity).FindAll("http://schemas.microsoft.com/ws/2008/06/identity/claims/role").ToList().LastOrDefault().Value;
+    }
+    IEnumerable<Claim> claims = User.Claims;
+}
+
+<!-- START Sidebar (left)-->
+<div class="aside-inner">
+    <nav class="sidebar" data-sidebar-anyclick-close="">
+        <!-- START sidebar nav-->
+        <ul class="sidebar-nav">
+            <!-- START user info-->
+            <li class="has-user-block">
+                <div id="user-block">
+                    <div class="item user-block">
+                        <!-- User picture-->
+                        <div class="user-block-picture">
+                            <div class="user-block-status">
+                                @if (role == "Υπεύθυνος Ασφαλείας")
+                                {
+                                    <img src="~/images/user/14.jpg" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
+                                }
+                                else if (role == "IT")
+                                {
+                                    <img src="~/images/user/15.jpg" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
+                                }
+                                else if (role == "Υπεύθυνος Ροών Εταιρίας")
+                                {
+                                    <img src="~/images/user/19.jpg" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
+                                }
+                                else if (role == "Logistics Supervisor")
+                                {
+                                    <img src="~/images/user/16.jpg" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
+                                }
+                                else if (role == "Υπεύθυνος Συσκευαστηρίου")
+                                {
+                                    <img src="~/images/user/18.jpg" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
+                                }
+                                else if (role == "Υπεύθυνος Παραγωγής")
+                                {
+                                    <img src="~/images/user/18.jpg" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
+                                }
+                                else if (role == "Τμήμα Διασφάλισης της Ποιότητας")
+                                {
+                                    <img src="~/images/user/21.jpg" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
+                                }
+                                else if (role == "Διαχειριστής")
+                                {
+                                    <img src="~/images/user/20.jpg" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
+                                }
+                                else
+                                {
+                                    <img src="~/images/user/02.jpg" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
+                                }
+                                <div class="circle bg-success circle-lg"></div>
+                            </div>
+                        </div>
+                        <!-- Name and Job-->
+                        <div class="user-block-info">
+                            <div class="btn-group">
+                                <button class="btn btn-link" data-toggle="dropdown">
+                                    <em class="fa fa-caret-down fa-lg"></em>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-left-forced animated fadeInLeft" role="menu">
+                                    <a class="dropdown-item" href="/Profile/EditProfile">
+                                        <span>Επεξεργασία</span>
+                                    </a>
+                                    <a class="dropdown-item" href="/Home/LogOutAndChangePassword">
+                                        <span>Αλλ. κωδικού</span>
+                                    </a>
+                                </div>
+                            </div>
+                            <span class="user-block-name">@User.Identity.Name</span>
+                            <span class="user-block-role">@role</span>
+
+                        </div>
+                    </div>
+                </div>
+            </li>
+            <!-- END user info-->
+            <!-- Iterates over all sidebar items-->
+            @if (role == "Διαχειριστής")
+            {
+                <li class="nav-heading">
+                    <span>Διαχείριση δεδομένων</span>
+                </li>
+                <li>
+                    <a href="@Url.Action("General", "Admin")">
+                        <em class="mr-2 fas fa-adjust"></em>
+                        <span>Γενικά</span>
+                    </a>
+                    <a href="@Url.Action("ManufacturingOperations", "Admin")">
+                        <em class="mr-2 fas fa-adjust"></em>
+                        <span>Γραμμή παραγωγής</span>
+                    </a>
+                </li>
+            }
+            @if (role == "Υπεύθυνος Ασφαλείας" || role == "Υπεύθυνος Ροών Εταιρίας")
+            {
+                <li class="nav-heading">
+                    <span>Έλεγχος πρόσβασης</span>
+                </li>
+                <li>
+                    <a href="@Url.Action("TruckList", "ACFacilities")">
+                        <em class="mr-2 fas fa-truck"></em>
+                        <span>Φορτηγά</span>
+                    </a>
+                    <a href="@Url.Action("VisitorList", "ACFacilities")">
+                        <em class="mr-2 far fa-user"></em>
+                        <span>Επισκέπτες</span>
+                    </a>
+                </li>
+            }
+            @if (role == "IT" || role == "Υπεύθυνος Ροών Εταιρίας")
+            {
+                <li class="nav-heading">
+                    <span>Προσωπικό</span>
+                </li>
+                <li>
+                    <a href="@Url.Action("UserList", "Staff")">
+                        <em class="mr-2 far fa-user"></em>
+                        <span>Χρήστες</span>
+                    </a>
+                </li>
+            }
+            @if (role == "IT" || role == "Υπεύθυνος Ροών Εταιρίας")
+            {
+                <li class="nav-heading">
+                    <span>Εξοπλισμός</span>
+                </li>
+                <li>
+                    <a href="@Url.Action("CompanyCarsList", "Equipment")">
+                        <em class="mr-2 fas fa-car"></em>
+                        <span>Εταιρικά αυτοκίνητα</span>
+                    </a>
+                </li>
+            }
+            @if (role == "IT" || role == "Υπεύθυνος Ροών Εταιρίας")
+            {
+                <li class="nav-heading">
+                    <span>Υποστήριξη</span>
+                </li>
+                <li>
+                    <a href="@Url.Action("RequestList", "Support")">
+                        <em class="mr-2 fas fa-file"></em>
+                        <span>Αιτήματα</span>
+                    </a>
+                </li>
+            }
+            @if (role == "Υπεύθυνος Συσκευαστηρίου" || role == "Υπεύθυνος Ροών Εταιρίας" || role == "Υπεύθυνος Παραγωγής" || role == "Logistics Supervisor")
+            {
+                <li class="nav-heading">
+                    <span>Γραμμή Συσκευαστηρίου</span>
+                </li>
+                <li>
+                    <a href="@Url.Action("PackagingLineForms", "PackagingLine")">
+                        <em class="mr-2 fas fa-file"></em>
+                        <span>Έντυπα συσκευαστηρίου</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("PalletList", "PackagingLine")">
+                        <em class="mr-2 fas fa-pallet"></em>
+                        <span>Παλέτες για μεταφορά</span>
+                    </a>
+                </li>
+                <li class="nav-heading">
+                    <span>Αποθήκη</span>
+                </li>
+                <li>
+                    <a href="@Url.Action("TopView", "Warehouse")">
+                        <em class="mr-2 fas fa-boxes"></em>
+                        <span>Χάρτης αποθεμάτων</span>
+                    </a>
+                    <a href="@Url.Action("WarehouseSupplies", "Warehouse")">
+                        <em class="mr-2 fas fa-boxes"></em>
+                        <span>Αποθέματα</span>
+                    </a>
+                </li>
+            }
+            @if (role == "Επόπτης Λογιστής" || role == "Υπεύθυνος Ροών Εταιρίας" || role == "Υπεύθυνος Παραγωγής" || role == "Logistics Supervisor")
+            {
+                <li class="nav-heading">
+                    <span>Φόρτωση</span>
+                </li>
+                <li>
+                    <a href="@Url.Action("Load", "Warehouse")">
+                        <em class="mr-2 fas fa-truck-loading"></em>
+                        <span>Φορτώσεις (Picking)</span>
+                    </a>
+                    <a href="@Url.Action("TruckList", "Warehouse")">
+                        <em class="mr-2 fas fa-truck"></em>
+                        <span>Φορτώσεις (Scanning)</span>
+                    </a>
+                    <br />
+                    <span>OLD</span>
+                    <a href="@Url.Action("WarehousePicking", "Warehouse")">
+                        <em class="mr-2 fas fa-truck-loading"></em>
+                        <span>Δημιουργία φορτηγού<br />(Picking) (x)</span>
+                    </a>
+                    <a href="@Url.Action("TruckOrders", "Warehouse")">
+                        <em class="mr-2 fas fa-truck"></em>
+                        <span>Χάρτης φορτώσεων</span>
+                    </a>
+
+                    <a href="@Url.Action("TruckScanning", "Warehouse")">
+                        <em class="mr-2 fas fa-chalkboard-teacher"></em>
+                        <span>Ολοκλήρωση φορτηγού <br /> (Scanning) (x)</span>
+                    </a>
+                </li>
+            }
+            @if (role == "Επόπτης Λογιστής" || role == "Υπεύθυνος Ροών Εταιρίας" || role == "Υπεύθυνος Παραγωγής" || role == "Logistics Supervisor")
+            {
+                <li class="nav-heading">
+                    <span>Παραγγελίες</span>
+                </li>
+                <li>
+                    <a href="@Url.Action("Orders", "Logistics")">
+                        <em class="mr-2 fas fa-file"></em>
+                        <span>Δελτία παραγγελιών</span>
+                    </a>
+                </li>
+            }
+            @if (role == "Υπεύθυνος Ροών Εταιρίας" || role == "Υπεύθυνος Παραγωγής" || role == "Logistics Supervisor")
+            {
+                <li class="nav-heading">
+                    <span>Σκανάρισμα</span>
+                </li>
+                @*<li>
+                <a href="@Url.Action("PalleteScanner", "PackagingLine")">
+                    <em class="mr-2 fas fa-camera"></em>
+                    <span>Σκανάρισμα παλέτας</span>
+                </a>
+            </li>*@
+                <li>
+                    <a href="@Url.Action("PalletScanner", "PackagingLine")">
+                        <em class="mr-2 fas fa-camera"></em>
+                        <span>Ταυτοποίηση παλετοκαρ.</span>
+                    </a>
+                </li>
+            }
+            @if (role == "Τμήμα Διασφάλισης της Ποιότητας" || role == "Υπεύθυνος Ροών Εταιρίας")
+            {
+                <li class="nav-heading">
+                    <span>Διασφάλιση ποιότητας</span>
+                </li>
+                <li>
+                    <a href="@Url.Action("Materials", "QualityAssurance")">
+                        <em class="mr-2 far fa-user"></em>
+                        <span>Προιόντα</span>
+                    </a>
+                </li>
+            }
+            @if (role == "Υπεύθυνος Ροών Εταιρίας" || role == "Logistics Supervisor" || role == "Υπεύθυνος Συσκευαστηρίου" || role == "Υπεύθυνος Παραγωγής")
+            {
+                <li class="nav-heading">
+                    <span>Πληροφορίες</span>
+                </li>
+                <li>
+                    <a href="@Url.Action("PalleteStatus", "PackagingLine")">
+                        <em class="mr-2 fas fa-info"></em>
+                        <span>Καταστάση παραγωγής</span>
+                    </a>
+                </li>
+                <li class="nav-heading" style="margin:20px 50px 0px 0px;">
+                    <span>Υπόδειγμα κατάστασης παλετών</span>
+                </li>
+                <li style="margin: 0px 00px 0px 0px; opacity: 0.8">
+                    <img src="~/images/PalletInfo.png" width="180" height="180" />
+                </li>
+            }
+
+
+
+        </ul>
+        <!-- END sidebar nav-->
+    </nav>
+</div>
+<!-- END Sidebar (left)-->

@@ -1,0 +1,10 @@
+C:\ARI\ARIWebPlatform\ARI.Core\Common\bin\Release\netstandard2.1\Common.deps.json
+C:\ARI\ARIWebPlatform\ARI.Core\Common\bin\Release\netstandard2.1\Common.dll
+C:\ARI\ARIWebPlatform\ARI.Core\Common\bin\Release\netstandard2.1\Common.pdb
+C:\ARI\ARIWebPlatform\ARI.Core\Common\obj\Release\netstandard2.1\Common.AssemblyInfoInputs.cache
+C:\ARI\ARIWebPlatform\ARI.Core\Common\obj\Release\netstandard2.1\Common.AssemblyInfo.cs
+C:\ARI\ARIWebPlatform\ARI.Core\Common\obj\Release\netstandard2.1\Common.csproj.CoreCompileInputs.cache
+C:\ARI\ARIWebPlatform\ARI.Core\Common\obj\Release\netstandard2.1\Common.dll
+C:\ARI\ARIWebPlatform\ARI.Core\Common\obj\Release\netstandard2.1\Common.pdb
+C:\ARI\ARIWebPlatform\ARI.Core\Common\obj\Release\netstandard2.1\Common.csproj.AssemblyReference.cache
+C:\ARI\ARIWebPlatform\ARI.Core\Common\obj\Release\netstandard2.1\Common.GeneratedMSBuildEditorConfig.editorconfig

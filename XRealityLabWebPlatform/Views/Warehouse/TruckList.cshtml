@@ -1,0 +1,179 @@
+﻿@model IEnumerable<ARI.Models.TruckDTO>
+@using System.Security.Claims;
+@using ARI.Common;
+
+@{
+    ViewBag.Title = "Φορτώσεις";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="content-heading">
+    <div>
+        Φορτώσεις
+    </div>
+</div>
+
+@if (ViewBag.actionMessage != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        @ViewBag.actionMessage
+    </div>
+}
+
+<div class="card" style="max-width:1400px">
+    <div class="card-header">
+        <div class="card-title">Φόρτωση \ Φορτώσεις</div>
+        <div class="text-sm">Στο παρακάτω πίνακα εμφανίζονται οι φορτώσεις</div>
+        <a asp-action="ExportTruckData" class="mb-1 btn btn-primary" type="button" style="float: right;margin: 0px 0px 0px 5px;display:inline">Εξαγωγή δεδομένων</a>
+        <a class="btn btn-primary" asp-action="WarehouseHistory" type="button" style="float: right; margin: 0px 0px 0px 5px; display: inline">Ιστορικό φορτώσεων</a>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered table-hover" id="datatable4">
+            <thead>
+                <tr>
+                    <th data-priority="1">Α/Α</th>
+                    <th data-priority="1">Επικαιροποίηση φόρτωσης</th>
+                    <th style="text-align: center" class="sort-numeric">Ημερομηνία εντύπου</th>
+                    <th style="text-align: center" class="sort-numeric">Αριθμός παραγγελιών</th>
+                    <th style="text-align: center" class="sort-numeric">Αριθμός παλετών</th>
+                    <th style="text-align: center" class="sort-numeric">Παλετοκάρτες LIDL</th>
+                    <th style="text-align: center" class="sort-numeric">Έγγραφα οδηγού</th>
+                    <th style="text-align: center" class="sort-numeric">CMR οδηγού</th>
+                    <th style="text-align: center" class="sort-numeric">Έγγραφο LIDL (H)</th>
+                    <th style="text-align: center" class="sort-numeric">Έγγραφο LIDL (L)</th>
+                    <th style="text-align: center" class="sort-numeric">Ημερομηνία φόρτωσης</th>
+                    <th style="text-align: center" class="sort-numeric"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                <tr class="gradeX">
+                    <td>
+                        @*<a asp-action="EditTruck" asp-route-passToken="@item.PassToken">ΤΡ @item.TruckId</a>*@
+                        <p>ΤΡ @item.TruckId</p>
+                    </td>
+                    <td style="text-align: center">
+                        @if (item.IsAuthorized == 0)
+                        {
+                            <input class="control-label" id="confirmatio-checkbox" type="checkbox" onclick="handleTruckValidation(@item.TruckId);" value="option1" />
+                        }
+                        else if (item.IsAuthorized == 1)
+                        {
+                            <input class="control-label" id="confirmatio-checkbox" type="checkbox" onclick="handleTruckValidation(@item.TruckId);" value="option1" checked />
+                        }
+                    </td>
+                    <td style="text-align: center">@item.CreationDateTime.ToString("dd/MM/yyyy mm:ss")</td>
+                    <td style="text-align: center">@item.NoOrders</td>
+                    <td style="text-align: center">@item.NoPallets</td>
+                    <td style="text-align: center"><a target="_blank" href="@item.PalletCardLIDL"><img width="20" height="20" src="~/images/link.png" /></a></td>
+                    <td style="text-align: center"><a target="_blank" href="@item.DriverDocuments"><img width="20" height="20" src="~/images/link.png" /></a></td>
+                    <td style="text-align: center"><a target="_blank" href="@item.CMRDocuments"><img width="20" height="20" src="~/images/link.png" /></a></td>
+                    <td style="text-align: center"><a target="_blank" href="@item.LIDLOrdersHeaders"><img width="20" height="20" src="~/images/document_link.png" /></a></td>
+                    <td style="text-align: center"><a target="_blank" href="@item.LIDLOrdersLines"><img width="20" height="20" src="~/images/document_link.png" /></a></td>
+                    <td style="text-align: center">- @item.CompletionDateTime</td>
+                    <td style="text-align: center">
+                        @if (item.IsAuthorized == 0)
+                        {
+                            <div class="badge badge-dark">Προστέθηκε</div>
+                        }
+                        else if (item.IsAuthorized == 1)
+                        {
+                            <div class="badge badge-purple">Επικαιροποιήθηκε</div>
+                        }
+                    </td>
+                    <td>
+                        @if (item.IsAuthorized == 0)
+                        {
+                        <a asp-action="DeleteTruck" asp-route-truckId="@item.TruckId" style="margin: 0 10px 0 0" title="Διαγραφή"><em class="mr-2 fas fa-trash-alt"></em></a>
+                        }
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@section Styles {
+    <environment names="Development">
+        <link rel="stylesheet" href="~/vendor/datatables.net-bs4/css/dataTables.bootstrap4.css">
+        <link rel="stylesheet" href="~/vendor/datatables.net-keytable-bs/css/keyTable.bootstrap.css">
+        <link rel="stylesheet" href="~/vendor/datatables.net-responsive-bs/css/responsive.bootstrap.css">
+    </environment>
+    <environment names="Staging,Production">
+        <link rel="stylesheet" href="~/vendor/datatables.net-bs4/css/dataTables.bootstrap4.css">
+        <link rel="stylesheet" href="~/vendor/datatables.net-keytable-bs/css/keyTable.bootstrap.css">
+        <link rel="stylesheet" href="~/vendor/datatables.net-responsive-bs/css/responsive.bootstrap.css">
+    </environment>
+}
+
+@section Scripts {
+    <environment names="Development">
+        <script src="~/vendor/datatables.net/js/jquery.dataTables.js"></script>
+        <script src="~/vendor/datatables.net-bs4/js/dataTables.bootstrap4.js"></script>
+        <script src="~/vendor/datatables.net-buttons/js/dataTables.buttons.js"></script>
+        <script src="~/vendor/datatables.net-buttons-bs/js/buttons.bootstrap.js"></script>
+        <script src="~/vendor/datatables.net-buttons/js/buttons.colVis.js"></script>
+        <script src="~/vendor/datatables.net-buttons/js/buttons.flash.js"></script>
+        <script src="~/vendor/datatables.net-buttons/js/buttons.html5.js"></script>
+        <script src="~/vendor/datatables.net-buttons/js/buttons.print.js"></script>
+        <script src="~/vendor/datatables.net-keytable/js/dataTables.keyTable.js"></script>
+        <script src="~/vendor/datatables.net-responsive/js/dataTables.responsive.js"></script>
+        <script src="~/vendor/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+        <script src="~/vendor/jszip/dist/jszip.js"></script>
+        <script src="~/vendor/pdfmake/build/pdfmake.js"></script>
+        <script src="~/vendor/pdfmake/build/vfs_fonts.js"></script>
+    </environment>
+    <environment names="Staging,Production">
+        <script src="~/vendor/datatables.net/js/jquery.dataTables.js"></script>
+        <script src="~/vendor/datatables.net-bs4/js/dataTables.bootstrap4.js"></script>
+        <script src="~/vendor/datatables.net-buttons/js/dataTables.buttons.js"></script>
+        <script src="~/vendor/datatables.net-buttons-bs/js/buttons.bootstrap.js"></script>
+        <script src="~/vendor/datatables.net-buttons/js/buttons.colVis.js"></script>
+        <script src="~/vendor/datatables.net-buttons/js/buttons.flash.js"></script>
+        <script src="~/vendor/datatables.net-buttons/js/buttons.html5.js"></script>
+        <script src="~/vendor/datatables.net-buttons/js/buttons.print.js"></script>
+        <script src="~/vendor/datatables.net-keytable/js/dataTables.keyTable.js"></script>
+        <script src="~/vendor/datatables.net-responsive/js/dataTables.responsive.js"></script>
+        <script src="~/vendor/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+        <script src="~/vendor/jszip/dist/jszip.js"></script>
+        <script src="~/vendor/pdfmake/build/pdfmake.js"></script>
+        <script src="~/vendor/pdfmake/build/vfs_fonts.js"></script>
+    </environment>
+
+    <script>
+        function handleTruckValidation(truckId) {
+            var formData = new FormData();
+            formData.append('truck-id', truckId);
+
+            $.ajax({
+                type: "post",
+                url: "/Warehouse/HandleTruckValidation",
+                contentType: false,
+                processData: false,
+                data: formData,
+                success: function (message) {
+                    window.location = '/Warehouse/TruckList'
+                },
+                error: function () {
+                    alert("there was error uploading files!");
+                }
+            });
+        }
+        $(document).on("click", ".open-AddDeleteDialog", function () {
+            var registerId = $(this).data('id');
+            var a = document.getElementById("deleteId");
+            a.href = "DeleteForm/?passToken=" + registerId;
+        });
+        $(document).on("click", ".open-AddCancelDialog", function () {
+            var registerId = $(this).data('id');
+            var a = document.getElementById("cancelId");
+            a.href = "CancelForm/?passToken=" + registerId;
+        });
+    </script>
+}

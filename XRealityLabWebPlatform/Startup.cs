@@ -1,0 +1,135 @@
+using Application.Security;
+using ARI.AuthorizationRequirements;
+using ARI.Data;
+using ARI.Security;
+using Infrastructure.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using NETCore.MailKit.Extensions;
+using NETCore.MailKit.Infrastructure.Internal;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Wkhtmltopdf.NetCore;
+
+namespace ARIWebPlatform
+{
+    public class Startup
+    {
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+        public IConfiguration Configuration { get; }
+
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+            var connection = string.Empty;
+            if (Configuration.GetSection("Environment").Value == "Production")
+                connection = Configuration.GetConnectionString("ari");
+            else
+                connection = Configuration.GetConnectionString("aridev");
+
+            services.AddDbContext<ARIContext>(options => options.UseSqlServer(connection));
+
+            services.AddDbContext<AppDbContext>(config => {
+                config.UseInMemoryDatabase("Memory");
+            });
+
+            //AddIdentity registers the services
+            services.AddIdentity<IdentityUser, IdentityRole>(config =>
+            {
+                config.Password.RequiredLength = 4;
+                config.Password.RequireDigit = false;
+                config.Password.RequireNonAlphanumeric = false;
+                config.Password.RequireUppercase = false;
+                config.SignIn.RequireConfirmedEmail = true;
+            })
+                .AddEntityFrameworkStores<AppDbContext>()
+                .AddDefaultTokenProviders();
+
+            services.ConfigureApplicationCookie(config =>
+            {
+                config.Cookie.Name = "ARI.Cookie";
+                config.LoginPath = "/Auth/Login";
+            });
+
+            services.AddAuthorization(config =>
+            {
+                config.AddPolicy("Claim.Role", policyBuilder =>
+                {
+                    policyBuilder.RequireCustomClaim(ClaimTypes.Role);
+                });
+            });
+
+            services.AddScoped<IAuthorizationHandler, CustomRequireClaimHandler>();
+
+            services.AddTransient<GoogleReCAPTCHAService>();
+
+            services.AddMvc(options =>
+              options.EnableEndpointRouting = false)
+              .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+
+            services.AddSingleton<UniqueCode>();
+            services.AddSingleton<CustomIDataProtection>();
+
+            services.AddSession(options =>
+            {
+                // Set session timeout value
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
+                options.Cookie.HttpOnly = true;
+            });
+
+            services.Configure<ReCAPTCHASettings>(Configuration.GetSection("GoogleReCAPTCHA"));
+
+            services.AddMailKit(config => config.UseMailKit(Configuration.GetSection("Email").Get<MailKitOptions>()));
+
+            services.AddControllersWithViews().AddRazorRuntimeCompilation();//ONLY FOR THE DEVELOPMENT (addrazorRuntimeCompilation)
+        }
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Auth/Error");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
+            }
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+
+            app.UseAuthentication();
+
+            app.UseAuthorization();
+
+            app.UseMvcWithDefaultRoute();
+            app.UseRouting();
+
+            app.UseSession();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Auth}/{action=Index}/{id?}");
+            });
+        }
+    }
+}

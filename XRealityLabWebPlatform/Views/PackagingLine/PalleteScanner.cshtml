@@ -1,0 +1,184 @@
+﻿@{
+    ViewBag.Title = "Σκανάρισμα παλέτας";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-heading">
+    <div>
+        Σκανάρισμα παλέτας
+    </div>
+</div>
+
+<table style="width:150px;display:inline;margin:0px 12px 0px 0px">
+    <tbody>
+        <tr class="gradeX">
+            <td>
+                <div class="card" style="max-width:600px">
+                    <div class="card-header">
+                        <div class="card-title">Σκανάρισμα παλέτας (QRCode) </div>
+                        <div class="text-sm">Πατήστε σκανάρισμα για να εμφανιστούν οι πληροφορίες της παλέτας</div>
+                    </div>
+                    <button id="start_btn" type="button" class="btn btn-primary" onclick="SetCameraPermission()">Έναρξη</button>
+                    <div id="camera_capturing_div" class="card-body" hidden>
+                        <div class="col-md-4">
+                            <div id="LiveCamera" style="margin-bottom:30px;"></div>
+                            <form>
+                                <input type="button" class="btn btn-primary" value="Σκανάρισμα ετικέτας" onClick="CaptureSnapshot()">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div class="card" style="max-width:600px">
+                    <div class="card-header">
+                        <div class="card-title">Σκανάρισμα παλέτας (BarCode) </div>
+                        <div class="text-sm">Πατήστε σκανάρισμα για να εμφανιστούν οι πληροφορίες της παλέτας</div>
+                    </div>
+                    <button id="start_btn" type="button" class="btn btn-primary" disabled>Έναρξη</button>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<div id="results" hidden></div>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@section BodyArea {
+    <div class="modal fade" id="PalletDialog" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="align-content:center">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">Προβολή στοιχείων της παλέτας</h4>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <img style="align-self:center;margin:10px 0px 0px 0px" width="100" height="100" src="~/images/pallet_large_icon.png" />
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <div class="col-md-4">Κωδικός παλέτας:</div>
+                        <div class="col-md-8">
+                            <strong id="pallet_id"></strong>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">Κατάσταση:</div>
+                        <!--@*TEMP*@-->
+                        <div class="badge badge-success" style="margin:0px 10px">Δημιουργήθηκε</div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-4">Ημερομηνία εντύπου:</div>
+                        <div class="col-md-8">
+                            <strong id="pallet_date"></strong>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">Κωδικοποίηση παλέτας:</div>
+                        <div class="col-md-8">
+                            <strong id="material_description">-</strong>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">Προϊόν:</div>
+                        <div class="col-md-8">
+                            <strong id="packaging_line_description"></strong>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">LOT προϊόντος:</div>
+                        <div class="col-md-8">
+                            <strong id="material_lot">-</strong>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">Χώρα:</div>
+                        <div class="col-md-8">
+                            <strong id="country_code">-</strong>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">Παλετοκιβώτια:</div>
+                        <div class="col-md-8">
+                            <strong id="no_pallet_box">-</strong>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">Ημερομηνία δημιουργίας:</div>
+                        <div class="col-md-8">
+                            <strong id="registration_date">-</strong>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">Ημερομηνία λήξης του προϊόντος:</div>
+                        <div class="col-md-8">
+                            <strong id="expiration_date">-</strong>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">Σημειώσεις:</div>
+                        <div class="col-md-8">
+                            <strong id="notes">-</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Κλείσιμο</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<!-- Include the Webcam.js JavaScript Library -->
+<script src="~/webcamjs/webcam.js"></script>
+<style>
+    .modal-backdrop {
+        z-index: 0;
+    }
+</style>
+
+<!-- Javascript code to capture the snapshot and displaying it in the screen -->
+<script language="JavaScript">
+    function CaptureSnapshot() {
+        document.getElementById('start_btn').hidden = false;
+        document.getElementById('camera_capturing_div').hidden = true;
+        Webcam.snap(function (data) {
+            // display results in page
+            document.getElementById('results').innerHTML = '<img src="' + data + '"/>';
+            // Send image data to the controller to store locally or in database
+            Webcam.upload(data,
+                '/PackagingLine/CaptureImage',
+                function (code, response_data) {
+                    if (response_data == 'false') {
+                        alert('Δεν αναγνώστηκε σωστά. Παρακαλώ δοκιμάστε ξανά');
+                    }
+                    else {
+                        $('#PalletDialog').modal('toggle');
+                        var data = JSON.parse(response_data);
+                        document.getElementById("pallet_id").innerHTML = 'ΚΓΣ' + data.palletId;
+                        document.getElementById("pallet_date").innerHTML = data.palletDate;
+                        document.getElementById("packaging_line_description").innerHTML = data.packagingLineDescription;
+                        document.getElementById("material_description").innerHTML = data.materialDescription;
+                        document.getElementById("material_lot").innerHTML = data.materialLOT;
+                        document.getElementById("no_pallet_box").innerHTML = data.noPalletBox;
+                        document.getElementById("country_code").innerHTML = data.countryCode;
+                        document.getElementById("notes").innerHTML = data.notes;
+                        document.getElementById("registration_date").innerHTML = data.registrationDateTime;
+                        document.getElementById("expiration_date").innerHTML = data.material.expirationDate;
+                    }
+                });
+        });
+    }
+    function SetCameraPermission() {
+        document.getElementById('start_btn').hidden = true;
+        document.getElementById('camera_capturing_div').hidden = false;
+        Webcam.set({
+            width: 500,
+            height: 375,
+            image_format: 'png',
+            jpeg_quality: 100
+        });
+        Webcam.attach('#LiveCamera');
+    }
+</script>

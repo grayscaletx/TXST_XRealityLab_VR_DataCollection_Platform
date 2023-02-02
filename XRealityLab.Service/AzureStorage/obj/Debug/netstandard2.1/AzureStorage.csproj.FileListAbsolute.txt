@@ -1,0 +1,15 @@
+C:\NIH\XRealityLab\XRealityLab.Service\AzureStorage\bin\Debug\netstandard2.1\AzureStorage.deps.json
+C:\NIH\XRealityLab\XRealityLab.Service\AzureStorage\bin\Debug\netstandard2.1\AzureStorage.dll
+C:\NIH\XRealityLab\XRealityLab.Service\AzureStorage\bin\Debug\netstandard2.1\AzureStorage.pdb
+C:\NIH\XRealityLab\XRealityLab.Service\AzureStorage\bin\Debug\netstandard2.1\Common.dll
+C:\NIH\XRealityLab\XRealityLab.Service\AzureStorage\bin\Debug\netstandard2.1\Infrastructure.dll
+C:\NIH\XRealityLab\XRealityLab.Service\AzureStorage\bin\Debug\netstandard2.1\Common.pdb
+C:\NIH\XRealityLab\XRealityLab.Service\AzureStorage\bin\Debug\netstandard2.1\Infrastructure.pdb
+C:\NIH\XRealityLab\XRealityLab.Service\AzureStorage\obj\Debug\netstandard2.1\AzureStorage.csproj.AssemblyReference.cache
+C:\NIH\XRealityLab\XRealityLab.Service\AzureStorage\obj\Debug\netstandard2.1\AzureStorage.GeneratedMSBuildEditorConfig.editorconfig
+C:\NIH\XRealityLab\XRealityLab.Service\AzureStorage\obj\Debug\netstandard2.1\AzureStorage.AssemblyInfoInputs.cache
+C:\NIH\XRealityLab\XRealityLab.Service\AzureStorage\obj\Debug\netstandard2.1\AzureStorage.AssemblyInfo.cs
+C:\NIH\XRealityLab\XRealityLab.Service\AzureStorage\obj\Debug\netstandard2.1\AzureStorage.csproj.CoreCompileInputs.cache
+C:\NIH\XRealityLab\XRealityLab.Service\AzureStorage\obj\Debug\netstandard2.1\AzureStorage.csproj.CopyComplete
+C:\NIH\XRealityLab\XRealityLab.Service\AzureStorage\obj\Debug\netstandard2.1\AzureStorage.dll
+C:\NIH\XRealityLab\XRealityLab.Service\AzureStorage\obj\Debug\netstandard2.1\AzureStorage.pdb

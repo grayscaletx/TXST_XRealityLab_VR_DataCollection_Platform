@@ -1,0 +1,130 @@
+﻿@model ARI.Application.RequestDTO
+@using Microsoft.Extensions.Options
+@inject IOptions<ARI.Security.ReCAPTCHASettings> GoogleReCAPTCHA
+
+@{
+    ViewData["Title"] = "Απόστολή αιτήματος / παραπόνου";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+}
+
+<div class="block-center mt-4 wd-xl">
+    <!-- START card-->
+    <div class="card card-flat">
+        <div class="card-header text-center bg-white">
+            <a href="#">
+                <img class="block-center" src="~/images/AriLogo.png" style="max-width: 250px;" alt="Image" />
+            </a>
+        </div>
+        <div class="card-body">
+            <p class="text-center py-2">Αποστολή αιτήματος / παραπόνου</p>
+            <form asp-action="Request" class="mb-3" role="form" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <div class="input-group with-focus">
+                        <input asp-for="FullName" class="form-control border-right-0" placeholder="Ονοματεπώνυμο (*)" required="required" />
+                        <div class="input-group-append">
+                            <span asp-validation-for="FullName" class="input-group-text text-muted bg-transparent border-left-0 text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group with-focus">
+                        <input asp-for="Email" class="form-control border-right-0" type="email" placeholder="Ηλεκτρονική διεύθυνση (*)" required="required" />
+                        <div class="input-group-append">
+                            <span asp-validation-for="Email" class="input-group-text text-muted bg-transparent border-left-0 text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group with-focus">
+                        <input asp-for="Street" class="form-control border-right-0" placeholder="Διεύθυνση" />
+                        <div class="input-group-append">
+                            <span asp-validation-for="Street" class="input-group-text text-muted bg-transparent border-left-0 text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group with-focus">
+                        <input asp-for="City" class="form-control border-right-0" placeholder="Πόλη" />
+                        <div class="input-group-append">
+                            <span asp-validation-for="City" class="input-group-text text-muted bg-transparent border-left-0 text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group with-focus">
+                        <input asp-for="Telephone" class="form-control border-right-0" placeholder="Τηλέφωνο" />
+                        <div class="input-group-append">
+                            <span asp-validation-for="Telephone" class="input-group-text text-muted bg-transparent border-left-0 text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        @Html.DropDownListFor(x => Model.SelectedComplaintSubject, new SelectList(Model.ComplaintSubjectListItems, "Value", "Text"), htmlAttributes: new { @class = "form-control", id = "ComplaintSubject" })
+                        @Html.ValidationMessageFor(x => x.SelectedComplaintSubject, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input asp-for="iFormFile" style="margin:0px 5px" class="btn btn-sm btn-primary" type="file" id="files" accept="application/pdf" />
+                    <small><i>(.pdf)</i></small>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Περιγραφή (*)</span>
+                        </div>
+                        <textarea class="form-control" aria-label="With textarea" style="max-height: 250px" maxlength="999" asp-for="Description"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                    <small><i>(μεγ. χαρακτήρες 1000)</i></small>
+                </div>
+                <input asp-for="Token" type="hidden" />
+                <div class="form-group">
+                    <input type="submit" value="Αποστολή" class="btn btn-block btn-primary mt-3" />
+                </div>
+            </form>
+        </div>
+    </div>
+    <br />
+    <p class="m-t"><small>Copyright © 2021</small><a href="http://arifoods.gr/"><small> ARI S.A. </small></a><small>All rights reserved.</small></p>
+    
+    @*<div class="card card-default">
+        <div class="card-header">Φόρτωση αρχείου EDI</div>
+        <div class="card-body">
+            <form class="form-horizontal" method="post" enctype="multipart/form-data">
+                <div class="form-group row">
+                    <input style="margin:0px 5px" class="btn btn-sm btn-primary" type="file" id="files" name="files" value="Φόρτωση παραγγελίας" />
+                </div>
+                <button id="upload" class="btn btn-primary">Προβολή</button>
+                <img id="loader" class="block-center rounded" src="~/images/loading.gif" style="max-width: 250px; visibility:hidden" alt="Image" />
+            </form>
+        </div>
+        <form method="post" enctype="multipart/form-data">
+        </form>
+    </div>*@
+
+</div>
+
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="https://www.google.com/recaptcha/api.js?render=@GoogleReCAPTCHA.Value.ReCAPTCHA_Site_Key"></script>
+    <script>
+         $(document).ready(function(){
+            $("#signupForm").validate({
+                rules:{
+                    termsConditions : "required"
+                }
+            });
+        });
+
+        grecaptcha.ready(function () {
+            grecaptcha.execute('@GoogleReCAPTCHA.Value.ReCAPTCHA_Site_Key', { action: 'homepage' }).then(function (token) {
+                console.log(token);
+                $('#Token').val(token);
+        });
+    });
+    </script>
+}

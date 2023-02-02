@@ -1,0 +1,300 @@
+﻿@{
+    ViewBag.Title = "Σκανάρισμα παλέτας";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-heading">
+    <div>
+        Ταυτοποίηση παλετοκαρτών
+    </div>
+</div>
+
+<div>Σκανάρετε μία παλέτα</div>
+<!--<table style="width:150px;display:inline;margin:0px 0px 0px 0px">
+    <tbody>
+        <tr class="gradeX">
+            <td>
+                <div class="card" style="max-width: 400px; height: 400px">
+                    <div class="card-header">
+                        <div class="card-title">Πληροφορίες παλέτας (QRCode \ Barcode) </div>
+                        <div class="text-sm">Πατήστε σκανάρισμα για να εμφανιστούν οι πληροφορίες της παλέτας</div>
+                    </div>-->
+@*<button id="start_btn" type="button" class="btn btn-primary" onclick="SetCameraPermission()">Έναρξη</button>*@
+<!--<div id="camera_capturing_div" class="card-body">
+    <div class="col-md-4">
+        <div id="LiveCamera"></div>
+        <form>-->
+@*<input type="button" class="btn btn-primary" value="Σκανάρισμα ετικέτας" onClick="CaptureSnapshot()">*@
+<!--<div>
+                                    <a class="button btn-success" id="startButton">Έναρξη</a>
+                                    <a class="button btn-primary" id="resetButton">Ακύρωση</a>
+                                </div>
+                                <div>
+                                    <video id="video" width="300" height="200" style="border: 1px solid gray"></video>
+                                </div>
+
+                                <div id="sourceSelectPanel" style="display:none">
+                                    <label for="sourceSelect">Επιλέξτε κάμερα:</label>
+                                    <select id="sourceSelect" style="max-width:400px">
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>-->
+
+<br />
+<br />
+<br />
+<br />
+
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@section BodyArea {
+    <div class="modal fade" id="PalletDialog" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="align-content:center">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">Προβολή στοιχείων της παλέτας</h4>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <img style="align-self:center;margin:10px 0px 0px 0px" width="100" height="100" src="~/images/pallet_large_icon.png" />
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <div class="col-md-4">Κωδικός παλέτας:</div>
+                        <div class="col-md-8">
+                            <strong id="pallet_id"></strong>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">Κατάσταση:</div>
+                        <!--@*TEMP*@-->
+                        <div class="badge badge-success" style="margin:0px 10px">Δημιουργήθηκε</div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-4">Ημερομηνία εντύπου:</div>
+                        <div class="col-md-8">
+                            <strong id="pallet_date"></strong>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">Κωδικοποίηση παλέτας:</div>
+                        <div class="col-md-8">
+                            <strong id="material_description">-</strong>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">Προϊόν:</div>
+                        <div class="col-md-8">
+                            <strong id="packaging_line_description"></strong>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">LOT προϊόντος:</div>
+                        <div class="col-md-8">
+                            <strong id="material_lot">-</strong>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">Χώρα:</div>
+                        <div class="col-md-8">
+                            <strong id="country_code">-</strong>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">Παλετοκιβώτια:</div>
+                        <div class="col-md-8">
+                            <strong id="no_pallet_box">-</strong>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">Ημερομηνία δημιουργίας:</div>
+                        <div class="col-md-8">
+                            <strong id="registration_date">-</strong>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">Ημερομηνία λήξης του προϊόντος:</div>
+                        <div class="col-md-8">
+                            <strong id="expiration_date">-</strong>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">Σημειώσεις:</div>
+                        <div class="col-md-8">
+                            <strong id="notes">-</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Κλείσιμο</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<!-- Include the Webcam.js JavaScript Library -->
+<script src="~/js/jquery-3.6.0.slim.min.js"></script>
+@*<script src="~/webcamjs/webcam.js"></script>*@
+@*<script src="~/barcode/quagga.min.js"></script>*@
+@*<script src="~/barcode/quagga.js"></script>*@
+@*<script src="~/barcode/file_input.js"></script>*@
+@*<script src="~/barcode/scan.js"></script>*@
+@*<link href="~/barcode/scan.css" rel="stylesheet" />*@
+@*<script src="~/barcode/gs1/BarcodeParser.js"></script>*@
+<style>
+    .modal-backdrop {
+        z-index: 0;
+    }
+
+    #interactive.viewport {
+        position: relative;
+        width: 100%;
+        height: auto;
+        overflow: hidden;
+        text-align: center;
+    }
+
+        #interactive.viewport > canvas, #interactive.viewport > video {
+            max-width: 100%;
+            width: 100%;
+        }
+
+    canvas.drawing, canvas.drawingBuffer {
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+</style>
+@section Scripts {
+    <link rel="stylesheet" href="https://gs1.github.io/interpretGS1scan/interpretGS1ScanStyles.css" />
+    <script type="text/javascript" src="~/barcode/gs1dlt/zing.min.js"></script>
+
+    @*<script src="~/barcode/gs1dlt/GS1DigitalLinkToolkit.js"></script>
+        <script src="~/barcode/gs1dlt/interpretGS1Scan.js"></script>
+        <script src="~/barcode/gs1dlt/plausibleGS1DL.js"></script>
+        <script src="~/barcode/gs1dlt/beep.js"></script>*@
+    <script src="~/js/popper.min.js"></script>
+    <script src="~/js/moment.js"></script>
+    <script src="/barcode/gs1/beep.js"></script>
+    <script src="/barcode/scanner/onscan.js"></script>
+    <script>
+
+        //Scanner
+        function initOnScan() {
+                var suffixKeyCodes = [];
+                var prefixKeyCodes = [];
+
+                var options = {
+                    suffixKeyCodes: suffixKeyCodes,
+                    prefixKeyCodes: prefixKeyCodes,
+                }
+
+                options.onScan = function (barcode) {
+                    if (barcode.includes("(00)")) {
+                        alert(barcode);
+                        window.location = '/PackagingLine/PalletBarcodeInfo?palletId=' + barcode;
+                    }
+                };
+
+                try {
+                    onScan.attachTo(document, options);
+                } catch (e) {
+                    onScan.setOptions(document, options);
+                }
+            }
+        (function () {
+            initOnScan();
+        })();
+
+            //window.addEventListener('load', function () {
+            //    let selectedDeviceId;
+            //    const codeReader = new ZXing.BrowserMultiFormatReader()
+            //    console.log('ZXing code reader initialized')
+            //    codeReader.getVideoInputDevices()
+            //        .then((videoInputDevices) => {
+            //            const sourceSelect = document.getElementById('sourceSelect')
+            //            selectedDeviceId = videoInputDevices[0].deviceId
+            //            if (videoInputDevices.length >= 1) {
+            //                let i = 0;
+            //                let s = null;
+            //                videoInputDevices.forEach((element) => {
+            //                    const sourceOption = document.createElement('option')
+            //                    sourceOption.text = element.label
+            //                    if ((element.label.indexOf("rear") > -1) || (element.label.indexOf("back") > -1)) {
+            //                        s = i;
+            //                    }
+            //                    sourceOption.value = element.deviceId
+            //                    sourceSelect.appendChild(sourceOption)
+            //                    i++;
+            //                })
+            //                if (s !== null) {
+            //                    sourceSelect.selectedIndex = s;
+            //                    selectedDeviceId = sourceSelect.value;
+            //                }
+
+            //                sourceSelect.onchange = () => {
+            //                    selectedDeviceId = sourceSelect.value;
+            //                };
+
+            //                const sourceSelectPanel = document.getElementById('sourceSelectPanel')
+            //                sourceSelectPanel.style.display = 'block'
+            //            }
+
+            //            document.getElementById('startButton').addEventListener('click', () => {
+            //                codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', (result, err) => {
+            //                    if (result) {
+            //                        console.log(result);
+
+            //                        if (isNumeric(result.text)) {
+            //                            openInNewTab('/PackagingLine/PalletQRInfo?passToken=' + result.text);
+            //                        }
+            //                        else {
+            //                            openInNewTab(result);
+            //                        }
+
+            //                        beep.play();
+            //                    }
+            //                    if (err instanceof ZXing.ChecksumException) {
+            //                        alert('A code was found, but it\'s read value was not valid.')
+            //                    }
+            //                    if (err instanceof ZXing.FormatException) {
+            //                        alert('A code was found, but it was in a invalid format.')
+            //                    }
+            //                    if (err && !(err instanceof ZXing.NotFoundException)) {
+            //                        alert(err)
+            //                        document.getElementById('result').textContent = err
+            //                    }
+            //                })
+            //                console.log(`Started continous decode from camera with id ${selectedDeviceId}`)
+            //            })
+
+            //            document.getElementById('resetButton').addEventListener('click', () => {
+            //                codeReader.reset()
+            //                console.log('Reset.')
+            //            })
+
+            //        })
+            //        .catch((err) => {
+            //            console.error(err)
+            //        })
+            //})
+
+            //function openInNewTab(url) {
+            //    window.open(url, '_blank').focus();
+            //}
+            //function isNumeric(str) {
+            //    if (typeof str != "string") return false // we only process strings!
+            //    return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+            //        !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+            //}
+
+
+    </script>
+}
