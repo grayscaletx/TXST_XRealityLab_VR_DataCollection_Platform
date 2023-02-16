@@ -1,0 +1,107 @@
+﻿@model IEnumerable<ARI.Models.PackagingLineFormDTO>
+@using System.Security.Claims;
+@using ARI.Common;
+
+@{
+    ViewBag.Title = "DataCollections";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!--Header-->
+<div class="content-heading">
+    <div>
+        <h2>DataCollections</h2>
+        <!-- Breadcrumb below title-->
+        <ol class="breadcrumb breadcrumb px-0 pb-0">
+            <li class="breadcrumb-item">
+                <a href="/ResearchAssistant/MyProjects">MyProjects</a>
+            </li>
+            <li class="breadcrumb-item active">Data Collections</li>
+        </ol>
+    </div>
+</div>
+
+
+<!--Alert dialog-->
+@if (ViewBag.actionMessage != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        @ViewBag.actionMessage
+    </div>
+}
+
+<!--Collections List-->
+<div class="body">
+    <h4>Data Collections</h4>
+    <div class="form-group row">
+        <label class="col-md-6 col-form-label">My Projects Title is long and might need to fold over the next line or several lines</label>
+        <a class="fa-2x mr-2 fas fa-search text-dark" data-toggle="dropdown"></a>
+        <div class="col-md-4 abs-right">
+            <input class="form-control form-control-rounded" type="text" placeholder="search sessions" />
+        </div>
+    </div>
+    <table class="table table-bordered table-hover" id="table-ext-1">
+        <tbody>
+            <tr>
+                <td><a class="text-primary" id="swal-demo2" href="">New Session +</a></td>
+            </tr>
+        </tbody>        
+    </table>
+    <br/>
+    <table class="table table-bordered table-hover" id="table-ext-1">
+        @for (int i = 0; i < 4; i++)
+        {
+            <tbody>
+                <tr>
+                    <td class="text-primary" onclick="location.href='#'">Session Name</td>
+                    <td>Date</td>
+                    <td class="fa-2x mr-2 fas fa-user small"> # participants</td>
+                    <td>
+                        <a class="fa-2x mr-2 fas fa-ellipsis-h text-dark" data-toggle="dropdown"></a>
+                        <div class="dropdown-menu" role="menu">
+                            <a class="dropdown-item" href="#">Edit</a>
+                            <a class="dropdown-item" href="#">Export data as PDF</a>
+                            <a class="dropdown-item" href="#">Export data as XLS</a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody> 
+        }
+
+    </table>
+</div>
+
+
+@section Styles {
+    <link rel="stylesheet" href="~/vendor/datatables.net-bs4/css/dataTables.bootstrap4.css">
+    <link rel="stylesheet" href="~/vendor/datatables.net-keytable-bs/css/keyTable.bootstrap.css">
+    <link rel="stylesheet" href="~/vendor/datatables.net-responsive-bs/css/responsive.bootstrap.css">
+}
+
+@section Scripts {
+    <script src="~/vendor/datatables.net/js/jquery.dataTables.js"></script>
+    <script src="~/vendor/datatables.net-bs4/js/dataTables.bootstrap4.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/dataTables.buttons.js"></script>
+    <script src="~/vendor/datatables.net-buttons-bs/js/buttons.bootstrap.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.colVis.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.flash.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.html5.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.print.js"></script>
+    <script src="~/vendor/datatables.net-keytable/js/dataTables.keyTable.js"></script>
+    <script src="~/vendor/datatables.net-responsive/js/dataTables.responsive.js"></script>
+    <script src="~/vendor/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+    <script src="~/vendor/jszip/dist/jszip.js"></script>
+    <script src="~/vendor/pdfmake/build/pdfmake.js"></script>
+    <script src="~/vendor/pdfmake/build/vfs_fonts.js"></script>
+    <script>
+        $('#swal-demo2').on('click', function (e) {
+            e.preventDefault();
+            swal("Here's a message!", "It's pretty, isn't it?")
+        });
+    </script>
+
+
+}

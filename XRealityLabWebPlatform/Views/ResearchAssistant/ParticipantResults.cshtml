@@ -1,0 +1,312 @@
+﻿@model IEnumerable<ARI.Models.PackagingLineFormDTO>
+@using System.Security.Claims;
+@using ARI.Common;
+
+@{
+    ViewBag.Title = "ParticipantResults";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!--Header-->
+<div class="content-heading">
+    <div>
+        <h2>Placeholder(Session Name)</h2>
+        <!-- Breadcrumb below title-->
+        <ol class="breadcrumb breadcrumb px-0 pb-0">
+            <li class="breadcrumb-item">
+                <a href="/ResearchAssistant/MyProjects">MyProjects</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="/ResearchAssistant/DataCollections">Data Collections</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="/ResearchAssistant/Participants">Placeholder(Session Name)</a>
+            </li>
+            <li class="breadcrumb-item active">Placeholder(Participant Name)</li>
+        </ol>
+    </div>
+</div>
+
+
+<!--Alert dialog-->
+@if (ViewBag.actionMessage != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        @ViewBag.actionMessage
+    </div>
+}
+
+<!--Collections List-->
+<div class="body">
+    <h4>Placeholder(Participant ID) Placeholder(Participant Name)</h4>
+    <div class="form-group row">
+        <label class="col-md-6 col-form-label">My Projects Title is long and might need to fold over the next line or several lines</label>
+    </div>
+    <!--Cards-->
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <!-- START card-->
+            <div class="card flex-row align-items-center align-items-stretch border-0">
+                <div class="col-4 d-flex align-items-center bg-primary-dark justify-content-center rounded-left">
+                    <em class="fa-2x mr-2 far fa-clock"></em>
+                </div>
+                <div class="col-8 py-3 bg-primary-light rounded-right">
+                    <div class="h1">30m 26s</div>
+                    <div class="h4">Total time</div>
+                    <div class="text">Average 28m 27s</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <!-- START card-->
+            <div class="card flex-row align-items-center align-items-stretch border-0">
+                <div class="col-4 d-flex align-items-center bg-warning-dark justify-content-center rounded-left">
+
+                </div>
+                <div class="col-8 py-3 bg-warning rounded-right">
+                    <div class="h1">5</div>
+                    <div class="h4">Avatars Interacted</div>
+                    <div class="text">Average 7</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xl-6">
+            <h2>Timeline</h2>
+            <div class="card card-default">
+                <div class="card-body">
+                    <ul class="timeline">
+                        <!--timeline row-->
+                        <li class="invisible">
+                            <div class="timeline-badge dark">
+                            </div>
+                            <h4 align="right">0:00</h4>
+                        </li>
+                        <li class="timeline-inverted">
+                            <h4 align="left">Start @@ 1:45 CST</h4>
+                        </li>
+                        <li>
+                            <div class="timeline-badge dark">
+                            </div>
+                            <h4 align="right">0:00</h4>
+                        </li>
+                        <!--timeline row-->
+                        <li class="invisible">
+                            <div class="timeline-badge dark">
+                            </div>
+                            <h4 align="right">0:00</h4>
+                        </li>
+                        <li class="timeline-inverted">
+                            <h4 align="middle"></h4>
+                        </li>
+                        <li>
+                            <div class="timeline-badge dark">
+                            </div>
+                            <h4 align="right">0:30</h4>
+                        </li>
+                        <!--timeline row-->
+                        <li class="invisible">
+                            <div class="timeline-badge dark">
+                            </div>
+                            <h4 align="right">0:00</h4>
+                        </li>
+                        <li class="timeline-inverted">
+                            <h4 align="middle"></h4>
+                        </li>
+                        <li>
+                            <div class="timeline-badge dark">
+                            </div>
+                            <h4 align="right">0:40</h4>
+                        </li>
+                        <!--timeline row-->
+                        <li class="invisible">
+                            <div class="timeline-badge dark">
+                            </div>
+                            <h4 align="right">0:00</h4>
+                        </li>
+                        <li class="timeline-inverted">
+                            <h4 align="middle"></h4>
+                        </li>
+                        <li>
+                            <div class="timeline-badge dark">
+                            </div>
+                            <h4 align="right">0:45</h4>
+                        </li>
+                        <!--timeline row-->
+                        <li class="invisible">
+                            <div class="timeline-badge dark">
+                            </div>
+                            <h4 align="right">0:00</h4>
+                        </li>
+                        <li class="timeline-inverted">
+                            <h4 align="left">Audio Capture</h4>
+
+                        </li>
+                        <li>
+                            <div class="timeline-badge dark">
+                            </div>
+                            <h4 align="right">1:30</h4>
+                        </li>
+                        <!--timeline row-->
+                        <li class="invisible">
+                            <div class="timeline-badge dark">
+                            </div>
+                            <h4 align="right">0:00</h4>
+                        </li>
+                        <li class="timeline-inverted">
+                            <h4 align="left">Suzy invites home</h4>
+
+                        </li>
+                        <li>
+                            <div class="timeline-badge dark">
+                            </div>
+                            <h4 align="right">2:30</h4>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-xl-6">
+            <h2>Session Eye Fixation</h2>
+            <div class="col-xl-12">
+                <!-- START card-->
+                <div class="card card-default" id="cardDemo14">
+                    <div class="card-body">
+                        <div role="tabpanel">
+                            <!-- Nav tabs-->
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link active" href="#Character-1" aria-controls="Character-1" role="tab" data-toggle="tab">Character 1</a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link" href="#Character-2" aria-controls="Character-2" role="tab" data-toggle="tab">Character 2</a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link" href="#Character-3" aria-controls="Character-3" role="tab" data-toggle="tab">Character 3</a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link" href="#Character-4" aria-controls="Character-4" role="tab" data-toggle="tab">Character 4</a>
+                                </li>
+                            </ul>
+                            <!-- Tab panes-->
+                            <div class="tab-content">
+                                <div class="tab-pane active" id="Character-1" role="tabpanel">
+                                    <img src="~/_images/Temp Photos/bg2.jpg" />
+                                </div>
+                                <div class="tab-pane" id="Character-2" role="tabpanel">
+                                    Integer lobortis commodo auctor.
+                                </div>
+                                <div class="tab-pane" id="Character-3" role="tabpanel">
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                                </div>
+                                <div class="tab-pane" id="Character-4" role="tabpanel">
+                                    Sed commodo tellus ut mi tristique pharetra.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END card-->
+            </div>
+        </div>
+    </div>
+    <div class="row">        
+        <div class="col-xl-12">
+            <h2>Questionnaires</h2>
+            <div class="col-xl-12">
+                <!-- START card-->
+                <div class="card card-default" id="cardDemo14">
+                    <div class="card-body">
+                        <div role="tabpanel">
+                            <!-- Nav tabs-->
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link active" href="#Screening" aria-controls="Screening" role="tab" data-toggle="tab">Screening</a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link" href="#Pretest" aria-controls="Pretest" role="tab" data-toggle="tab">Pretest</a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link" href="#Post-test" aria-controls="Post-test" role="tab" data-toggle="tab">Post-test</a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link" href="#Exit-Questionnaire" aria-controls="Exit-Questionnaire" role="tab" data-toggle="tab">Exit Questionnaire</a>
+                                </li>
+                            </ul>
+                            <!-- Tab panes-->
+                            <div class="tab-content">
+                                <div class="tab-pane active" id="Screening" role="tabpanel">
+                                    <img src="~/_images/Temp Photos/bg2.jpg" />
+                                </div>
+                                <div class="tab-pane" id="Pretest" role="tabpanel">
+                                    Integer lobortis commodo auctor.
+                                </div>
+                                <div class="tab-pane" id="Post-test" role="tabpanel">
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                                </div>
+                                <div class="tab-pane" id="Exit-Questionnaire" role="tabpanel">
+                                    Sed commodo tellus ut mi tristique pharetra.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END card-->
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xl-12">
+            <div>
+                <h2>Session Notes</h2>
+            </div>
+            <div class="card card-default">
+                <div class="card-body">
+                    <form>
+                        <div class="">
+                            <div class="">
+                                <input type="text" class="form-control mb-xl-1" style="overflow:scroll; height:250px; max-height:250px;" id="inlineFormInput" placeholder="">
+                            </div>
+                            <div class="">
+                                <button type="submit" class="btn btn-primary mb-2" >Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+</div>
+
+
+    @section Styles {
+        <link rel="stylesheet" href="~/vendor/datatables.net-bs4/css/dataTables.bootstrap4.css">
+        <link rel="stylesheet" href="~/vendor/datatables.net-keytable-bs/css/keyTable.bootstrap.css">
+        <link rel="stylesheet" href="~/vendor/datatables.net-responsive-bs/css/responsive.bootstrap.css">
+    }
+
+    @section Scripts {
+        <script src="~/vendor/datatables.net/js/jquery.dataTables.js"></script>
+        <script src="~/vendor/datatables.net-bs4/js/dataTables.bootstrap4.js"></script>
+        <script src="~/vendor/datatables.net-buttons/js/dataTables.buttons.js"></script>
+        <script src="~/vendor/datatables.net-buttons-bs/js/buttons.bootstrap.js"></script>
+        <script src="~/vendor/datatables.net-buttons/js/buttons.colVis.js"></script>
+        <script src="~/vendor/datatables.net-buttons/js/buttons.flash.js"></script>
+        <script src="~/vendor/datatables.net-buttons/js/buttons.html5.js"></script>
+        <script src="~/vendor/datatables.net-buttons/js/buttons.print.js"></script>
+        <script src="~/vendor/datatables.net-keytable/js/dataTables.keyTable.js"></script>
+        <script src="~/vendor/datatables.net-responsive/js/dataTables.responsive.js"></script>
+        <script src="~/vendor/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+        <script src="~/vendor/jszip/dist/jszip.js"></script>
+        <script src="~/vendor/pdfmake/build/pdfmake.js"></script>
+        <script src="~/vendor/pdfmake/build/vfs_fonts.js"></script>
+
+
+    }

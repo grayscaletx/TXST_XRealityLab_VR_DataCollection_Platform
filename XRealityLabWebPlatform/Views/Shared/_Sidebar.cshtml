@@ -3,11 +3,12 @@
 
 @{
     string role = string.Empty;
-    if (((ClaimsIdentity)User.Identity).FindAll("http://schemas.microsoft.com/ws/2008/06/identity/claims/role").Count() != 0)
+    role = "LabDirector";
+@*    if (((ClaimsIdentity)User.Identity).FindAll("http://schemas.microsoft.com/ws/2008/06/identity/claims/role").Count() != 0)
     {
         role = ((ClaimsIdentity)User.Identity).FindAll("http://schemas.microsoft.com/ws/2008/06/identity/claims/role").ToList().LastOrDefault().Value;
     }
-    IEnumerable<Claim> claims = User.Claims;
+    IEnumerable<Claim> claims = User.Claims;*@
 }
 
 <!-- START Sidebar (left)-->
@@ -22,37 +23,25 @@
                         <!-- User picture-->
                         <div class="user-block-picture">
                             <div class="user-block-status">
-                                @if (role == "Υπεύθυνος Ασφαλείας")
+                                @if (role == "Research Assistat")
                                 {
-                                    <img src="~/images/user/14.jpg" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
+                                    <img src="~/_images/user/temp01.png" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
                                 }
-                                else if (role == "IT")
+                                else if (role == "Administrator")
                                 {
-                                    <img src="~/images/user/15.jpg" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
+                                    <img src="~/_images/user/temp01.png" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
                                 }
-                                else if (role == "Υπεύθυνος Ροών Εταιρίας")
+                                else if (role == "PI")
                                 {
-                                    <img src="~/images/user/19.jpg" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
+                                    <img src="~/_images/user/temp01.png" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
                                 }
-                                else if (role == "Logistics Supervisor")
+                                else if (role == "UniversityAdmin")
                                 {
-                                    <img src="~/images/user/16.jpg" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
+                                    <img src="~/_images/user/temp01.png" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
                                 }
-                                else if (role == "Υπεύθυνος Συσκευαστηρίου")
+                                else if (role == "LabDirector")
                                 {
-                                    <img src="~/images/user/18.jpg" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
-                                }
-                                else if (role == "Υπεύθυνος Παραγωγής")
-                                {
-                                    <img src="~/images/user/18.jpg" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
-                                }
-                                else if (role == "Τμήμα Διασφάλισης της Ποιότητας")
-                                {
-                                    <img src="~/images/user/21.jpg" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
-                                }
-                                else if (role == "Διαχειριστής")
-                                {
-                                    <img src="~/images/user/20.jpg" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
+                                    <img src="~/_images/user/temp01.png" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
                                 }
                                 else
                                 {
@@ -63,218 +52,130 @@
                         </div>
                         <!-- Name and Job-->
                         <div class="user-block-info">
-                            <div class="btn-group">
-                                <button class="btn btn-link" data-toggle="dropdown">
-                                    <em class="fa fa-caret-down fa-lg"></em>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-left-forced animated fadeInLeft" role="menu">
-                                    <a class="dropdown-item" href="/Profile/EditProfile">
-                                        <span>Επεξεργασία</span>
-                                    </a>
-                                    <a class="dropdown-item" href="/Home/LogOutAndChangePassword">
-                                        <span>Αλλ. κωδικού</span>
-                                    </a>
-                                </div>
+                            @*<div class="btn-group">
+                             <button class="btn btn-link" data-toggle="dropdown">
+                                 <em class="fa fa-caret-down fa-lg"></em>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-left-forced animated fadeInLeft" role="menu">
+                                <a class="dropdown-item" href="/Profile/EditProfile">
+                                    <span>Επεξεργασία</span>
+                                   </a>
+                                <a class="dropdown-item" href="/Home/LogOutAndChangePassword">
+                                     <span>Αλλ. κωδικού</span>
+                                 </a>
                             </div>
-                            <span class="user-block-name">@User.Identity.Name</span>
+                        </div>*@
+                            <span class="user-block-name">@*@User.Identity.Name*@<strong>Grayson Lawrence</strong></span>
                             <span class="user-block-role">@role</span>
-
+                            <a class="user-block-role" href="">profile</a>
+                            <a class="user-block-role" asp-controller="Home" asp-action="Logout" data-no-persist="true">log out</a>
                         </div>
                     </div>
                 </div>
             </li>
             <!-- END user info-->
             <!-- Iterates over all sidebar items-->
-            @if (role == "Διαχειριστής")
+            @if (role == "Research Assistat")
             {
                 <li class="nav-heading">
-                    <span>Διαχείριση δεδομένων</span>
+                    <span>Main Navigation</span>
                 </li>
                 <li>
-                    <a href="@Url.Action("General", "Admin")">
-                        <em class="mr-2 fas fa-adjust"></em>
-                        <span>Γενικά</span>
+                    <a href="@Url.Action("MyProjects", "ResearchAssistant")" title="MyProjects">
+                        <em class="fa-2x mr-2 far fa-clipboard"></em>
+                        <span>My Projects</span>
                     </a>
-                    <a href="@Url.Action("ManufacturingOperations", "Admin")">
-                        <em class="mr-2 fas fa-adjust"></em>
-                        <span>Γραμμή παραγωγής</span>
+                    <a href="#">
+                        <em class="fa-2x icon-settings mr-2"></em>
+                        <span>Settings</span>
                     </a>
                 </li>
             }
-            @if (role == "Υπεύθυνος Ασφαλείας" || role == "Υπεύθυνος Ροών Εταιρίας")
+            @if (role == "PI")
             {
                 <li class="nav-heading">
-                    <span>Έλεγχος πρόσβασης</span>
+                    <span>Main Navigation</span>
                 </li>
                 <li>
-                    <a href="@Url.Action("TruckList", "ACFacilities")">
-                        <em class="mr-2 fas fa-truck"></em>
-                        <span>Φορτηγά</span>
+                    <a href="@Url.Action("MyProjects", "ResearchAssistant")" title="MyProjects">
+                        <em class="fa-2x mr-2 far fa-clipboard"></em>
+                        <span>My Projects</span>
                     </a>
-                    <a href="@Url.Action("VisitorList", "ACFacilities")">
-                        <em class="mr-2 far fa-user"></em>
-                        <span>Επισκέπτες</span>
+                    <a href="@Url.Action("PrincipleInvestigators", "PrincipleInvestigator")" title="PrincipleIvestigators">
+                        <em class="fa-2x mr-2 fas fa-users"></em>
+                        <span>Principle Ivestigators</span>
+                    </a>
+                    <a href="@Url.Action("ResearchAssistants", "PrincipleInvestigator")" title="ResearchAssistants">
+                        <em class="fa-2x mr-2 fas fa-users"></em>
+                        <span>Research Assistants</span>
+                    </a>
+                    <a href="#">
+                        <em class="fa-2x icon-settings mr-2"></em>
+                        <span>Settings</span>
                     </a>
                 </li>
             }
-            @if (role == "IT" || role == "Υπεύθυνος Ροών Εταιρίας")
+            @if (role == "Administrator")
             {
                 <li class="nav-heading">
-                    <span>Προσωπικό</span>
+                    <span>Main Navigation</span>
                 </li>
                 <li>
-                    <a href="@Url.Action("UserList", "Staff")">
-                        <em class="mr-2 far fa-user"></em>
-                        <span>Χρήστες</span>
+                    <a href="@Url.Action("Accounts", "Admin")" title="Organizations">
+                        <em class="fa-2x mr-2 far fa-clipboard"></em>
+                        <span>Organizations</span>
+                    </a>
+                    <a href="#">
+                        <em class="fa-2x icon-settings mr-2"></em>
+                        <span>Settings</span>
                     </a>
                 </li>
             }
-            @if (role == "IT" || role == "Υπεύθυνος Ροών Εταιρίας")
+            @if (role == "UniversityAdmin")
             {
                 <li class="nav-heading">
-                    <span>Εξοπλισμός</span>
+                    <span>Main Navigation</span>
                 </li>
                 <li>
-                    <a href="@Url.Action("CompanyCarsList", "Equipment")">
-                        <em class="mr-2 fas fa-car"></em>
-                        <span>Εταιρικά αυτοκίνητα</span>
+                    <a href="@Url.Action("Labs", "UniversityAdmin")" title="Labs">
+                        <em class="fa-2x icon-chemistry mr-2"></em>
+                        <span>Labs</span>
+                    </a>
+                    <a href="#">
+                        <em class="fa-2x icon-settings mr-2"></em>
+                        <span>Settings</span>
                     </a>
                 </li>
             }
-            @if (role == "IT" || role == "Υπεύθυνος Ροών Εταιρίας")
+            @if (role == "LabDirector")
             {
                 <li class="nav-heading">
-                    <span>Υποστήριξη</span>
+                    <span>Main Navigation</span>
                 </li>
                 <li>
-                    <a href="@Url.Action("RequestList", "Support")">
-                        <em class="mr-2 fas fa-file"></em>
-                        <span>Αιτήματα</span>
+                    <a href="@Url.Action("AllProjects", "LabDirector")" title="AllProjects">
+                        <em class="fa-2x mr-2 far fa-clipboard"></em>
+                        <span>All Projects</span>
+                    </a>
+                    <a href="@Url.Action("MyProjects", "ResearchAssistant")" title="MyProjects">
+                        <em class="fa-2x mr-2 far fa-clipboard"></em>
+                        <span>My Projects</span>
+                    </a>
+                    <a href="@Url.Action("PrincipleInvestigators", "PrincipleInvestigator")" title="PrincipleIvestigators">
+                        <em class="fa-2x mr-2 fas fa-users"></em>
+                        <span>Principle Ivestigators</span>
+                    </a>
+                    <a href="@Url.Action("ResearchAssistants", "PrincipleInvestigator")" title="ResearchAssistants">
+                        <em class="fa-2x mr-2 fas fa-users"></em>
+                        <span>Research Assistants</span>
+                    </a>
+                    <a href="#">
+                        <em class="fa-2x icon-settings mr-2"></em>
+                        <span>Settings</span>
                     </a>
                 </li>
             }
-            @if (role == "Υπεύθυνος Συσκευαστηρίου" || role == "Υπεύθυνος Ροών Εταιρίας" || role == "Υπεύθυνος Παραγωγής" || role == "Logistics Supervisor")
-            {
-                <li class="nav-heading">
-                    <span>Γραμμή Συσκευαστηρίου</span>
-                </li>
-                <li>
-                    <a href="@Url.Action("PackagingLineForms", "PackagingLine")">
-                        <em class="mr-2 fas fa-file"></em>
-                        <span>Έντυπα συσκευαστηρίου</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="@Url.Action("PalletList", "PackagingLine")">
-                        <em class="mr-2 fas fa-pallet"></em>
-                        <span>Παλέτες για μεταφορά</span>
-                    </a>
-                </li>
-                <li class="nav-heading">
-                    <span>Αποθήκη</span>
-                </li>
-                <li>
-                    <a href="@Url.Action("TopView", "Warehouse")">
-                        <em class="mr-2 fas fa-boxes"></em>
-                        <span>Χάρτης αποθεμάτων</span>
-                    </a>
-                    <a href="@Url.Action("WarehouseSupplies", "Warehouse")">
-                        <em class="mr-2 fas fa-boxes"></em>
-                        <span>Αποθέματα</span>
-                    </a>
-                </li>
-            }
-            @if (role == "Επόπτης Λογιστής" || role == "Υπεύθυνος Ροών Εταιρίας" || role == "Υπεύθυνος Παραγωγής" || role == "Logistics Supervisor")
-            {
-                <li class="nav-heading">
-                    <span>Φόρτωση</span>
-                </li>
-                <li>
-                    <a href="@Url.Action("Load", "Warehouse")">
-                        <em class="mr-2 fas fa-truck-loading"></em>
-                        <span>Φορτώσεις (Picking)</span>
-                    </a>
-                    <a href="@Url.Action("TruckList", "Warehouse")">
-                        <em class="mr-2 fas fa-truck"></em>
-                        <span>Φορτώσεις (Scanning)</span>
-                    </a>
-                    <br />
-                    <span>OLD</span>
-                    <a href="@Url.Action("WarehousePicking", "Warehouse")">
-                        <em class="mr-2 fas fa-truck-loading"></em>
-                        <span>Δημιουργία φορτηγού<br />(Picking) (x)</span>
-                    </a>
-                    <a href="@Url.Action("TruckOrders", "Warehouse")">
-                        <em class="mr-2 fas fa-truck"></em>
-                        <span>Χάρτης φορτώσεων</span>
-                    </a>
-
-                    <a href="@Url.Action("TruckScanning", "Warehouse")">
-                        <em class="mr-2 fas fa-chalkboard-teacher"></em>
-                        <span>Ολοκλήρωση φορτηγού <br /> (Scanning) (x)</span>
-                    </a>
-                </li>
-            }
-            @if (role == "Επόπτης Λογιστής" || role == "Υπεύθυνος Ροών Εταιρίας" || role == "Υπεύθυνος Παραγωγής" || role == "Logistics Supervisor")
-            {
-                <li class="nav-heading">
-                    <span>Παραγγελίες</span>
-                </li>
-                <li>
-                    <a href="@Url.Action("Orders", "Logistics")">
-                        <em class="mr-2 fas fa-file"></em>
-                        <span>Δελτία παραγγελιών</span>
-                    </a>
-                </li>
-            }
-            @if (role == "Υπεύθυνος Ροών Εταιρίας" || role == "Υπεύθυνος Παραγωγής" || role == "Logistics Supervisor")
-            {
-                <li class="nav-heading">
-                    <span>Σκανάρισμα</span>
-                </li>
-                @*<li>
-                <a href="@Url.Action("PalleteScanner", "PackagingLine")">
-                    <em class="mr-2 fas fa-camera"></em>
-                    <span>Σκανάρισμα παλέτας</span>
-                </a>
-            </li>*@
-                <li>
-                    <a href="@Url.Action("PalletScanner", "PackagingLine")">
-                        <em class="mr-2 fas fa-camera"></em>
-                        <span>Ταυτοποίηση παλετοκαρ.</span>
-                    </a>
-                </li>
-            }
-            @if (role == "Τμήμα Διασφάλισης της Ποιότητας" || role == "Υπεύθυνος Ροών Εταιρίας")
-            {
-                <li class="nav-heading">
-                    <span>Διασφάλιση ποιότητας</span>
-                </li>
-                <li>
-                    <a href="@Url.Action("Materials", "QualityAssurance")">
-                        <em class="mr-2 far fa-user"></em>
-                        <span>Προιόντα</span>
-                    </a>
-                </li>
-            }
-            @if (role == "Υπεύθυνος Ροών Εταιρίας" || role == "Logistics Supervisor" || role == "Υπεύθυνος Συσκευαστηρίου" || role == "Υπεύθυνος Παραγωγής")
-            {
-                <li class="nav-heading">
-                    <span>Πληροφορίες</span>
-                </li>
-                <li>
-                    <a href="@Url.Action("PalleteStatus", "PackagingLine")">
-                        <em class="mr-2 fas fa-info"></em>
-                        <span>Καταστάση παραγωγής</span>
-                    </a>
-                </li>
-                <li class="nav-heading" style="margin:20px 50px 0px 0px;">
-                    <span>Υπόδειγμα κατάστασης παλετών</span>
-                </li>
-                <li style="margin: 0px 00px 0px 0px; opacity: 0.8">
-                    <img src="~/images/PalletInfo.png" width="180" height="180" />
-                </li>
-            }
+            
 
 
 

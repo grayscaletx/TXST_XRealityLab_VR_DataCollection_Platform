@@ -128,7 +128,7 @@ namespace ARIWebPlatform
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Auth}/{action=Index}/{id?}");
+                    pattern: "{controller=LabDirector}/{action=AllProjects}/{id?}");
             });
         }
     }
