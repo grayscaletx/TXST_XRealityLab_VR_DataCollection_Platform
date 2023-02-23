@@ -24,7 +24,7 @@ namespace ARI.Helpers
     public class ClassConverters
     {
         //Palletcard Dialogs
-        public static PalletDTO GetPalletInfo(ARIContext _context, CustomIDataProtection _protector, int _palletId)
+        /*public static PalletDTO GetPalletInfo(ARIContext _context, CustomIDataProtection _protector, int _palletId)
         {
             var packagingLineFormId = _context.PackagingLineFormPallets.Include(k => k.PackagingLineForm).FirstOrDefault(l => l.PalletId == _palletId).PackagingLineFormId;
             var formCreationDate = _context.PackagingLineForms.FirstOrDefault(k => k.PackagingLineFormId == packagingLineFormId).FormCreationDate;
@@ -214,6 +214,6 @@ namespace ARI.Helpers
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             return new string(Enumerable.Repeat(chars, length)
               .Select(s => s[random.Next(s.Length)]).ToArray());
-        }
+        }*/
     }
 }

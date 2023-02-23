@@ -9,13 +9,16 @@ namespace Infrastructure.Entities
     {
         public Role()
         {
+            LabUsers = new HashSet<LabUser>();
+            ProjectUsers = new HashSet<ProjectUser>();
             Users = new HashSet<User>();
         }
 
         public int RoleId { get; set; }
         public string Type { get; set; }
-        public int SeverityLevel { get; set; }
 
+        public virtual ICollection<LabUser> LabUsers { get; set; }
+        public virtual ICollection<ProjectUser> ProjectUsers { get; set; }
         public virtual ICollection<User> Users { get; set; }
     }
 }

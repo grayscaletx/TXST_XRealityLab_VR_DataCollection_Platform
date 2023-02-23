@@ -1,4 +1,4 @@
-﻿using Application.Security;
+﻿/*using Application.Security;
 using ARI.Common;
 using ARI.Helpers;
 using ARI.Models;
@@ -554,7 +554,7 @@ namespace ARI.Controllers
         {
             List<PalletDTO> palletDTOs = new List<PalletDTO>();
 
-            var packagingLines = await _context.PackagingLineForms.Where(k => /*k.Status == (int)PackagingLineStatus.LoadPallets ||*/ k.Status != (int)PackagingLineStatus.Cancel).ToListAsync();
+            var packagingLines = await _context.PackagingLineForms.Where(k => *//*k.Status == (int)PackagingLineStatus.LoadPallets ||*//* k.Status != (int)PackagingLineStatus.Cancel).ToListAsync();
             foreach (var packagingLineItem in packagingLines)
             {
                 var tempPalletDTOs = _context.PackagingLineFormPallets.Include(k => k.Pallet).Where(k => k.PackagingLineForm == packagingLineItem && k.Pallet.PalletCreationDateTime != null).Select(k => new PalletDTO
@@ -1122,3 +1122,4 @@ namespace ARI.Controllers
         }
     }
 }
+*/

@@ -1,0 +1,144 @@
+﻿@model IEnumerable<ARI.Models.PackagingLineFormDTO>
+@using System.Security.Claims;
+@using ARI.Common;
+
+@{
+    ViewBag.Title = "AddNewOrganization";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!--Header-->
+<div class="content-heading">
+    <div>
+        <strong>New Organization and IT Director</strong>
+    </div>
+</div>
+
+<!--Alert dialog-->
+@if (ViewBag.actionMessage != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        @ViewBag.actionMessage
+    </div>
+}
+
+<!--Projects Cards-->
+<div class="body">
+    <div class="row">
+        <form>            
+            <!-- START card-->
+            <div class="card card-default">
+                <div class="card-body">
+                    <h2>Organization Details</h2>
+                    <div class="form-group" align="center">
+                        <label class="col-md-6 col-form-label">Organization Icon</label>
+                        <div class="col-md-10">
+                            <input class="form-control filestyle" type="file" data-classbutton="btn btn-secondary" data-classinput="form-control inline" data-icon="&lt;span class='fa fa-upload mr'&gt;&lt;/span&gt;" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Organization Title</label>
+                        <input class="form-control" type="text" placeholder="" />
+                    </div>
+                    <div class="form-group">
+                        <label>Street Address</label>
+                        <input class="form-control" type="text" placeholder="" />
+                    </div>
+                    <div class="form-group">
+                        <label>City</label>
+                        <input class="form-control" type="text" placeholder="" />
+                    </div>
+                    <div class="form-row align-items-center">
+                        <div class="col-auto">
+                            <label>State</label>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control mb-2" id="inlineFormInput" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <label>Zip Code</label>
+                            <div class="input-group mb-2">
+                                <input type="number" class="form-control mb-2" id="inlineFormInput" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Hex Color</label>
+                        <input class="form-control" type="text" placeholder="#FFFFFF" />
+                    </div>
+@*                    <div class="form-group">
+                        <div class="col-6">
+                            <div class="demo-colorpicker" id="demo_cont" data-container="#demo_cont" data-color="rgba(150,216,62,0.55)" data-inline="true"></div>
+                        </div>
+                        <div class="col-6">
+                            <div class="demo-colorpicker" data-container="true" data-color="rgb(50,216,62)" data-inline="true"></div>
+                        </div>
+                    </div>
+*@                    <h2>Research Director and Contact</h2>
+                    <div class="form-group">
+                        <label>Rank</label>
+                        <input class="form-control" type="text" placeholder="Enter Rank" />
+                    </div>
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input class="form-control" type="text" placeholder="Enter First Name" />
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input class="form-control" type="text" placeholder="Enter Last Name" />
+                    </div>
+                    <div class="form-group">
+                        <label>Email address</label>
+                        <input class="form-control" type="email" placeholder="Enter email" />
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input class="form-control" type="text" placeholder="Enter Phone Number" />
+                    </div>
+                    <div class="form-row align-items-center">
+                        <div class="col-auto">
+                            <label>Number of Allowed Labs</label>
+                            <input type="number" class="form-control mb-2" id="inlineFormInput" placeholder="Enter Max Labs">
+                        </div>
+                        <div class="col-auto">
+                            <label>Subscription Expiration</label>
+                            <div class="input-group mb-2">
+                                <input type="date" class="form-control" id="inlineFormInputGroup" placeholder="Username">
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-primary" type="submit">Submit</button>
+                </div>
+            </div>            
+        </form>            
+    </div>    
+</div>
+
+@section Styles {
+        <link rel="stylesheet" href="~/vendor/datatables.net-bs4/css/dataTables.bootstrap4.css">
+        <link rel="stylesheet" href="~/vendor/datatables.net-keytable-bs/css/keyTable.bootstrap.css">
+        <link rel="stylesheet" href="~/vendor/datatables.net-responsive-bs/css/responsive.bootstrap.css">
+}
+
+@section Scripts {
+    <script src="~/vendor/datatables.net/js/jquery.dataTables.js"></script>
+    <script src="~/vendor/datatables.net-bs4/js/dataTables.bootstrap4.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/dataTables.buttons.js"></script>
+    <script src="~/vendor/datatables.net-buttons-bs/js/buttons.bootstrap.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.colVis.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.flash.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.html5.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.print.js"></script>
+    <script src="~/vendor/datatables.net-keytable/js/dataTables.keyTable.js"></script>
+    <script src="~/vendor/datatables.net-responsive/js/dataTables.responsive.js"></script>
+    <script src="~/vendor/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+    <script src="~/vendor/jszip/dist/jszip.js"></script>
+    <script src="~/vendor/pdfmake/build/pdfmake.js"></script>
+    <script src="~/vendor/pdfmake/build/vfs_fonts.js"></script>
+    <script>
+
+    </script>
+}

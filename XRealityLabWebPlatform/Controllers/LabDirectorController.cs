@@ -31,17 +31,17 @@ namespace ARI.Controllers
     /*[Authorize(Roles = "Υπεύθυνος Παραγωγής,Επόπτης Λογιστής,Υπεύθυνος Ροών Εταιρίας")]*/
     public class LabDirectorController : Controller
     {
-        private readonly ARIContext _context;
+        private readonly XRealityLabdbContext _context;
         private IUserRepository _userRepository;
         private readonly IHostingEnvironment _environment;
         private readonly CustomIDataProtection protector;
 
 
-        public LabDirectorController(ARIContext context, IHostingEnvironment IHostingEnvironment, CustomIDataProtection customIDataProtection)
+        public LabDirectorController(XRealityLabdbContext context, IHostingEnvironment IHostingEnvironment, CustomIDataProtection customIDataProtection)
         {
             _context = context;
-            _userRepository = new UserRepository(_context);
-            _environment = IHostingEnvironment;
+/*            _userRepository = new UserRepository(_context);
+*/            _environment = IHostingEnvironment;
             protector = customIDataProtection;
         }
 

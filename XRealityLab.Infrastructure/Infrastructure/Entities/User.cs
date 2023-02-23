@@ -9,8 +9,10 @@ namespace Infrastructure.Entities
     {
         public User()
         {
-            CompanyCarReservations = new HashSet<CompanyCarReservation>();
-            LoadOrderFilters = new HashSet<LoadOrderFilter>();
+            LabUsers = new HashSet<LabUser>();
+            Labs = new HashSet<Lab>();
+            Organizations = new HashSet<Organization>();
+            ProjectUsers = new HashSet<ProjectUser>();
         }
 
         public int UserId { get; set; }
@@ -20,14 +22,15 @@ namespace Infrastructure.Entities
         public string Email { get; set; }
         public string PasswordHash { get; set; }
         public string Telephone { get; set; }
-        public byte Active { get; set; }
-        public DateTime RegistrationDateTime { get; set; }
-        public DateTime? LastConnectionDateTime { get; set; }
-        public byte Blocked { get; set; }
+        public string PhotoUrl { get; set; }
         public int RoleId { get; set; }
+        public byte IsActive { get; set; }
+        public DateTime RegistrationDateTime { get; set; }
 
         public virtual Role Role { get; set; }
-        public virtual ICollection<CompanyCarReservation> CompanyCarReservations { get; set; }
-        public virtual ICollection<LoadOrderFilter> LoadOrderFilters { get; set; }
+        public virtual ICollection<LabUser> LabUsers { get; set; }
+        public virtual ICollection<Lab> Labs { get; set; }
+        public virtual ICollection<Organization> Organizations { get; set; }
+        public virtual ICollection<ProjectUser> ProjectUsers { get; set; }
     }
 }

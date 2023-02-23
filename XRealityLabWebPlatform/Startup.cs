@@ -38,11 +38,11 @@ namespace ARIWebPlatform
         {
             var connection = string.Empty;
             if (Configuration.GetSection("Environment").Value == "Production")
-                connection = Configuration.GetConnectionString("ari");
+                connection = Configuration.GetConnectionString("xrealitylabdb");
             else
-                connection = Configuration.GetConnectionString("aridev");
+                connection = Configuration.GetConnectionString("xrealitylabdb");
 
-            services.AddDbContext<ARIContext>(options => options.UseSqlServer(connection));
+            services.AddDbContext<XRealityLabdbContext>(options => options.UseSqlServer(connection));
 
             services.AddDbContext<AppDbContext>(config => {
                 config.UseInMemoryDatabase("Memory");
@@ -128,7 +128,7 @@ namespace ARIWebPlatform
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=LabDirector}/{action=AllProjects}/{id?}");
+                    pattern: "{controller=Admin}/{action=Accounts}/{id?}");
             });
         }
     }

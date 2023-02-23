@@ -1,4 +1,4 @@
-﻿using Application.Security;
+﻿/*using Application.Security;
 using ARI.Common;
 using ARI.Models;
 using ARI.PDFTemplates.Models;
@@ -364,7 +364,7 @@ namespace ARI.Controllers
 
             var customerListItems = new List<SelectListItem>();
             customerListItems.Add(new SelectListItem { Text = "-", Value = "-" });
-            customerListItems.AddRange(_context.Customers1.Where(k => k.CountryId != 6 /*Greece*/ && (k.LocationNo1 + k.LocationNo2 + k.CheckDigit != "000")).Select(k => new SelectListItem
+            customerListItems.AddRange(_context.Customers1.Where(k => k.CountryId != 6 *//*Greece*//* && (k.LocationNo1 + k.LocationNo2 + k.CheckDigit != "000")).Select(k => new SelectListItem
             {
                 Text = "SAPID: " + k.CustomerSapid + " | " + k.LocationNo1 + k.LocationNo2 +
                   k.CheckDigit + " " + k.Name1 + " | " + k.Name2 + " | ",
@@ -424,7 +424,7 @@ namespace ARI.Controllers
 
             var customerListItems = new List<SelectListItem>();
             customerListItems.Add(new SelectListItem { Text = "-", Value = "-" });
-            customerListItems.AddRange(_context.Customers1.Where(k => k.CountryId != 6 /*Greece*/ && (k.LocationNo1 + k.LocationNo2 + k.CheckDigit != "000")).Select(k => new SelectListItem
+            customerListItems.AddRange(_context.Customers1.Where(k => k.CountryId != 6 *//*Greece*//* && (k.LocationNo1 + k.LocationNo2 + k.CheckDigit != "000")).Select(k => new SelectListItem
             {
                 Text = "SAPID: " + k.CustomerSapid + " | " + k.LocationNo1 + k.LocationNo2 +
                 k.CheckDigit + " " + k.Name1 + " | " + k.Name2 + " | ",
@@ -780,4 +780,4 @@ namespace ARI.Controllers
         }
 
     }
-}
+}*/

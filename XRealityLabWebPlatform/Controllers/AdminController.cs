@@ -31,17 +31,17 @@ namespace ARI.Controllers
     /*[Authorize(Roles = "Υπεύθυνος Παραγωγής,Επόπτης Λογιστής,Υπεύθυνος Ροών Εταιρίας")]*/
     public class AdminController : Controller
     {
-        private readonly ARIContext _context;
+        private readonly XRealityLabdbContext _context;
         private IUserRepository _userRepository;
         private readonly IHostingEnvironment _environment;
         private readonly CustomIDataProtection protector;
 
 
-        public AdminController(ARIContext context, IHostingEnvironment IHostingEnvironment, CustomIDataProtection customIDataProtection)
+        public AdminController(XRealityLabdbContext context, IHostingEnvironment IHostingEnvironment, CustomIDataProtection customIDataProtection)
         {
             _context = context;
-            _userRepository = new UserRepository(_context);
-            _environment = IHostingEnvironment;
+/*            _userRepository = new UserRepository(_context);
+*/            _environment = IHostingEnvironment;
             protector = customIDataProtection;
         }
 
@@ -50,11 +50,67 @@ namespace ARI.Controllers
 
         public async Task<IActionResult> Accounts(string actionMessage)
         {
-            return View();
+            List<OrganizationDTO> organizationDTOs = await _context.Organizations.Include(k => k.Itdirector).Select(k => new OrganizationDTO
+            {
+                OrganizationId = k.OrganizationId,
+                FullName = k.FullName,
+                ITDirectorId = k.ItdirectorId,
+                Address = k.Street + ", " + k.City + ", " + k.State + ", " + k.Country + ", " + k.Zipcode,
+                Color = k.Color,
+                PhotoUrl = k.PhotoUrl,
+                NoAllowedLabs = k.NoAllowedLabs,
+                Registered = k.Registered,
+                SubscriptionStarted = k.SubscriptionStarted,
+                SubscriptionExpiration = k.SubscriptionExpiration,
+                ITDirector = new UserDTO
+                {
+                    UserId = k.Itdirector.UserId,
+                    Firstname = k.Itdirector.Firstname,
+                    Lastname = k.Itdirector.Lastname,
+                    Email = k.Itdirector.Email,
+                    Telephone = k.Itdirector.Telephone,
+                    PhotoUrl = k.Itdirector.PhotoUrl,
+                    RoleId = k.Itdirector.RoleId,
+                    IsActive = k.Itdirector.IsActive,
+                    RegistrationDateTime = k.Itdirector.RegistrationDateTime
+                }
+            }).ToListAsync();      
+
+            return View(organizationDTOs);
         }
         public async Task<IActionResult> EditAccount(string actionMessage)
         {
             return View();
+        }
+        public async Task<IActionResult> AddNewOrganization(string actionMessage)
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> AddOrganization([Bind("SelectedMaterial,FormDate,NoPalletToCreated,Notes")] UserDTO userDTO, [Bind("SelectedMaterial,FormDate,NoPalletToCreated,Notes")] OrganizationDTO organizationDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(AddNewOrganization), new { _actionMessage = "Δεν προσθέσατε τα πεδία σωστά. Παρακαλώ προσπαθήστε ξανά." });
+            }
+
+
+/*            Material1 material = await _context.Materials1.FirstOrDefaultAsync(k => k.MaterialId == int.Parse(packagingLineFormDTO.SelectedMaterial));
+            PackagingLineForm packagingLineForm = new PackagingLineForm
+            {
+                MaterialId = material.MaterialId,
+                CountryId = material.CountryId,
+                PalletsLot = ClassConverters.GetLot(packagingLineFormDTO.FormDate),
+                FormCreationDate = packagingLineFormDTO.FormDate,
+                Notes = packagingLineFormDTO.Notes,
+                RegistrationDateTime = DateTime.Now,
+                NoPalletToCreated = packagingLineFormDTO.NoPalletToCreated,
+                Status = 0
+            };
+            await _context.AddAsync(packagingLineForm);
+            await _context.SaveChangesAsync();*/
+
+            return RedirectToAction("Admin", "Accounts");
         }
 
 

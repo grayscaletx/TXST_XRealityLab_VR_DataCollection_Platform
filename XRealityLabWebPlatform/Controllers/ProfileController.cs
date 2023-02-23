@@ -1,4 +1,4 @@
-﻿using Application.Security;
+﻿/*using Application.Security;
 using ARI.Application;
 using ARI.Users.Queries;
 using Infrastructure.Entities;
@@ -83,3 +83,4 @@ namespace ARI.Controllers
         }
     }
 }
+*/
