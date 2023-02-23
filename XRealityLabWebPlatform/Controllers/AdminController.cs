@@ -87,13 +87,13 @@ namespace ARI.Controllers
             return View();
         }
 
-        public async Task<IActionResult> AddOrganization([Bind("SelectedMaterial,FormDate,NoPalletToCreated,Notes")] UserDTO userDTO, [Bind("SelectedMaterial,FormDate,NoPalletToCreated,Notes")] OrganizationDTO organizationDTO)
+        public async Task<IActionResult> AddOrganization([Bind("SelectedMaterial,FormDate,NoPalletToCreated,Notes")] OrganizationDTO organizationDTO)
         {
             if (!ModelState.IsValid)
             {
                 return RedirectToAction(nameof(AddNewOrganization), new { _actionMessage = "Δεν προσθέσατε τα πεδία σωστά. Παρακαλώ προσπαθήστε ξανά." });
             }
-
+            
 
 /*            Material1 material = await _context.Materials1.FirstOrDefaultAsync(k => k.MaterialId == int.Parse(packagingLineFormDTO.SelectedMaterial));
             PackagingLineForm packagingLineForm = new PackagingLineForm
