@@ -1,9 +1,7 @@
-﻿/*using ARI.Application;
-using ARI.Common;
-using ARI.Models;
-using ARI.Security;
+﻿using XRealityLab.Application;
+using XRealityLab.Common;
+using XRealityLab.Security;
 using Common;
-using EdiTools;
 using Infrastructure.Entities;
 using Mail;
 using Microsoft.AspNetCore.Authorization;
@@ -14,32 +12,30 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using NETCore.MailKit.Core;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace ARI.Controllers
+namespace XRealityLab.Controllers
 {
     public class AuthController : Controller
     {
-        private readonly ARIContext _context;
+        private readonly XRealityLabdbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly GoogleReCAPTCHAService _googleReCAPTCHAService;
         private readonly IEmailService _emailService;
         private readonly IHostingEnvironment _environment;
 
-        public AuthController(ARIContext ariContext,
+        public AuthController(XRealityLabdbContext context,
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
             GoogleReCAPTCHAService googleReCAPTCHAService,
-            IEmailService emailService, 
+            IEmailService emailService,
             IHostingEnvironment IHostingEnvironment)
         {
-            _context = ariContext;
+            _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
             _googleReCAPTCHAService = googleReCAPTCHAService;
@@ -49,26 +45,17 @@ namespace ARI.Controllers
 
         public IActionResult Index()
         {
-           
             if (User.Identity.IsAuthenticated)
             {
                 var role = ((ClaimsIdentity)User.Identity).FindAll("http://schemas.microsoft.com/ws/2008/06/identity/claims/role").ToList().LastOrDefault().Value;
-                if (role == "Υπεύθυνος Ασφαλείας")
-                    return RedirectToAction("TruckList", "ACFacilities");
-                if (role == "IT")
-                    return RedirectToAction("UserList", "Staff");
-                if (role == "Επόπτης Λογιστής")
-                    return RedirectToAction("Orders", "Logistics");
-                if (role == "Υπεύθυνος Συσκευαστηρίου")
-                    return RedirectToAction("PackagingLineForms", "PackagingLine");
-                if (role == "Υπεύθυνος Παραγωγής")
-                    return RedirectToAction("PackagingLineForms", "PackagingLine");
-                if (role == "Διαχειριστής")
-                    return RedirectToAction("General", "Admin");
-                if (role == "Τμήμα Διασφάλισης της Ποιότητας")
-                    return RedirectToAction("Materials", "QualityAssurance");
+                if (role == RoleType.Administrator.GetEnumDescription())
+                    return RedirectToAction("Organizations", RoleType.Administrator.GetEnumDescription());
+                else if (role == RoleType.DirectorOfIT.GetEnumDescription())
+                    return RedirectToAction("Labs", RoleType.DirectorOfIT.GetEnumDescription());
+                else if (role == RoleType.LabDirector.GetEnumDescription())
+                    return RedirectToAction("AllProjects", "Project");
                 else
-                    return RedirectToAction("UserList", "Staff");
+                    return RedirectToAction("Organizations", RoleType.Administrator.GetEnumDescription());
             }
             else
                 return View(nameof(Login));
@@ -80,22 +67,14 @@ namespace ARI.Controllers
             if (User.Identity.IsAuthenticated)
             {
                 var role = ((ClaimsIdentity)User.Identity).FindAll("http://schemas.microsoft.com/ws/2008/06/identity/claims/role").ToList().LastOrDefault().Value;
-                if (role == "Υπεύθυνος Ασφαλείας")
-                    return RedirectToAction("TruckList", "ACFacilities");
-                if (role == "IT")
-                    return RedirectToAction("UserList", "Staff");
-                if (role == "Επόπτης Λογιστής")
-                    return RedirectToAction("Orders", "Logistics");
-                if (role == "Υπεύθυνος Συσκευαστηρίου")
-                    return RedirectToAction("PackagingLineForms", "PackagingLine");
-                if (role == "Υπεύθυνος Παραγωγής")
-                    return RedirectToAction("PackagingLineForms", "PackagingLine");
-                if (role == "Διαχειριστής")
-                    return RedirectToAction("General", "Admin");
-                if (role == "Τμήμα Διασφάλισης της Ποιότητας")
-                    return RedirectToAction("Materials", "QualityAssurance");
+                if (role == RoleType.Administrator.GetEnumDescription())
+                    return RedirectToAction("Organizations", RoleType.Administrator.GetEnumDescription());
+                else if (role == RoleType.DirectorOfIT.GetEnumDescription())
+                    return RedirectToAction("Labs", RoleType.DirectorOfIT.GetEnumDescription());
+                else if (role == RoleType.LabDirector.GetEnumDescription())
+                    return RedirectToAction("AllProjects", "Project");
                 else
-                    return RedirectToAction("UserList", "Staff");
+                    return RedirectToAction("Organizations", RoleType.Administrator.GetEnumDescription());
             }
             else
                 return View();
@@ -108,15 +87,15 @@ namespace ARI.Controllers
             var _GoogleReCAPTCHA = _googleReCAPTCHAService.VerifyReCAPTCHA(identityUserDto.Token);
 
             if (!_GoogleReCAPTCHA.Result.success && _GoogleReCAPTCHA.Result.score <= 0.5)
-                return AuthenticationError(View(), string.Empty, "Προέκυψε κάποιο πρόβλημα, παρακαλώ προσπαθήστε αργότερα.");
+                return AuthenticationError(View(), string.Empty, "Please try again later.");
 
             string hash = IdentityConversions.MD5Hash(identityUserDto.Password);
-            var user = _context.Users.Include(l => l.Role).Where(k => k.Email == identityUserDto.Email.Trim() && k.PasswordHash == hash).FirstOrDefault();
-            var roles = _context.Roles.ToListAsync();
+            var user = _context.User.Include(l => l.Role).Where(k => k.Email == identityUserDto.Email.Trim() && k.PasswordHash == hash).FirstOrDefault();
+            var roles = _context.Role.ToListAsync();
 
             // User doesn't exist or invalid model
             if (user == null || !ModelState.IsValid)
-                return AuthenticationError(View(), string.Empty, "Πληκτρολογήσατε λάθος ηλεκτρονική διεύθυνση ή κωδικό πρόσβασης, παρακαλώ προσπαθήστε ξανά.");
+                return AuthenticationError(View(), string.Empty, "We have just sent you a link to reset your password.");
 
             //Find if user already exist in the userManager
             var _identityUser = await _userManager.FindByEmailAsync(user.Email);
@@ -132,7 +111,7 @@ namespace ARI.Controllers
 
                 //Couldn't create user manager
                 if (!userManagerResult.Succeeded)
-                    return AuthenticationError(View(), string.Empty, "Προέκυψε κάποιο πρόβλημα, παρακαλώ προσπαθήστε αργότερα. 135");
+                    return AuthenticationError(View(), string.Empty, "Something went wrong. Please try again.");
             }
             else
             {
@@ -143,7 +122,7 @@ namespace ARI.Controllers
 
                     //Couldn't update user manager
                     if (!userManagerResult.Succeeded)
-                        return AuthenticationError(View(), string.Empty, "Προέκυψε κάποιο πρόβλημα, παρακαλώ προσπαθήστε αργότερα. 122");
+                        return AuthenticationError(View(), string.Empty, "Something went wrong. Please try again.");
                 }
             }
 
@@ -151,7 +130,7 @@ namespace ARI.Controllers
             await _userManager.AddClaimAsync(__identityUser, new Claim(ClaimTypes.Role, roles.Result.Where(k => k.RoleId == user.RoleId).FirstOrDefault().Type));
 
             //The user has not activated their account via email
-            if (user.Active == 0)
+            if (user.IsActive == 0)
             {
                 //generation of the email token
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(__identityUser);
@@ -166,46 +145,35 @@ namespace ARI.Controllers
                 return RedirectToAction(nameof(EmailVerificationRequired));
             }
 
-            if (user.Role.RoleId == (int)RoleType.NoRole)
-            {
-                return AuthenticationError(View(), string.Empty, "Το τεχνικό τμήμα της εταιρίας δεν έχει εγκρίνει το λογαριασμό σας ακόμα. Παρακαλώ επικοινωνήστε με το τεχνικό τμήμα και δοκιμάστε ξανά.");
-            }
+            //if (user.Role.RoleId == (int)RoleType.NoRole)
+            //{
+            //    return AuthenticationError(View(), string.Empty, "Το τεχνικό τμήμα της εταιρίας δεν έχει εγκρίνει το λογαριασμό σας ακόμα. Παρακαλώ επικοινωνήστε με το τεχνικό τμήμα και δοκιμάστε ξανά.");
+            //}
 
             var signInResult = await _signInManager.PasswordSignInAsync(identityUserDto.Email.Trim(), identityUserDto.Password, false, false);
 
             //Couldn't sign to signin manager
             if (!signInResult.Succeeded)
-                return AuthenticationError(View(), string.Empty, "Προέκυψε κάποιο πρόβλημα, παρακαλώ προσπαθήστε αργότερα.");
+                return AuthenticationError(View(), string.Empty, "Something went wrong. Please try again.");
 
-            user.LastConnectionDateTime = DateTime.Now;
-            _context.Users.Update(user);
+            _context.User.Update(user);
             _context.SaveChanges();
 
-            if (user.RoleId == (int)RoleType.Security)
-                return RedirectToAction("TruckList", "ACFacilities");
-            if (user.RoleId == (int)RoleType.IT)
-                return RedirectToAction("UserList", "Staff");
-            if (user.RoleId == (int)RoleType.LogisticsSupervisor)
-                return RedirectToAction("Orders", "Logistics");
-            if (user.RoleId == (int)RoleType.PackagingManager)
-                return RedirectToAction("PackagingLineForms", "PackagingLine");
-            if (user.RoleId == (int)RoleType.ProductionManager)
-                return RedirectToAction("PackagingLineForms", "PackagingLine");
             if (user.RoleId == (int)RoleType.Administrator)
-                return RedirectToAction("General", "Admin");
-            if (user.RoleId == (int)RoleType.QualityAssuranceDepartment)
-                return RedirectToAction("Materials", "QualityAssurance");
+                return RedirectToAction("Organizations", RoleType.Administrator.GetEnumDescription());
+            else if (user.RoleId == (int)RoleType.DirectorOfIT)
+                return RedirectToAction("Labs", RoleType.DirectorOfIT.GetEnumDescription());
+            else if (user.RoleId == (int)RoleType.LabDirector)
+                return RedirectToAction("AllProjects", "Project");
             else
-                return RedirectToAction("UserList", "Staff");
+                return RedirectToAction("Organizations", RoleType.Administrator.GetEnumDescription());
         }
 
         [AllowAnonymous]
         public IActionResult Register()
         {
-            if (User.Identity.IsAuthenticated)
-                return RedirectToAction("UserList", "Staff");
-            else
-                return View();
+            //if (User.Identity.IsAuthenticated)
+            return View();
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -220,20 +188,16 @@ namespace ARI.Controllers
             var _GoogleReCAPTCHA = _googleReCAPTCHAService.VerifyReCAPTCHA(identityUserDto.Token);
 
             if (!_GoogleReCAPTCHA.Result.success && _GoogleReCAPTCHA.Result.score <= 0.5)
-                return AuthenticationError(View(), string.Empty, "Προέκυψε κάποιο πρόβλημα, παρακαλώ προσπαθήστε αργότερα.");
+                return AuthenticationError(View(), string.Empty, "Please try again later.");
 
             //Check if password input fields are the same
             if (identityUserDto.Password != identityUserDto.ConfirmPassword)
-                return AuthenticationError(View(), string.Empty, "Ο κωδικοί δεν ταιριάζουν μεταξύ τους. Παρακαλώ προσπαθήστε ξανά.");
-
-            //Check invalid characters
-            //if (!Regex.IsMatch(identityUserDto.Password, @"^[a-zA-Z0-9_!@#%^&*]+$"))
-            //    return AuthenticationError(View(), string.Empty, "Ο κωδικός περιέχει μη αποδεκτούς χαρακτήρες. Οι αποδεκτοί χαρακτήρες είναι γράμματα και αριθμοί και σύμβολα");
+                return AuthenticationError(View(), string.Empty, "Please make sure your passwords match.");
 
             //Check if this email already exist
-            var emailExist = await _context.Users.AnyAsync(k => k.Email == identityUserDto.Email.Trim());
+            var emailExist = await _context.User.AnyAsync(k => k.Email == identityUserDto.Email.Trim());
             if (emailExist)
-                return AuthenticationError(View(), string.Empty, "Υπάρχει λογαριασμός με αυτή την ηλεκτρονική διεύθυνση, παρακαλώ δοκιμάστε άλλη ηλεκτρονική διεύθυνση.");
+                return AuthenticationError(View(), string.Empty, "That email is already in user, please use a different email address.");
 
             var identityUser = new IdentityUser
             {
@@ -252,17 +216,16 @@ namespace ARI.Controllers
                 Email = identityUserDto.Email.Trim(),
                 PasswordHash = hash,
                 Telephone = identityUserDto.PhoneNumber,
-                RoleId = (int)RoleType.NoRole,
+                RoleId = (int)RoleType.Administrator,
                 RegistrationDateTime = DateTime.Now,
-                Active = 0,
-                Blocked = 0
+                IsActive = 0
             };
             await _context.AddAsync(user);
             var hasUserCreated = await _context.SaveChangesAsync();
 
             //User couldn't be created to the database
             if (hasUserCreated != 1)
-                return AuthenticationError(View(), string.Empty, "Προέκυψε κάποιο πρόβλημα, παρακαλώ προσπαθήστε αργότερα.");
+                return AuthenticationError(View(), string.Empty, "Something went wrong. Please try again.");
 
             if (userManager.Succeeded)
             {
@@ -279,7 +242,7 @@ namespace ARI.Controllers
                 return RedirectToAction(nameof(EmailVerification));
             }
             else
-                return AuthenticationError(View(), string.Empty, "Προέκυψε κάποιο πρόβλημα, παρακαλώ προσπαθήστε αργότερα.");
+                return AuthenticationError(View(), string.Empty, "Something went wrong. Please try again.");
         }
 
         public async Task<IActionResult> VerifyEmail(string userId, string code)
@@ -293,8 +256,8 @@ namespace ARI.Controllers
             var result = await _userManager.ConfirmEmailAsync(identityUser, code);
             if (result.Succeeded)
             {
-                var user = _context.Users.Where(k => k.Email == identityUser.Email).FirstOrDefault();
-                user.Active = 1;
+                var user = _context.User.Where(k => k.Email == identityUser.Email).FirstOrDefault();
+                user.IsActive = 1;
                 _context.Update(user);
                 _context.SaveChanges();
                 return View();
@@ -308,7 +271,7 @@ namespace ARI.Controllers
         public IActionResult EmailVerificationRequired()
         {
             if (User.Identity.IsAuthenticated)
-                return RedirectToAction("UserList", "Staff");
+                return RedirectToAction("Organizations", RoleType.Administrator.GetEnumDescription());
             else
                 return View();
         }
@@ -317,7 +280,7 @@ namespace ARI.Controllers
         public IActionResult ForgotPassword()
         {
             if (User.Identity.IsAuthenticated)
-                return RedirectToAction("UserList", "Staff");
+                return RedirectToAction("Organizations", RoleType.Administrator.GetEnumDescription());
             else
                 return View();
         }
@@ -329,11 +292,11 @@ namespace ARI.Controllers
             var _GoogleReCAPTCHA = _googleReCAPTCHAService.VerifyReCAPTCHA(identityForgotPasswordDto.Token);
 
             if (!_GoogleReCAPTCHA.Result.success && _GoogleReCAPTCHA.Result.score <= 0.5)
-                return AuthenticationError(View(), string.Empty, "Προέκυψε κάποιο πρόβλημα, παρακαλώ προσπαθήστε αργότερα.");
+                return AuthenticationError(View(), string.Empty, "Please try again later.");
 
-            var user = _context.Users.Where(k => k.Email == identityForgotPasswordDto.Email.Trim()).FirstOrDefault();
+            var user = _context.User.Where(k => k.Email == identityForgotPasswordDto.Email.Trim()).FirstOrDefault();
 
-            ViewBag.Message = "Στάλθηκαν στην ηλεκτρονική σου αλληλογραφία οδηγίες για την επαναφορά του κωδικού σου.";
+            ViewBag.Message = "We have just sent you a link to reset your password.";
 
             // User doesn't exist or invalid model
             if (user != null || !ModelState.IsValid)
@@ -346,16 +309,16 @@ namespace ARI.Controllers
                         Id = user.IdentityId,
                         Email = identityForgotPasswordDto.Email.Trim(),
                         UserName = identityForgotPasswordDto.Email.Trim(),
-                        EmailConfirmed = user.Active == 1 ? true : false
+                        EmailConfirmed = user.IsActive == 1 ? true : false
                     });
 
                     //Couldn't create user manager
                     if (!userManagerResult.Succeeded)
-                        return AuthenticationError(View(), string.Empty, "Προέκυψε κάποιο πρόβλημα, παρακαλώ προσπαθήστε αργότερα.");
+                        return AuthenticationError(View(), string.Empty, "Something went wrong. Please try again.");
 
                     identityUser = await _userManager.FindByNameAsync(identityForgotPasswordDto.Email.Trim());
                     if (identityUser == null)
-                        return AuthenticationError(View(), string.Empty, "Προέκυψε κάποιο πρόβλημα, παρακαλώ προσπαθήστε αργότερα.");
+                        return AuthenticationError(View(), string.Empty, "Something went wrong. Please try again.");
                 }
 
                 //generation for the new email token
@@ -376,9 +339,7 @@ namespace ARI.Controllers
         public async Task<IActionResult> ChangePassword(string userId, string code)
         {
             if (User.Identity.IsAuthenticated)
-            {
-                return RedirectToAction("UserList", "Staff");
-            }
+                return RedirectToAction("Organizations", RoleType.Administrator.GetEnumDescription());
             else
             {
                 var identityUser = await _userManager.FindByIdAsync(userId);
@@ -397,12 +358,12 @@ namespace ARI.Controllers
         {
             //Main validation and check if password input fields are the same
             if (!ModelState.IsValid || identityChangePasswordDto.Password != identityChangePasswordDto.ConfirmPassword)
-                return AuthenticationError(View(), string.Empty, "Ο κωδικοί δεν ταιριάζουν μεταξύ τους. Παρακαλώ προσπαθήστε ξανά.");
+                return AuthenticationError(View(), string.Empty, "Please make sure your passwords match.");
 
             var identityUser = await _userManager.FindByIdAsync(identityChangePasswordDto.IdentityID);
             if (identityUser == null) return BadRequest();
 
-            var user = await _context.Users.Where(k => k.Email == identityUser.Email).FirstOrDefaultAsync();
+            var user = await _context.User.Where(k => k.Email == identityUser.Email).FirstOrDefaultAsync();
 
             string code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(identityChangePasswordDto.Code));
             var result = await _userManager.ResetPasswordAsync(identityUser, code, identityChangePasswordDto.Password);
@@ -417,7 +378,6 @@ namespace ARI.Controllers
 
             return BadRequest();
         }
-
 
         [Authorize]
         public async Task<IActionResult> LogOut()
@@ -440,4 +400,3 @@ namespace ARI.Controllers
         }
     }
 }
-*/

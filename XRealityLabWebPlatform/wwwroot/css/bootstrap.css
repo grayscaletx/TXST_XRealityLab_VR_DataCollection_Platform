@@ -28,7 +28,7 @@
   --primary-dark: #2f80e7;
   --success-light: #43d967;
   --success-dark: #1e983b;
-  --info-light: #d4cc00;
+  --info-light: #079dba;
   --info-dark: #1797be;
   --warning-light: #ffab5e;
   --warning-dark: #f77600;
@@ -2067,22 +2067,22 @@ fieldset:disabled a.btn {
       box-shadow: 0 0 0 0.2rem rgba(39, 194, 76, 0.5); }
 
 .btn-outline-info {
-  color: #f4ef6b;
-  border-color: #f4ef6b; }
+  color: #00c7ed;
+  border-color: #00c7ed; }
   .btn-outline-info:hover {
     color: #fff;
-    background-color: #f4ef6b;
-    border-color: #f4ef6b; }
+    background-color: #00c7ed;
+    border-color: #00c7ed; }
   .btn-outline-info:focus, .btn-outline-info.focus {
     box-shadow: 0 0 0 0.2rem rgba(35, 183, 229, 0.5); }
   .btn-outline-info.disabled, .btn-outline-info:disabled {
-    color: #f4ef6b;
+    color: #00c7ed;
     background-color: transparent; }
   .btn-outline-info:not(:disabled):not(.disabled):active, .btn-outline-info:not(:disabled):not(.disabled).active,
   .show > .btn-outline-info.dropdown-toggle {
     color: #fff;
-    background-color: #f4ef6b;
-    border-color: #f4ef6b; }
+    background-color: #00c7ed;
+    border-color: #00c7ed; }
     .btn-outline-info:not(:disabled):not(.disabled):active:focus, .btn-outline-info:not(:disabled):not(.disabled).active:focus,
     .show > .btn-outline-info.dropdown-toggle:focus {
       box-shadow: 0 0 0 0.2rem rgba(35, 183, 229, 0.5); }
@@ -4731,7 +4731,7 @@ button.bg-success:focus {
   background-color: #1e983b !important; }
 
 .bg-info {
-  background-color: #f4ef6b !important; }
+  background-color: #00c7ed !important; }
 
 a.bg-info:hover, a.bg-info:focus,
 button.bg-info:hover,
@@ -4816,7 +4816,7 @@ button.bg-dark:focus {
   border-color: #27c24c !important; }
 
 .border-info {
-  border-color: #f4ef6b !important; }
+  border-color: #00c7ed !important; }
 
 .border-warning {
   border-color: #ff902b !important; }
@@ -7061,7 +7061,7 @@ a.text-success:hover, a.text-success:focus {
   color: #1a8233 !important; }
 
 .text-info {
-  color: #f4ef6b !important; }
+  color: #00c7ed !important; }
 
 a.text-info:hover, a.text-info:focus {
   color: #1485a8 !important; }

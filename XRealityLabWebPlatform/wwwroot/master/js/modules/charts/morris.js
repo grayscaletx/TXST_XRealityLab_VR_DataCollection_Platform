@@ -57,7 +57,7 @@
             ykeys: ["a", "b"],
             labels: ["Series A", "Series B"],
             xLabelMargin: 2,
-            barColors: ['#f4ef6b', '#f05050'],
+            barColors: ['#00c7ed', '#f05050'],
             resize: true
         });
 
@@ -69,7 +69,7 @@
             xkey: 'y',
             ykeys: ["a", "b"],
             labels: ["Serie A", "Serie B"],
-            lineColors: ['#7266ba', '#f4ef6b'],
+            lineColors: ['#7266ba', '#00c7ed'],
             resize: true
         });
 

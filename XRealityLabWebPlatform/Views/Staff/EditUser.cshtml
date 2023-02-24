@@ -1,6 +1,6 @@
-﻿@model ARI.Application.UserDTO;
+﻿@model XRealityLab.Application.UserDTO1;
 @using System.Security.Claims;
-@using ARI.Common;
+@using XRealityLab.Common;
 
 @{
     ViewData["Title"] = "Επεξεργασία ρόλου";
@@ -9,18 +9,7 @@
 
 <div class="content-heading">
     <div>
-        @{
-            string roleMsg = string.Empty;
-            @if (Model.RoleId == (int)RoleType.NoRole)
-            {
-                roleMsg = "ΙΑ" + @Model.UserId;
-            }
-            else
-            {
-                roleMsg = "ΧΡ" + @Model.UserId;
-            }
-        }
-        @roleMsg
+
     </div>
     <!-- END Language list-->
 </div>

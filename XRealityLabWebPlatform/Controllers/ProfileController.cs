@@ -1,6 +1,6 @@
 ﻿/*using Application.Security;
-using ARI.Application;
-using ARI.Users.Queries;
+using XRealityLab.Application;
+using XRealityLab.Users.Queries;
 using Infrastructure.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ARI.Controllers
+namespace XRealityLab.Controllers
 {
     //[Authorize("Υπεύθυνος Ασφαλείας,Υπεύθυνος Ροών Εταιρίας")]
     public class ProfileController : Controller

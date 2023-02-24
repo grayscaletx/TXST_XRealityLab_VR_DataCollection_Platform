@@ -8,7 +8,7 @@
     window.VectorMap = VectorMap
 
     var defaultColors = {
-        markerColor: '#f4ef6b', // the marker points
+        markerColor: '#00c7ed', // the marker points
         bgColor: 'transparent', // the background
         scaleColors: ['#878c9a'], // the color of the region in the serie
         regionFill: '#bbbec6' // the base region color

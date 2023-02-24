@@ -74,7 +74,7 @@
                 color: '#7266ba'
             }, {
                 data: [{ x: 0, y: 20 }, { x: 1, y: 24 }, { x: 2, y: 19 }, { x: 3, y: 15 }, { x: 4, y: 16 }],
-                color: '#f4ef6b'
+                color: '#00c7ed'
             }]
         });
         graph3.render();

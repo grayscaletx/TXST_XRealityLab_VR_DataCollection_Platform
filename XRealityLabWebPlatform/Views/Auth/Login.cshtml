@@ -1,6 +1,6 @@
-﻿@model ARI.Application.IdentityLoginUserDTO
+﻿@model XRealityLab.Application.IdentityLoginUserDTO
 @using Microsoft.Extensions.Options
-@inject IOptions<ARI.Security.ReCAPTCHASettings> GoogleReCAPTCHA
+@inject IOptions<XRealityLab.Security.ReCAPTCHASettings> GoogleReCAPTCHA
 
 @{
     ViewData["Title"] = "XReality Lab";
@@ -8,7 +8,6 @@
 }
 
 <div class="block-center mt-4 wd-xl" >
-    <!-- START card-->
     <div class="card card-flat" style="background-color:#4bc4e9">
         <div class="card-header text-center" >
             <a href="#">
@@ -23,7 +22,7 @@
                     <div class="input-group with-focus">
                         <input asp-for="Email" class="form-control border-right-0" type="email" placeholder="Email address" required="required" />
                         <div class="input-group-append">
-                            <span asp-validation-for="Email" class="input-group-text text-muted bg-transparent border-left-0 text-danger"></span>
+                            <span asp-validation-for="Email" class="text-muted bg-transparent border-left-0 text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -31,28 +30,26 @@
                     <div class="input-group with-focus">
                         <input asp-for="Password" class="form-control border-right-0" placeholder="password" required="required" />
                         <div class="input-group-append">
-                            <span asp-validation-for="Password" class="input-group-text text-muted bg-transparent border-left-0 text-danger"></span>
+                            <span asp-validation-for="Password" class="text-muted bg-transparent text-danger"></span>
                         </div>
                     </div>
                 </div>
                 <input asp-for="Token" type="hidden" />
-                <div class="clearfix" hidden>
-                    <div class="float-right">
-                        <a asp-action="ForgotPassword" class="text-muted"><small>Ξέχασες τον κωδικό σου;</small></a>
-                    </div>
-                </div>
                 <div class="form-group">
-                    <input type="submit" value="Login" class="btn btn-block btn-primary mt-3" style="background-color:white; color:#4bc4e9" />
+                    <input type="submit" value="Login" class="btn btn-block btn-secondary mt-3" />
+                </div>
+                <div class="clearfix">
+                    <div class="float-right">
+                        <a asp-action="ForgotPassword" class="text-white"><small>Forgot your password?</small></a>
+                    </div>
                 </div>
             </form>
             <br />
-            <p class="text-muted text-center"><small>Δεν έχεις λογαριασμό;</small></p>
-            <a class="btn btn-block btn-secondary" asp-action="Register">Create an account</a>
         </div>
     </div>
     <br />
     <p class="m-t"><small>Copyright © 2023 </small><a href="http://xrealitylab.com"><small> XRealityLab </small></a><small>All rights reserved.</small></p>
-    <small>v.- (dev environment)</small>
+    <small>v0.67 (dev environment)</small>
 </div>
 
 

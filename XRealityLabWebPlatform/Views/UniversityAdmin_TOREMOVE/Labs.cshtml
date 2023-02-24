@@ -1,0 +1,83 @@
+﻿@model IEnumerable<XRealityLab.Models.PackagingLineFormDTO>
+@using System.Security.Claims;
+@using XRealityLab.Common;
+
+@{
+    ViewBag.Title = "Labs";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!--Header-->
+<div class="content-heading">
+    <div>
+        <strong>PlaceHolder(Organisation Name) Labs (Max Lab No)</strong>
+    </div>
+</div>
+
+<!--Alert dialog-->
+@if (ViewBag.actionMessage != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        @ViewBag.actionMessage
+    </div>
+}
+
+<!--Projects Cards-->
+<div class="card">
+    <div class="card-columns">
+        @for (int j = 0; j< 2; j++)
+        {
+            <div class="card text-white bg-primary-light"  onclick="location.href='#'">
+                <div align="right">
+                    <a class="fa-2x mr-2 fas fa-ellipsis-h text-white" data-toggle="dropdown"></a>
+                    <div class="dropdown-menu" role="menu">
+                        <a class="dropdown-item" href="#">Edit Lab</a>
+                        <a class="dropdown-item" href="#">Reset Director Password</a>
+                        <a class="dropdown-item" href="#">Remove Lab</a>
+                    </div>
+                </div>
+                <div align="center">
+                    <img src="~/images/bg1.jpg" alt="Avatar" width="90" height="90" class="rounded-circle" />
+                </div>
+                <br>
+                <div align="left"> <h3>kato apo foto</h3> </div>
+                <br>
+                <div class="card-header text-white bg-dark">Principle Investigators</div>
+                <div class="card-body text-black bg-gray-lighter">
+                    <ul class="list-unstyled">
+                        @for (int i = 0; i < 1; i++)
+                        {
+                            <li class="fa-2x fa-2x mr-2 far fa-envelope"> name surname</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Styles {
+        <link rel="stylesheet" href="~/vendor/datatables.net-bs4/css/dataTables.bootstrap4.css">
+        <link rel="stylesheet" href="~/vendor/datatables.net-keytable-bs/css/keyTable.bootstrap.css">
+        <link rel="stylesheet" href="~/vendor/datatables.net-responsive-bs/css/responsive.bootstrap.css">
+}
+
+@section Scripts {
+    <script src="~/vendor/datatables.net/js/jquery.dataTables.js"></script>
+    <script src="~/vendor/datatables.net-bs4/js/dataTables.bootstrap4.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/dataTables.buttons.js"></script>
+    <script src="~/vendor/datatables.net-buttons-bs/js/buttons.bootstrap.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.colVis.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.flash.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.html5.js"></script>
+    <script src="~/vendor/datatables.net-buttons/js/buttons.print.js"></script>
+    <script src="~/vendor/datatables.net-keytable/js/dataTables.keyTable.js"></script>
+    <script src="~/vendor/datatables.net-responsive/js/dataTables.responsive.js"></script>
+    <script src="~/vendor/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+    <script src="~/vendor/jszip/dist/jszip.js"></script>
+    <script src="~/vendor/pdfmake/build/pdfmake.js"></script>
+    <script src="~/vendor/pdfmake/build/vfs_fonts.js"></script>
+}

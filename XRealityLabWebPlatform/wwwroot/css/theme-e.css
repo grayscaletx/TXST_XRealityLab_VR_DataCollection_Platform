@@ -12,7 +12,7 @@ body, .wrapper .section-container {
  ========================================================================== */
 .topnavbar {
   background-color: #1797be;
-  background-image: linear-gradient(to right, #1797be 0%, #f4ef6b 100%);
+  background-image: linear-gradient(to right, #1797be 0%, #00c7ed 100%);
   background-repeat: repeat-x; }
   @media (min-width: 992px) {
     .topnavbar .navbar-nav > .nav-item.show > .nav-link, .topnavbar .navbar-nav > .nav-item.show > .nav-link:hover, .topnavbar .navbar-nav > .nav-item.show > .nav-link:focus {

@@ -2,18 +2,19 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <RootNamespace>ARI</RootNamespace>
+    <RootNamespace>XRealityLab</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Common\Alerts\" />
-    <Folder Include="Guests\Models\" />
-    <Folder Include="Notifications\" />
+    <Folder Include="Research\" />
+    <Folder Include="_OLD_APPLICATION\Common\Alerts\" />
+    <Folder Include="_OLD_APPLICATION\Guests\Models\" />
+    <Folder Include="_OLD_APPLICATION\Notifications\" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="9.5.3" />
-    <PackageReference Include="MediatR" Version="9.0.0" />
+    <PackageReference Include="FluentValidation" Version="8.5.1" />
+    <PackageReference Include="MediatR" Version="7.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
   </ItemGroup>
 

@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace Infrastructure.Entities
 {
     public partial class Project
     {
         public Project()
         {
-            ProjectResearches = new HashSet<ProjectResearch>();
-            ProjectUsers = new HashSet<ProjectUser>();
+            ProjectResearch = new HashSet<ProjectResearch>();
+            ProjectUser = new HashSet<ProjectUser>();
         }
 
         public int ProjectId { get; set; }
@@ -20,7 +18,7 @@ namespace Infrastructure.Entities
         public string Color { get; set; }
         public DateTime Registered { get; set; }
 
-        public virtual ICollection<ProjectResearch> ProjectResearches { get; set; }
-        public virtual ICollection<ProjectUser> ProjectUsers { get; set; }
+        public virtual ICollection<ProjectResearch> ProjectResearch { get; set; }
+        public virtual ICollection<ProjectUser> ProjectUser { get; set; }
     }
 }

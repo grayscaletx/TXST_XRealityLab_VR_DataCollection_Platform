@@ -1,14 +1,14 @@
 ﻿@using System.Security.Claims;
-@using ARI.Common;
+@using XRealityLab.Common;
+@using Common.Constants; 
 
 @{
     string role = string.Empty;
-    role = "LabDirector";
-@*    if (((ClaimsIdentity)User.Identity).FindAll("http://schemas.microsoft.com/ws/2008/06/identity/claims/role").Count() != 0)
+    if (((ClaimsIdentity)User.Identity).FindAll("http://schemas.microsoft.com/ws/2008/06/identity/claims/role").Count() != 0)
     {
         role = ((ClaimsIdentity)User.Identity).FindAll("http://schemas.microsoft.com/ws/2008/06/identity/claims/role").ToList().LastOrDefault().Value;
     }
-    IEnumerable<Claim> claims = User.Claims;*@
+    IEnumerable<Claim> claims = User.Claims;
 }
 
 <!-- START Sidebar (left)-->
@@ -23,30 +23,19 @@
                         <!-- User picture-->
                         <div class="user-block-picture">
                             <div class="user-block-status">
-                                @if (role == "Research Assistat")
+                                @if (role == RoleType.Administrator.GetEnumDescription())
                                 {
-                                    <img src="~/_images/user/temp01.png" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
+                                    <img src="@PhotoUrl.ADMINISTRATOR_ICON_PNG" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
                                 }
-                                else if (role == "Administrator")
+                                else if (role == RoleType.DirectorOfIT.GetEnumDescription())
                                 {
-                                    <img src="~/_images/user/temp01.png" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
+                                    <img src="@PhotoUrl.DIRECTOR_OF_IT_ICON_PNG" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
                                 }
-                                else if (role == "PI")
+                                else if (role == RoleType.LabDirector.GetEnumDescription())
                                 {
-                                    <img src="~/_images/user/temp01.png" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
+                                    <img src="@PhotoUrl.LAB_DIRECTOR_ICON_PNG" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
                                 }
-                                else if (role == "UniversityAdmin")
-                                {
-                                    <img src="~/_images/user/temp01.png" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
-                                }
-                                else if (role == "LabDirector")
-                                {
-                                    <img src="~/_images/user/temp01.png" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
-                                }
-                                else
-                                {
-                                    <img src="~/images/user/02.jpg" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
-                                }
+
                                 <div class="circle bg-success circle-lg"></div>
                             </div>
                         </div>
@@ -65,17 +54,73 @@
                                  </a>
                             </div>
                         </div>*@
-                            <span class="user-block-name">@*@User.Identity.Name*@<strong>Grayson Lawrence</strong></span>
+                            <span class="user-block-name"><strong>@User.Identity.Name</strong></span>
                             <span class="user-block-role">@role</span>
-                            <a class="user-block-role" href="">profile</a>
-                            <a class="user-block-role" asp-controller="Home" asp-action="Logout" data-no-persist="true">log out</a>
+                            <a class="user-block-role" style="color: #0000EE" href="">Profile</a>
                         </div>
                     </div>
                 </div>
             </li>
+
+            <li class="nav-heading">
+                <span>Main Navigation</span>
+            </li>
+            @if (role == RoleType.Administrator.GetEnumDescription())
+            {
+                <li>
+                    <a href="@Url.Action("Organizations", RoleType.Administrator.GetEnumDescription())" title="Organizations">
+                        <em class="fa-2x mr-2 far fa-clipboard"></em>
+                        <span>Organizations</span>
+                    </a>
+                </li>
+            }
+            else if (role == RoleType.DirectorOfIT.GetEnumDescription())
+            {
+                <li>
+                    <a href="@Url.Action("Labs", RoleType.DirectorOfIT.GetEnumDescription())" title="Organizations">
+                        <em class="fa-2x mr-2 far fa-clipboard"></em>
+                        <span>Labs</span>
+                    </a>
+                </li>
+
+            }
+            else if (role == RoleType.LabDirector.GetEnumDescription())
+            {
+                <li>
+                    <a href="@Url.Action("AllProjects", "Project")" title="Organizations">
+                        <em class="fa-2x mr-2 far fa-clipboard"></em>
+                        <span>All Projects</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("MyProjects", "Project")" title="Organizations">
+                        <em class="fa-2x mr-2 far fa-clipboard"></em>
+                        <span>My Projects</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("PrincipleInvestigators", "PrincipleInvestigator")" title="PrincipleIvestigators">
+                        <em class="fa-2x mr-2 fas fa-users"></em>
+                        <span>Principle Ivestigators</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("ResearchAssistants", "PrincipleInvestigator")" title="ResearchAssistants">
+                        <em class="fa-2x mr-2 fas fa-users"></em>
+                        <span>Research Assistants</span>
+                    </a>
+                </li>
+            }
+            <li>
+                <a href="@Url.Action("Index", "General")">
+                    <em class="fa-2x icon-settings mr-2"></em>
+                    <span>Settings</span>
+                </a>
+            </li>
+
             <!-- END user info-->
             <!-- Iterates over all sidebar items-->
-            @if (role == "Research Assistat")
+            @if (role == "Research Assistant")
             {
                 <li class="nav-heading">
                     <span>Main Navigation</span>
@@ -115,22 +160,6 @@
                     </a>
                 </li>
             }
-            @if (role == "Administrator")
-            {
-                <li class="nav-heading">
-                    <span>Main Navigation</span>
-                </li>
-                <li>
-                    <a href="@Url.Action("Accounts", "Admin")" title="Organizations">
-                        <em class="fa-2x mr-2 far fa-clipboard"></em>
-                        <span>Organizations</span>
-                    </a>
-                    <a href="#">
-                        <em class="fa-2x icon-settings mr-2"></em>
-                        <span>Settings</span>
-                    </a>
-                </li>
-            }
             @if (role == "UniversityAdmin")
             {
                 <li class="nav-heading">
@@ -147,37 +176,6 @@
                     </a>
                 </li>
             }
-            @if (role == "LabDirector")
-            {
-                <li class="nav-heading">
-                    <span>Main Navigation</span>
-                </li>
-                <li>
-                    <a href="@Url.Action("AllProjects", "LabDirector")" title="AllProjects">
-                        <em class="fa-2x mr-2 far fa-clipboard"></em>
-                        <span>All Projects</span>
-                    </a>
-                    <a href="@Url.Action("MyProjects", "ResearchAssistant")" title="MyProjects">
-                        <em class="fa-2x mr-2 far fa-clipboard"></em>
-                        <span>My Projects</span>
-                    </a>
-                    <a href="@Url.Action("PrincipleInvestigators", "PrincipleInvestigator")" title="PrincipleIvestigators">
-                        <em class="fa-2x mr-2 fas fa-users"></em>
-                        <span>Principle Ivestigators</span>
-                    </a>
-                    <a href="@Url.Action("ResearchAssistants", "PrincipleInvestigator")" title="ResearchAssistants">
-                        <em class="fa-2x mr-2 fas fa-users"></em>
-                        <span>Research Assistants</span>
-                    </a>
-                    <a href="#">
-                        <em class="fa-2x icon-settings mr-2"></em>
-                        <span>Settings</span>
-                    </a>
-                </li>
-            }
-            
-
-
 
         </ul>
         <!-- END sidebar nav-->

@@ -1,7 +1,7 @@
 using Application.Security;
-using ARI.AuthorizationRequirements;
-using ARI.Data;
-using ARI.Security;
+using XRealityLab.AuthorizationRequirements;
+using XRealityLab.Data;
+using XRealityLab.Security;
 using Infrastructure.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -62,7 +62,7 @@ namespace ARIWebPlatform
 
             services.ConfigureApplicationCookie(config =>
             {
-                config.Cookie.Name = "ARI.Cookie";
+                config.Cookie.Name = "XRealityLab.Cookie";
                 config.LoginPath = "/Auth/Login";
             });
 
@@ -128,7 +128,7 @@ namespace ARIWebPlatform
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Admin}/{action=Accounts}/{id?}");
+                    pattern: "{controller=Auth}/{action=Index}/{id?}");
             });
         }
     }

@@ -2,8 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-#nullable disable
-
 namespace Infrastructure.Entities
 {
     public partial class XRealityLabdbContext : DbContext
@@ -17,35 +15,31 @@ namespace Infrastructure.Entities
         {
         }
 
-        public virtual DbSet<Lab> Labs { get; set; }
-        public virtual DbSet<LabUser> LabUsers { get; set; }
-        public virtual DbSet<Organization> Organizations { get; set; }
-        public virtual DbSet<OrganizationLab> OrganizationLabs { get; set; }
-        public virtual DbSet<Project> Projects { get; set; }
-        public virtual DbSet<ProjectResearch> ProjectResearches { get; set; }
-        public virtual DbSet<ProjectUser> ProjectUsers { get; set; }
-        public virtual DbSet<Research> Researches { get; set; }
-        public virtual DbSet<ResearchMethod> ResearchMethods { get; set; }
-        public virtual DbSet<Role> Roles { get; set; }
-        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Lab> Lab { get; set; }
+        public virtual DbSet<LabUser> LabUser { get; set; }
+        public virtual DbSet<Organization> Organization { get; set; }
+        public virtual DbSet<OrganizationLab> OrganizationLab { get; set; }
+        public virtual DbSet<Project> Project { get; set; }
+        public virtual DbSet<ProjectResearch> ProjectResearch { get; set; }
+        public virtual DbSet<ProjectUser> ProjectUser { get; set; }
+        public virtual DbSet<Research> Research { get; set; }
+        public virtual DbSet<ResearchMethod> ResearchMethod { get; set; }
+        public virtual DbSet<Role> Role { get; set; }
+        public virtual DbSet<User> User { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
                 optionsBuilder.UseSqlServer("Server=xrealitylab.database.windows.net, 1433;Database=XRealityLabdb;User ID=xrealitylab;Password=fy*%trep5w;Integrated Security=False");
             }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
-
             modelBuilder.Entity<Lab>(entity =>
             {
-                entity.ToTable("Lab");
-
                 entity.Property(e => e.LabId).HasColumnName("LabID");
 
                 entity.Property(e => e.Color)
@@ -62,10 +56,14 @@ namespace Infrastructure.Entities
 
                 entity.Property(e => e.LabDirectorId).HasColumnName("LabDirectorID");
 
+                entity.Property(e => e.PhotoUrl)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
                 entity.Property(e => e.Registered).HasColumnType("datetime");
 
                 entity.HasOne(d => d.LabDirector)
-                    .WithMany(p => p.Labs)
+                    .WithMany(p => p.Lab)
                     .HasForeignKey(d => d.LabDirectorId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Lab_User");
@@ -73,8 +71,6 @@ namespace Infrastructure.Entities
 
             modelBuilder.Entity<LabUser>(entity =>
             {
-                entity.ToTable("LabUser");
-
                 entity.Property(e => e.LabUserId).HasColumnName("LabUserID");
 
                 entity.Property(e => e.LabId).HasColumnName("LabID");
@@ -84,19 +80,19 @@ namespace Infrastructure.Entities
                 entity.Property(e => e.UserId).HasColumnName("UserID");
 
                 entity.HasOne(d => d.Lab)
-                    .WithMany(p => p.LabUsers)
+                    .WithMany(p => p.LabUser)
                     .HasForeignKey(d => d.LabId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_LabUser_Lab");
 
                 entity.HasOne(d => d.Role)
-                    .WithMany(p => p.LabUsers)
+                    .WithMany(p => p.LabUser)
                     .HasForeignKey(d => d.RoleId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_LabUser_Role");
 
                 entity.HasOne(d => d.User)
-                    .WithMany(p => p.LabUsers)
+                    .WithMany(p => p.LabUser)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_LabUser_User");
@@ -104,8 +100,6 @@ namespace Infrastructure.Entities
 
             modelBuilder.Entity<Organization>(entity =>
             {
-                entity.ToTable("Organization");
-
                 entity.Property(e => e.OrganizationId).HasColumnName("OrganizationID");
 
                 entity.Property(e => e.City).HasMaxLength(50);
@@ -140,11 +134,11 @@ namespace Infrastructure.Entities
 
                 entity.Property(e => e.Zipcode)
                     .IsRequired()
-                    .HasMaxLength(10)
-                    .HasColumnName("ZIPCode");
+                    .HasColumnName("ZIPCode")
+                    .HasMaxLength(10);
 
                 entity.HasOne(d => d.Itdirector)
-                    .WithMany(p => p.Organizations)
+                    .WithMany(p => p.Organization)
                     .HasForeignKey(d => d.ItdirectorId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Organization_User");
@@ -152,8 +146,6 @@ namespace Infrastructure.Entities
 
             modelBuilder.Entity<OrganizationLab>(entity =>
             {
-                entity.ToTable("OrganizationLab");
-
                 entity.Property(e => e.OrganizationLabId).HasColumnName("OrganizationLabID");
 
                 entity.Property(e => e.LabId).HasColumnName("LabID");
@@ -161,13 +153,13 @@ namespace Infrastructure.Entities
                 entity.Property(e => e.OrganizationId).HasColumnName("OrganizationID");
 
                 entity.HasOne(d => d.Lab)
-                    .WithMany(p => p.OrganizationLabs)
+                    .WithMany(p => p.OrganizationLab)
                     .HasForeignKey(d => d.LabId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_OrganizationLab_Lab");
 
                 entity.HasOne(d => d.Organization)
-                    .WithMany(p => p.OrganizationLabs)
+                    .WithMany(p => p.OrganizationLab)
                     .HasForeignKey(d => d.OrganizationId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_OrganizationLab_Organization");
@@ -175,8 +167,6 @@ namespace Infrastructure.Entities
 
             modelBuilder.Entity<Project>(entity =>
             {
-                entity.ToTable("Project");
-
                 entity.Property(e => e.ProjectId).HasColumnName("ProjectID");
 
                 entity.Property(e => e.Color)
@@ -202,24 +192,22 @@ namespace Infrastructure.Entities
             {
                 entity.HasKey(e => e.ProjectReseachId);
 
-                entity.ToTable("ProjectResearch");
-
                 entity.Property(e => e.ProjectReseachId)
-                    .ValueGeneratedNever()
-                    .HasColumnName("ProjectReseachID");
+                    .HasColumnName("ProjectReseachID")
+                    .ValueGeneratedNever();
 
                 entity.Property(e => e.ProjectId).HasColumnName("ProjectID");
 
                 entity.Property(e => e.ResearchId).HasColumnName("ResearchID");
 
                 entity.HasOne(d => d.Project)
-                    .WithMany(p => p.ProjectResearches)
+                    .WithMany(p => p.ProjectResearch)
                     .HasForeignKey(d => d.ProjectId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ProjectResearch_Project");
 
                 entity.HasOne(d => d.Research)
-                    .WithMany(p => p.ProjectResearches)
+                    .WithMany(p => p.ProjectResearch)
                     .HasForeignKey(d => d.ResearchId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ProjectResearch_Research");
@@ -227,8 +215,6 @@ namespace Infrastructure.Entities
 
             modelBuilder.Entity<ProjectUser>(entity =>
             {
-                entity.ToTable("ProjectUser");
-
                 entity.Property(e => e.ProjectUserId).HasColumnName("ProjectUserID");
 
                 entity.Property(e => e.ProjectId).HasColumnName("ProjectID");
@@ -238,19 +224,19 @@ namespace Infrastructure.Entities
                 entity.Property(e => e.UserId).HasColumnName("UserID");
 
                 entity.HasOne(d => d.Project)
-                    .WithMany(p => p.ProjectUsers)
+                    .WithMany(p => p.ProjectUser)
                     .HasForeignKey(d => d.ProjectId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ProjectUser_Project");
 
                 entity.HasOne(d => d.Role)
-                    .WithMany(p => p.ProjectUsers)
+                    .WithMany(p => p.ProjectUser)
                     .HasForeignKey(d => d.RoleId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ProjectUser_Role");
 
                 entity.HasOne(d => d.User)
-                    .WithMany(p => p.ProjectUsers)
+                    .WithMany(p => p.ProjectUser)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ProjectUser_User");
@@ -258,8 +244,6 @@ namespace Infrastructure.Entities
 
             modelBuilder.Entity<Research>(entity =>
             {
-                entity.ToTable("Research");
-
                 entity.Property(e => e.ResearchId).HasColumnName("ResearchID");
 
                 entity.Property(e => e.Registered).HasColumnType("datetime");
@@ -273,25 +257,21 @@ namespace Infrastructure.Entities
 
             modelBuilder.Entity<ResearchMethod>(entity =>
             {
-                entity.ToTable("ResearchMethod");
-
                 entity.Property(e => e.ResearchMethodId)
-                    .ValueGeneratedNever()
-                    .HasColumnName("ResearchMethodID");
+                    .HasColumnName("ResearchMethodID")
+                    .ValueGeneratedNever();
 
                 entity.Property(e => e.TypeId)
                     .IsRequired()
-                    .HasMaxLength(50)
-                    .HasColumnName("TypeID");
+                    .HasColumnName("TypeID")
+                    .HasMaxLength(50);
             });
 
             modelBuilder.Entity<Role>(entity =>
             {
-                entity.ToTable("Role");
-
                 entity.Property(e => e.RoleId)
-                    .ValueGeneratedNever()
-                    .HasColumnName("RoleID");
+                    .HasColumnName("RoleID")
+                    .ValueGeneratedNever();
 
                 entity.Property(e => e.Type)
                     .IsRequired()
@@ -300,8 +280,6 @@ namespace Infrastructure.Entities
 
             modelBuilder.Entity<User>(entity =>
             {
-                entity.ToTable("User");
-
                 entity.Property(e => e.UserId).HasColumnName("UserID");
 
                 entity.Property(e => e.Email)
@@ -314,8 +292,8 @@ namespace Infrastructure.Entities
 
                 entity.Property(e => e.IdentityId)
                     .IsRequired()
-                    .HasMaxLength(50)
-                    .HasColumnName("IdentityID");
+                    .HasColumnName("IdentityID")
+                    .HasMaxLength(50);
 
                 entity.Property(e => e.Lastname)
                     .IsRequired()
@@ -336,7 +314,7 @@ namespace Infrastructure.Entities
                 entity.Property(e => e.Telephone).HasMaxLength(50);
 
                 entity.HasOne(d => d.Role)
-                    .WithMany(p => p.Users)
+                    .WithMany(p => p.User)
                     .HasForeignKey(d => d.RoleId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_User_Role");

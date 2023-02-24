@@ -313,7 +313,7 @@ var Webcam = {
 					self.dispatch('live');
 					self.flip();
 				};
-				// as window.URL.createObjectURL() is deprecated, adding a check so that it works in Safari.
+				// as window.URL.createObjectURL() is deprecated, adding a check so that it works in SafXRealityLab.
 				// older browsers may not have srcObject
 				if ("srcObject" in video) {
 				  	video.srcObject = stream;

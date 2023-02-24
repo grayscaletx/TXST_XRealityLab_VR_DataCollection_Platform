@@ -1,0 +1,143 @@
+﻿@model XRealityLab.Models.OrganizationDirectorDTO
+@using System.Security.Claims;
+@using XRealityLab.Common;
+
+@{
+    ViewBag.Title = "AddOrganization";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!--Header-->
+<div class="content-heading">
+    <div>
+        <strong>New Organization and IT Director</strong>
+    </div>
+</div>
+
+<!--Alert dialog-->
+@if (ViewBag.actionMessage != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        @ViewBag.actionMessage
+    </div>
+}
+
+<!--Projects Cards-->
+<form asp-action="AddOrganization">
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card card-default">
+                <div class="card-body">
+                    <h2>Organization Details</h2>
+                    <div class="form-group" align="center">
+                        <div align="center" style="padding :10px 0 0 0">
+                            <img src="~/_images/group_icons/organization_blank_icon.png" alt="Avatar" width="90" height="90" class="rounded-circle" />
+                        </div>
+                        <label class="col-md-6 col-form-label">Organization Icon</label>
+                        <div>
+                            <input class="form-control filestyle" type="file" data-classbutton="btn btn-secondary" data-classinput="form-control inline" data-icon="&lt;span class='fa fa-upload mr'&gt;&lt;/span&gt;" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Organization Title</label>
+                        <input asp-for="FullName" class="form-control" type="text" placeholder="" />
+                    </div>
+                    <div class="form-group">
+                        <label>Street Address</label>
+                        <input asp-for="Street" class="form-control" type="text" placeholder="" />
+                    </div>
+                    <div class="form-group">
+                        <label>City</label>
+                        <input asp-for="City" class="form-control" type="text" placeholder="" />
+                    </div>
+                    <div class="form-group">
+                        <label>City</label>
+                        <input asp-for="Country" class="form-control" type="text" placeholder="" />
+                    </div>
+                    <div class="form-row align-items-center">
+                        <div class="col-auto">
+                            <label>State</label>
+                            <div class="input-group mb-2">
+                                <input asp-for="State" type="text" class="form-control mb-2" id="inlineFormInput" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <label>Zip Code</label>
+                            <div class="input-group mb-2">
+                                <input asp-for="ZIPCode" type="text" class="form-control mb-2" id="inlineFormInput" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Hex Color</label>
+                        <div class="col-6">
+                            <div class="demo-colorpicker" data-container="true" data-color="rgb(50,216,62)" data-inline="true"></div>
+                        </div>
+                        <div class="col-3">
+                            <input asp-for="Color" class="form-control" type="text" placeholder="#FFFFFF" />
+                        </div>
+                    </div>       
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="card card-default">
+                <div class="card-body">
+                    <h2>Research Director and Contact</h2>
+                    <div class="form-group">
+                        <label>Rank</label>
+                        <input asp-for="Rank" class="form-control" type="text" placeholder="Enter Rank" />
+                    </div>
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input asp-for="Firstname" class="form-control" type="text" placeholder="Enter First Name" />
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input asp-for="Lastname" class="form-control" type="text" placeholder="Enter Last Name" />
+                    </div>
+                    <div class="form-group">
+                        <label>Email address</label>
+                        <input asp-for="Email" class="form-control" type="email" placeholder="Enter email" />
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input asp-for="Telephone" class="form-control" type="text" placeholder="Enter Phone Number" />
+                    </div>
+                    <div class="form-group">
+                        <label>Number of Allowed Labs</label>
+                        <input asp-for="NoAllowedLabs" type="number" class="form-control mb-2" id="inlineFormInput" placeholder="Enter Max Labs">
+                    </div>
+                    <div class="form-row align-items-center">
+                        <div class="col-auto">
+                            <label>Subscription Started</label>
+                            <div class="input-group mb-2">
+                                <input asp-for="SubscriptionStarted" type="date" class="form-control" id="inlineFormInputGroup" placeholder="Username">
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <label>Subscription Expiration</label>
+                            <div class="input-group mb-2">
+                                <input asp-for="SubscriptionExpiration" type="date" class="form-control" id="inlineFormInputGroup" placeholder="Username">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button class="btn btn-sm btn-primary" type="submit">Submit</button>
+</form>
+
+@section Styles {
+    <link href="~/vendor/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.css" rel="stylesheet" />
+
+}
+
+@section Scripts {
+    <script src="~/vendor/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.js"></script>
+
+}

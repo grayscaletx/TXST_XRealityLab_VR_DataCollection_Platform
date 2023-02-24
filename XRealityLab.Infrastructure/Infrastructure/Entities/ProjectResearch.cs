@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace Infrastructure.Entities
 {
     public partial class ProjectResearch

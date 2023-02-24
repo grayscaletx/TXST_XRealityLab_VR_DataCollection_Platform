@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace Infrastructure.Entities
 {
     public partial class Organization
     {
         public Organization()
         {
-            OrganizationLabs = new HashSet<OrganizationLab>();
+            OrganizationLab = new HashSet<OrganizationLab>();
         }
 
         public int OrganizationId { get; set; }
@@ -28,6 +26,6 @@ namespace Infrastructure.Entities
         public DateTime SubscriptionExpiration { get; set; }
 
         public virtual User Itdirector { get; set; }
-        public virtual ICollection<OrganizationLab> OrganizationLabs { get; set; }
+        public virtual ICollection<OrganizationLab> OrganizationLab { get; set; }
     }
 }

@@ -53,8 +53,8 @@
         var barData = {
             labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
             datasets: [{
-                backgroundColor: '#f4ef6b',
-                borderColor: '#f4ef6b',
+                backgroundColor: '#00c7ed',
+                borderColor: '#00c7ed',
                 data: [rFactor(), rFactor(), rFactor(), rFactor(), rFactor(), rFactor(), rFactor()]
             }, {
                 backgroundColor: '#7c0303',
@@ -89,12 +89,12 @@
                 backgroundColor: [
                     '#7266ba',
                     '#fad732',
-                    '#f4ef6b'
+                    '#00c7ed'
                 ],
                 hoverBackgroundColor: [
                     '#7266ba',
                     '#fad732',
-                    '#f4ef6b'
+                    '#00c7ed'
                 ]
             }]
         };
@@ -125,12 +125,12 @@
                 backgroundColor: [
                     '#7266ba',
                     '#fad732',
-                    '#f4ef6b'
+                    '#00c7ed'
                 ],
                 hoverBackgroundColor: [
                     '#7266ba',
                     '#fad732',
-                    '#f4ef6b'
+                    '#00c7ed'
                 ]
             }]
         };

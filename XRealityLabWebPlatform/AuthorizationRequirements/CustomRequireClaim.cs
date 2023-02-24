@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ARI.AuthorizationRequirements
+namespace XRealityLab.AuthorizationRequirements
 {
     public class CustomRequireClaim : IAuthorizationRequirement
     {

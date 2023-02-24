@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace Infrastructure.Entities
 {
     public partial class User
     {
         public User()
         {
-            LabUsers = new HashSet<LabUser>();
-            Labs = new HashSet<Lab>();
-            Organizations = new HashSet<Organization>();
-            ProjectUsers = new HashSet<ProjectUser>();
+            Lab = new HashSet<Lab>();
+            LabUser = new HashSet<LabUser>();
+            Organization = new HashSet<Organization>();
+            ProjectUser = new HashSet<ProjectUser>();
         }
 
         public int UserId { get; set; }
@@ -28,9 +26,9 @@ namespace Infrastructure.Entities
         public DateTime RegistrationDateTime { get; set; }
 
         public virtual Role Role { get; set; }
-        public virtual ICollection<LabUser> LabUsers { get; set; }
-        public virtual ICollection<Lab> Labs { get; set; }
-        public virtual ICollection<Organization> Organizations { get; set; }
-        public virtual ICollection<ProjectUser> ProjectUsers { get; set; }
+        public virtual ICollection<Lab> Lab { get; set; }
+        public virtual ICollection<LabUser> LabUser { get; set; }
+        public virtual ICollection<Organization> Organization { get; set; }
+        public virtual ICollection<ProjectUser> ProjectUser { get; set; }
     }
 }

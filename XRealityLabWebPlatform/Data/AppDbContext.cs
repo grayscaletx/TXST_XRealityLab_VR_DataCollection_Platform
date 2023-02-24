@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ARI.Data
+namespace XRealityLab.Data
 {
     public class AppDbContext : IdentityDbContext
     {

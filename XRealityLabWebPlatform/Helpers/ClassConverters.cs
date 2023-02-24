@@ -1,6 +1,6 @@
 ﻿using Application.Security;
-using ARI.Common;
-using ARI.Models;
+using XRealityLab.Common;
+using XRealityLab.Models;
 using AzureStorage;
 using Common.Constants;
 using EnumsNET;
@@ -19,7 +19,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ZXing.QrCode;
 
-namespace ARI.Helpers
+namespace XRealityLab.Helpers
 {
     public class ClassConverters
     {

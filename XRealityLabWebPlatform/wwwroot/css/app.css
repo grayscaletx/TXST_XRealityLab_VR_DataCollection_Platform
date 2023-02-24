@@ -670,8 +670,8 @@ body {
     border: 0;
     padding: 0;
     min-height: 55px;
-    background-color: #f4ef6b;
-    background-image: linear-gradient(to right, #f4ef6b 0%, #d4cc00 100%);
+    background-color: #00c7ed;
+    background-image: linear-gradient(to right, #00c7ed 0%, #079dba 100%);
     background-repeat: repeat-x;
 }
 
@@ -1045,7 +1045,7 @@ body {
     .sidebar-nav > li > .nav-item:hover {
         text-decoration: none;
         outline: none;
-        color: #f4ef6b;
+        color: #00c7ed;
     }
 
     .sidebar-nav > li > a > em,
@@ -1076,7 +1076,7 @@ body {
     }
 
 .sidebar-nav > li.active {
-    border-left-color: #f4ef6b;
+    border-left-color: #00c7ed;
 }
 
 .sidebar-nav .badge {
@@ -1131,7 +1131,7 @@ body {
 
         .sidebar-subnav > li.active > a,
         .sidebar-subnav > li.active > .nav-item {
-            color: #f4ef6b;
+            color: #00c7ed;
         }
 
             .sidebar-subnav > li.active > a:after,
@@ -3502,7 +3502,7 @@ a.badge-purple:focus, a.badge-purple.focus {
 }
 
 .bg-info-light {
-    background-color: #d4cc00;
+    background-color: #079dba;
     color: #fff !important;
 }
 
@@ -4218,15 +4218,15 @@ body .whirl {
     }
 
     body .whirl.ringed:after {
-        border-right-color: #f4ef6b;
+        border-right-color: #00c7ed;
         border-top-color: #7266ba;
         border-left-color: #7266ba;
         border-bottom-color: #7266ba;
     }
 
     body .whirl.traditional:after {
-        border-right-color: #f4ef6b;
-        border-top-color: #f4ef6b;
+        border-right-color: #00c7ed;
+        border-top-color: #00c7ed;
         border-left-color: #7266ba;
         border-bottom-color: #fad732;
     }
@@ -4701,87 +4701,87 @@ body .sk-wave .sk-rect {
 }
 
 .radial-bar-info.radial-bar-0 {
-    background-image: linear-gradient(90deg, #fafafa 50%, transparent 50%, transparent), linear-gradient(90deg, #f4ef6b 50%, #fafafa 50%, #fafafa);
+    background-image: linear-gradient(90deg, #fafafa 50%, transparent 50%, transparent), linear-gradient(90deg, #00c7ed 50%, #fafafa 50%, #fafafa);
 }
 
 .radial-bar-info.radial-bar-5 {
-    background-image: linear-gradient(90deg, #fafafa 50%, transparent 50%, transparent), linear-gradient(108deg, #f4ef6b 50%, #fafafa 50%, #fafafa);
+    background-image: linear-gradient(90deg, #fafafa 50%, transparent 50%, transparent), linear-gradient(108deg, #00c7ed 50%, #fafafa 50%, #fafafa);
 }
 
 .radial-bar-info.radial-bar-10 {
-    background-image: linear-gradient(90deg, #fafafa 50%, transparent 50%, transparent), linear-gradient(126deg, #f4ef6b 50%, #fafafa 50%, #fafafa);
+    background-image: linear-gradient(90deg, #fafafa 50%, transparent 50%, transparent), linear-gradient(126deg, #00c7ed 50%, #fafafa 50%, #fafafa);
 }
 
 .radial-bar-info.radial-bar-15 {
-    background-image: linear-gradient(90deg, #fafafa 50%, transparent 50%, transparent), linear-gradient(144deg, #f4ef6b 50%, #fafafa 50%, #fafafa);
+    background-image: linear-gradient(90deg, #fafafa 50%, transparent 50%, transparent), linear-gradient(144deg, #00c7ed 50%, #fafafa 50%, #fafafa);
 }
 
 .radial-bar-info.radial-bar-20 {
-    background-image: linear-gradient(90deg, #fafafa 50%, transparent 50%, transparent), linear-gradient(162deg, #f4ef6b 50%, #fafafa 50%, #fafafa);
+    background-image: linear-gradient(90deg, #fafafa 50%, transparent 50%, transparent), linear-gradient(162deg, #00c7ed 50%, #fafafa 50%, #fafafa);
 }
 
 .radial-bar-info.radial-bar-25 {
-    background-image: linear-gradient(90deg, #fafafa 50%, transparent 50%, transparent), linear-gradient(180deg, #f4ef6b 50%, #fafafa 50%, #fafafa);
+    background-image: linear-gradient(90deg, #fafafa 50%, transparent 50%, transparent), linear-gradient(180deg, #00c7ed 50%, #fafafa 50%, #fafafa);
 }
 
 .radial-bar-info.radial-bar-30 {
-    background-image: linear-gradient(90deg, #fafafa 50%, transparent 50%, transparent), linear-gradient(198deg, #f4ef6b 50%, #fafafa 50%, #fafafa);
+    background-image: linear-gradient(90deg, #fafafa 50%, transparent 50%, transparent), linear-gradient(198deg, #00c7ed 50%, #fafafa 50%, #fafafa);
 }
 
 .radial-bar-info.radial-bar-35 {
-    background-image: linear-gradient(90deg, #fafafa 50%, transparent 50%, transparent), linear-gradient(216deg, #f4ef6b 50%, #fafafa 50%, #fafafa);
+    background-image: linear-gradient(90deg, #fafafa 50%, transparent 50%, transparent), linear-gradient(216deg, #00c7ed 50%, #fafafa 50%, #fafafa);
 }
 
 .radial-bar-info.radial-bar-40 {
-    background-image: linear-gradient(90deg, #fafafa 50%, transparent 50%, transparent), linear-gradient(234deg, #f4ef6b 50%, #fafafa 50%, #fafafa);
+    background-image: linear-gradient(90deg, #fafafa 50%, transparent 50%, transparent), linear-gradient(234deg, #00c7ed 50%, #fafafa 50%, #fafafa);
 }
 
 .radial-bar-info.radial-bar-45 {
-    background-image: linear-gradient(90deg, #fafafa 50%, transparent 50%, transparent), linear-gradient(252deg, #f4ef6b 50%, #fafafa 50%, #fafafa);
+    background-image: linear-gradient(90deg, #fafafa 50%, transparent 50%, transparent), linear-gradient(252deg, #00c7ed 50%, #fafafa 50%, #fafafa);
 }
 
 .radial-bar-info.radial-bar-50 {
-    background-image: linear-gradient(-90deg, #f4ef6b 50%, transparent 50%, transparent), linear-gradient(270deg, #f4ef6b 50%, #fafafa 50%, #fafafa);
+    background-image: linear-gradient(-90deg, #00c7ed 50%, transparent 50%, transparent), linear-gradient(270deg, #00c7ed 50%, #fafafa 50%, #fafafa);
 }
 
 .radial-bar-info.radial-bar-55 {
-    background-image: linear-gradient(-72deg, #f4ef6b 50%, transparent 50%, transparent), linear-gradient(270deg, #f4ef6b 50%, #fafafa 50%, #fafafa);
+    background-image: linear-gradient(-72deg, #00c7ed 50%, transparent 50%, transparent), linear-gradient(270deg, #00c7ed 50%, #fafafa 50%, #fafafa);
 }
 
 .radial-bar-info.radial-bar-60 {
-    background-image: linear-gradient(-54deg, #f4ef6b 50%, transparent 50%, transparent), linear-gradient(270deg, #f4ef6b 50%, #fafafa 50%, #fafafa);
+    background-image: linear-gradient(-54deg, #00c7ed 50%, transparent 50%, transparent), linear-gradient(270deg, #00c7ed 50%, #fafafa 50%, #fafafa);
 }
 
 .radial-bar-info.radial-bar-65 {
-    background-image: linear-gradient(-36deg, #f4ef6b 50%, transparent 50%, transparent), linear-gradient(270deg, #f4ef6b 50%, #fafafa 50%, #fafafa);
+    background-image: linear-gradient(-36deg, #00c7ed 50%, transparent 50%, transparent), linear-gradient(270deg, #00c7ed 50%, #fafafa 50%, #fafafa);
 }
 
 .radial-bar-info.radial-bar-70 {
-    background-image: linear-gradient(-18deg, #f4ef6b 50%, transparent 50%, transparent), linear-gradient(270deg, #f4ef6b 50%, #fafafa 50%, #fafafa);
+    background-image: linear-gradient(-18deg, #00c7ed 50%, transparent 50%, transparent), linear-gradient(270deg, #00c7ed 50%, #fafafa 50%, #fafafa);
 }
 
 .radial-bar-info.radial-bar-75 {
-    background-image: linear-gradient(0deg, #f4ef6b 50%, transparent 50%, transparent), linear-gradient(270deg, #f4ef6b 50%, #fafafa 50%, #fafafa);
+    background-image: linear-gradient(0deg, #00c7ed 50%, transparent 50%, transparent), linear-gradient(270deg, #00c7ed 50%, #fafafa 50%, #fafafa);
 }
 
 .radial-bar-info.radial-bar-80 {
-    background-image: linear-gradient(18deg, #f4ef6b 50%, transparent 50%, transparent), linear-gradient(270deg, #f4ef6b 50%, #fafafa 50%, #fafafa);
+    background-image: linear-gradient(18deg, #00c7ed 50%, transparent 50%, transparent), linear-gradient(270deg, #00c7ed 50%, #fafafa 50%, #fafafa);
 }
 
 .radial-bar-info.radial-bar-85 {
-    background-image: linear-gradient(36deg, #f4ef6b 50%, transparent 50%, transparent), linear-gradient(270deg, #f4ef6b 50%, #fafafa 50%, #fafafa);
+    background-image: linear-gradient(36deg, #00c7ed 50%, transparent 50%, transparent), linear-gradient(270deg, #00c7ed 50%, #fafafa 50%, #fafafa);
 }
 
 .radial-bar-info.radial-bar-90 {
-    background-image: linear-gradient(54deg, #f4ef6b 50%, transparent 50%, transparent), linear-gradient(270deg, #f4ef6b 50%, #fafafa 50%, #fafafa);
+    background-image: linear-gradient(54deg, #00c7ed 50%, transparent 50%, transparent), linear-gradient(270deg, #00c7ed 50%, #fafafa 50%, #fafafa);
 }
 
 .radial-bar-info.radial-bar-95 {
-    background-image: linear-gradient(72deg, #f4ef6b 50%, transparent 50%, transparent), linear-gradient(270deg, #f4ef6b 50%, #fafafa 50%, #fafafa);
+    background-image: linear-gradient(72deg, #00c7ed 50%, transparent 50%, transparent), linear-gradient(270deg, #00c7ed 50%, #fafafa 50%, #fafafa);
 }
 
 .radial-bar-info.radial-bar-100 {
-    background-image: linear-gradient(90deg, #f4ef6b 50%, transparent 50%, transparent), linear-gradient(270deg, #f4ef6b 50%, #fafafa 50%, #fafafa);
+    background-image: linear-gradient(90deg, #00c7ed 50%, transparent 50%, transparent), linear-gradient(270deg, #00c7ed 50%, #fafafa 50%, #fafafa);
 }
 
 .radial-bar-warning.radial-bar-0 {
@@ -5155,7 +5155,7 @@ x:-o-prefocus,
 }
 
     .bootstrap-tagsinput .label-info {
-        background-color: #f4ef6b !important;
+        background-color: #00c7ed !important;
         display: inline;
         padding: .2rem .6rem .3rem;
         font-size: 0.625rem;
@@ -6462,7 +6462,7 @@ body .jvectormap-zoomout {
 
             .timeline > li > .timeline-badge.info,
             .timeline-alt > li > .timeline-badge.info {
-                background-color: #f4ef6b;
+                background-color: #00c7ed;
             }
 
             .timeline > li > .timeline-badge.inverse,
@@ -6644,7 +6644,7 @@ body .jvectormap-zoomout {
 }
 
     .calendar-app .fc-today .fc-day-number {
-        color: #f4ef6b;
+        color: #00c7ed;
     }
 
 .calendar-app .fc-day-number {
@@ -6818,7 +6818,7 @@ body .jvectormap-zoomout {
 }
 
     .plan .plan-header {
-        background-color: #f4ef6b;
+        background-color: #00c7ed;
         color: #fff;
         margin: 0;
         padding: 20px 10px;
@@ -6864,7 +6864,7 @@ body .jvectormap-zoomout {
         }
 
             .plan .plan-features > li > em {
-                color: #f4ef6b;
+                color: #00c7ed;
                 margin-right: 7px;
             }
 

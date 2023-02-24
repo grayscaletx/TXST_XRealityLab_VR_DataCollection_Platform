@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ARI.Security
+namespace XRealityLab.Security
 {
     public class ReCAPTCHASettings
     {

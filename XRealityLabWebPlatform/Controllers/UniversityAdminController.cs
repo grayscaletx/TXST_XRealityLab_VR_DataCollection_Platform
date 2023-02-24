@@ -1,8 +1,8 @@
 ﻿using Application.Security;
-using ARI.Common;
-using ARI.Models;
-using ARI.PDFTemplates.Models;
-using ARI.Users.Queries;
+using XRealityLab.Common;
+using XRealityLab.Models;
+using XRealityLab.PDFTemplates.Models;
+using XRealityLab.Users.Queries;
 using Common.Constants;
 using Infrastructure.Entities;
 using iTextSharp.text;
@@ -26,7 +26,7 @@ using Newtonsoft.Json;
 using EnumsNET;
 using Microsoft.AspNetCore.Authorization;
 
-namespace ARI.Controllers
+namespace XRealityLab.Controllers
 {
     /*[Authorize(Roles = "Υπεύθυνος Παραγωγής,Επόπτης Λογιστής,Υπεύθυνος Ροών Εταιρίας")]*/
     public class UniversityAdminController : Controller

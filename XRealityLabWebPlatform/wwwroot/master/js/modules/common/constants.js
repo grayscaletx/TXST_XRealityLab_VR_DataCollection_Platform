@@ -6,7 +6,7 @@
     window.APP_COLORS = {
         'primary':                '#7c0303',
         'success':                '#27c24c',
-        'info':                   '#f4ef6b',
+        'info':                   '#00c7ed',
         'warning':                '#ff902b',
         'danger':                 '#f05050',
         'inverse':                '#131e26',

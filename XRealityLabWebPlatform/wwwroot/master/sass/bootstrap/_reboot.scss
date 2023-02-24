@@ -106,7 +106,7 @@ p {
 // Abbreviations
 //
 // 1. Duplicate behavior to the data-* attribute for our tooltip plugin
-// 2. Add the correct text decoration in Chrome, Edge, IE, Opera, and Safari.
+// 2. Add the correct text decoration in Chrome, Edge, IE, Opera, and SafXRealityLab.
 // 3. Add explicit cursor to indicate changed behavior.
 // 4. Remove the bottom border in Firefox 39-.
 // 5. Prevent the text-decoration to be skipped.
@@ -344,7 +344,7 @@ select {
   cursor: pointer;
 }
 
-// Remove the inheritance of word-wrap in Safari.
+// Remove the inheritance of word-wrap in SafXRealityLab.
 //
 // Details at https://github.com/twbs/bootstrap/issues/24990
 select {
@@ -354,7 +354,7 @@ select {
 
 // 1. Prevent a WebKit bug where (2) destroys native `audio` and `video`
 //    controls in Android 4.
-// 2. Correct the inability to style clickable types in iOS and Safari.
+// 2. Correct the inability to style clickable types in iOS and SafXRealityLab.
 button,
 [type="button"], // 1
 [type="reset"],
@@ -438,7 +438,7 @@ progress {
   // `.form-control` class can properly style them. Note that this cannot simply
   // be added to `.form-control` as it's not specific enough. For details, see
   // https://github.com/twbs/bootstrap/issues/11586.
-  outline-offset: -2px; // 2. Correct the outline style in Safari.
+  outline-offset: -2px; // 2. Correct the outline style in SafXRealityLab.
   -webkit-appearance: none;
 }
 
@@ -451,8 +451,8 @@ progress {
 }
 
 //
-// 1. Correct the inability to style clickable types in iOS and Safari.
-// 2. Change font properties to `inherit` in Safari.
+// 1. Correct the inability to style clickable types in iOS and SafXRealityLab.
+// 2. Change font properties to `inherit` in SafXRealityLab.
 //
 
 ::-webkit-file-upload-button {

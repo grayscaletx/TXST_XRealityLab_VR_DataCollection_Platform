@@ -6,7 +6,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ARI.Security
+namespace XRealityLab.Security
 {
     public class GoogleReCAPTCHAService
     {

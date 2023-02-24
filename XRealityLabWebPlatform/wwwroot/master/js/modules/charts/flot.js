@@ -35,7 +35,7 @@
 
         var datav2 = [{
             "label": "Hours",
-            "color": "#f4ef6b",
+            "color": "#00c7ed",
             "data": [
                 ["Jan", 70],
                 ["Feb", 20],

@@ -678,8 +678,8 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
             labels: ['Purple', 'Yellow', 'Blue'],
             datasets: [{
                 data: [300, 50, 100],
-                backgroundColor: ['#7266ba', '#fad732', '#f4ef6b'],
-                hoverBackgroundColor: ['#7266ba', '#fad732', '#f4ef6b']
+                backgroundColor: ['#7266ba', '#fad732', '#00c7ed'],
+                hoverBackgroundColor: ['#7266ba', '#fad732', '#00c7ed']
             }]
         };
         var doughnutOptions = {
@@ -699,8 +699,8 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
             labels: ['Purple', 'Yellow', 'Blue'],
             datasets: [{
                 data: [300, 50, 100],
-                backgroundColor: ['#7266ba', '#fad732', '#f4ef6b'],
-                hoverBackgroundColor: ['#7266ba', '#fad732', '#f4ef6b']
+                backgroundColor: ['#7266ba', '#fad732', '#00c7ed'],
+                hoverBackgroundColor: ['#7266ba', '#fad732', '#00c7ed']
             }]
         };
         var pieOptions = {
@@ -1051,7 +1051,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
         }];
         var datav2 = [{
             "label": "Hours",
-            "color": "#f4ef6b",
+            "color": "#00c7ed",
             "data": [["Jan", 70], ["Feb", 20], ["Mar", 70], ["Apr", 85], ["May", 59], ["Jun", 93], ["Jul", 66], ["Aug", 86], ["Sep", 60], ["Oct", 60], ["Nov", 12], ["Dec", 50]]
         }, {
             "label": "Commits",
@@ -1537,7 +1537,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
             ykeys: ["a", "b"],
             labels: ["Series A", "Series B"],
             xLabelMargin: 2,
-            barColors: ['#f4ef6b', '#f05050'],
+            barColors: ['#00c7ed', '#f05050'],
             resize: true
         }); // Area Chart
         // -----------------------------------
@@ -1548,7 +1548,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
             xkey: 'y',
             ykeys: ["a", "b"],
             labels: ["Serie A", "Serie B"],
-            lineColors: ['#7266ba', '#f4ef6b'],
+            lineColors: ['#7266ba', '#00c7ed'],
             resize: true
         });
     }
@@ -1674,7 +1674,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
                     x: 4,
                     y: 16
                 }],
-                color: '#f4ef6b'
+                color: '#00c7ed'
             }]
         });
         graph3.render(); // Graph 4
@@ -3555,7 +3555,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 
     window.VectorMap = VectorMap;
     var defaultColors = {
-        markerColor: '#f4ef6b',
+        markerColor: '#00c7ed',
         // the marker points
         bgColor: 'transparent',
         // the background

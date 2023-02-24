@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 
-namespace Common
+namespace XRealityLab.Common
 {
     public static class Converters
     {
