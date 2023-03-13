@@ -1,0 +1,82 @@
+﻿@model XRealityLab.Models.ProjectDTO
+
+@{
+    ViewBag.Title = "AddPrincipleInvestigatorsToProject";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!--Header-->
+<div class="content-heading">
+    <div>
+        <strong>@Model.FullName</strong>
+    </div>
+</div>
+
+<!--Alert dialog-->
+@if (ViewBag.actionMessage != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        @ViewBag.actionMessage
+    </div>
+}
+
+<div class="container" style="float: left;">
+    <div>Add Principle investigators to <strong>@Model.FullName</strong>. The users have administrative abilities above and beyond a Research Assistant Role</div>
+    <div class="card">
+        <h2>Available Principle Investigators</h2>
+        <table class="table table-bordered table-hover" style="width:100%" id="table-ext-1">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th style="width:40%">Name</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.UserDTOs)
+                {
+                    @if (!item.IsInProject)
+                    {
+                        <tr>
+                            <td align="right">
+                                <a class="btn btn-primary" asp-action="AddPrincipleInvestigatorToProject" asp-route-passToken="@Model.PassToken" asp-route-userPassToken="@item.PassToken">Add</a>
+                            </td>
+                            <td class="text-primary" onclick="location.href='#'">@item.Firstname @item.Lastname</td>
+                            <td>@item.Email</td>
+                        </tr>
+                    }               
+                }
+                </tbody>
+            </table>
+    </div>
+    <div class="card">
+        <h2>Principle Investigators In @Model.FullName</h2>
+        <table class="table table-bordered table-hover" style="width:100%" id="table-ext-1">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th style="width:40%">Name</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.UserDTOs)
+                {
+                    @if (item.IsInProject)
+                    {
+                        <tr>
+                            <td align="right">
+                                <a class="btn btn-primary" asp-action="RemovePrincipleInvestigatorFromProject" asp-route-passToken="@Model.PassToken" asp-route-userPassToken="@item.PassToken">Remove</a>
+                            </td>
+                            <td class="text-primary" onclick="location.href='#'">@item.Firstname @item.Lastname</td>
+                            <td>@item.Email</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

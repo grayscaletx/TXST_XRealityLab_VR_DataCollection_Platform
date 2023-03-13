@@ -1,14 +1,26 @@
-﻿@model List<XRealityLab.Models.ProjectDTO>
+﻿@using System.Security.Claims;
+@using XRealityLab.Common;
+@using Common.Constants;
+@model List<XRealityLab.Models.ProjectDTO>
 
 @{
-    ViewBag.Title = "Labs";
+    ViewBag.Title = "MyProjects";
     Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    string role = string.Empty;
+    if (((ClaimsIdentity)User.Identity).FindAll("http://schemas.microsoft.com/ws/2008/06/identity/claims/role").Count() != 0)
+    {
+        role = ((ClaimsIdentity)User.Identity).FindAll("http://schemas.microsoft.com/ws/2008/06/identity/claims/role").ToList().LastOrDefault().Value;
+    }
+    IEnumerable<Claim> claims = User.Claims;
 }
 
 <!--Header-->
 <div class="content-heading">
     <div>
-        <strong>Labs</strong>
+        <strong>My Projects</strong>
     </div>
 </div>
 
@@ -27,37 +39,47 @@
     <div class="card-columns">
         @foreach (var item in Model)
         {
-            <div class="card mb-4" style="background-color : @item.Color;padding:10px 0;height:360px" onclick="location.href='/LabDirector/Project?passToken='+ @item.PassToken">
-                <div align="right">
-                    <a class="fa-2x mr-2 fas fa-ellipsis-h text-white" data-toggle="dropdown"></a>
-                    <div class="dropdown-menu" role="menu">
-                        <a class="dropdown-item" href="/LabDirector/EditProject?passToken=@item.PassToken">Edit Project</a>
-                        <a class="dropdown-item" href="/LabDirector/RemoveProject?passToken=@item.PassToken">Remove Project</a>
+            string passToken = item.PassToken;
+            <div class="card mb-4" style="background-color : @item.Color;padding:10px 0;height:360px">
+                @if (role == RoleType.LabDirector.GetEnumDescription() || role == RoleType.PrincipleInvestigator.GetEnumDescription())
+                {
+                    <div align="right">
+                        <a class="fa-2x mr-2 fas fa-ellipsis-h text-white" data-toggle="dropdown"></a>
+                        <div class="dropdown-menu" role="menu">
+                            <a class="dropdown-item" href="/User/AddPrincipleInvestigatorsToProject?passToken=@item.PassToken">Add Principle Investigators</a>
+                            <a class="dropdown-item" href="/User/AddResearchAssistantsToProject?passToken=@item.PassToken">Add Research Assistants</a>
+                            <a class="dropdown-item" href="/Project/EditResearchMethods?passToken=@item.PassToken">Add Research Method</a>
+                        </div>
                     </div>
-                </div>
-                <div align="center" style="padding :10px 0 0 0">
+                }
+                <div align="center" style="padding :10px 0 0 0" onclick="location.href='/Project/DataCollections?passToken=@passToken'">
                     <img src="@item.PhotoUrl" alt="Avatar" width="90" height="90" class="rounded-circle" />
                 </div>
                 <h3 class="text-white" style="margin:10px">@item.FullName</h3>
                 <div class="card-body">
                     <div style="background-color: black; margin: 0px -16px; height: 50px">
-                        <h4 class="card-title text-white" style="padding: 13px">Director of IT</h4>
+                        <h4 class="card-title text-white" style="padding: 13px">Supervising PIs</h4>
                     </div>
                     <div style="background-color:white;margin:0px -16px; height:103px">
-                        <span class="fa fa-envelope" style="padding:15px 10px">
-                            @*@(item.LabDirector.Firstname + " " + item.LabDirector.Lastname)*@
-                        </span>
+                        @foreach (var PI in item.UserDTOs)
+                        {
+                            <span class="fa fa-envelope" style="padding:15px 10px">
+                                @PI.Firstname @PI.Lastname
+                            </span>
+                        }
                     </div>
                 </div>
             </div>
         }
-        <div class="card mb-4" style="height:360px;background-color:transparent" onclick="location.href='/LabDirector/AddProject'">
-            <div align="center" style="padding :60px 0 0 0">
-                <h4 style="color: #4bc4e9;font-size:100px">+</h4>
-                <h4 style="color: #4bc4e9">New Project</h4>
+        @if (role == RoleType.LabDirector.GetEnumDescription() || role == RoleType.PrincipleInvestigator.GetEnumDescription())
+        {
+            <div class="card mb-4" style="height:360px;background-color:transparent" onclick="location.href='/Project/AddProject'">
+                <div align="center" style="padding :60px 0 0 0">
+                    <h4 style="color: #4bc4e9;font-size:100px">+</h4>
+                    <h4 style="color: #4bc4e9">New Project</h4>
+                </div>
+                <img style="margin:-215px 0px 0 0" width="370" height="360" src="/_images/group_icons/new_organization.png" />
             </div>
-            <img style="margin:-215px 0px 0 0" width="370" height="360" src="/_images/group_icons/new_organization.png" />
-        </div>
-
+        }
     </div>
 </div>

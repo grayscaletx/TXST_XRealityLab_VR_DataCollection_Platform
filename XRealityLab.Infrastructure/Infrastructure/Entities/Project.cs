@@ -8,6 +8,7 @@ namespace Infrastructure.Entities
         public Project()
         {
             ProjectResearch = new HashSet<ProjectResearch>();
+            ProjectSession = new HashSet<ProjectSession>();
             ProjectUser = new HashSet<ProjectUser>();
         }
 
@@ -19,6 +20,7 @@ namespace Infrastructure.Entities
         public DateTime Registered { get; set; }
 
         public virtual ICollection<ProjectResearch> ProjectResearch { get; set; }
+        public virtual ICollection<ProjectSession> ProjectSession { get; set; }
         public virtual ICollection<ProjectUser> ProjectUser { get; set; }
     }
 }

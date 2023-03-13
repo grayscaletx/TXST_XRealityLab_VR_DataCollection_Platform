@@ -1,0 +1,57 @@
+﻿@model List<XRealityLab.Models.UserDTO>
+
+@{
+    ViewBag.Title = "PrincipleInvestigators";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!--Header-->
+<div class="content-heading">
+    <div>
+        <strong>Principle Investigators</strong>
+    </div>
+</div>
+
+<!--Alert dialog-->
+@if (ViewBag.actionMessage != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        @ViewBag.actionMessage
+    </div>
+}
+
+<div class="container" style="float: left;">
+    <div class="card">
+        <table class="table table-bordered table-hover" id="table-ext-1">
+            <thead>
+                <tr>
+                    <th style="width:40%">Name</th>
+                    <th>Email</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="text-primary" colspan="40" align="left" onclick="location.href='/User/AddPrincipleInvestigator'">New Principle Investigator +</td>
+                </tr>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-primary" onclick="location.href='#'">@item.Firstname @item.Lastname</td>
+                        <td>@item.Email</td>
+                        <td align="right">
+                            <a class="fa-2x mr-2 fas fa-ellipsis-h text-dark" data-toggle="dropdown"></a>
+                            <div class="dropdown-menu" role="menu">
+                                <a class="dropdown-item" href="#">Edit PI</a>
+                                <a class="dropdown-item" href="/User/RemovePrincipleInvestigator?passToken=@item.PassToken">Remove PI</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>    
+</div>

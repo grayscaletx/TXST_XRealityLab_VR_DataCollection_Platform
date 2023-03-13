@@ -91,22 +91,21 @@ namespace XRealityLab.Controllers
                 return RedirectToAction(nameof(AddOrganization), new { _actionMessage = "Δεν προσθέσατε τα πεδία σωστά. Παρακαλώ προσπαθήστε ξανά." });
             }
 
-            //ResponseDTO responseDTO = await ModelValidation.UserValidation(_context, _data);
-            //if (responseDTO.Result == Enum.GetName(typeof(RoleType), MethodResult.Failed))
-            //    return Json(responseDTO);
-            
             UserDTO userDTO = new UserDTO
             {
                 Firstname = organizationDirectorDTO.Firstname,
                 Lastname = organizationDirectorDTO.Lastname,
                 Email = organizationDirectorDTO.Email,
-                Password = IdentityConversions.MD5Hash("test123"),
+                Password ="test123",
                 RoleId = (int)RoleType.DirectorOfIT,
                 PhotoUrl = PhotoUrl.DIRECTOR_OF_IT_ICON_PNG,
                 Telephone = "698132154",
                 RegistrationDateTime = DateTime.Now,
                 IsActive = true
             };
+            ResponseDTO responseDTO = await DataValidation.UserValidation(_context, userDTO);
+            if (responseDTO.Result == "Failed")
+                return Json(responseDTO);
 
             if (await _context.User.AnyAsync(k => k.Email == userDTO.Email.Trim()))
                 return Json(MessageConverter.GetResponse("Failed to create the user", MethodResult.Failed));
@@ -144,6 +143,15 @@ namespace XRealityLab.Controllers
                 Registered = DateTime.Now,
                 Country = organizationDirectorDTO.Country
             };
+            responseDTO = await DataValidation.OrganizationValidation(_context, organization);
+            if (responseDTO.Result == Enum.GetName(typeof(RoleType), MethodResult.Failed))
+            {
+                _context.Remove(directorIT);
+                await _context.SaveChangesAsync();
+                return Json(responseDTO);
+            }
+                
+
             await _context.Organization.AddAsync(organization);
             await _context.SaveChangesAsync();
 
@@ -212,6 +220,9 @@ namespace XRealityLab.Controllers
             organization.SubscriptionExpiration = organizationDirectorDTO.SubscriptionExpiration;
             organization.Registered = DateTime.Now;
             organization.Country = organizationDirectorDTO.Country;
+            ResponseDTO responseDTO = await DataValidation.OrganizationValidation(_context, organization);
+            if (responseDTO.Result == Enum.GetName(typeof(RoleType), MethodResult.Failed))
+                return Json(responseDTO);
 
             _context.Organization.Update(organization);
             await _context.SaveChangesAsync();

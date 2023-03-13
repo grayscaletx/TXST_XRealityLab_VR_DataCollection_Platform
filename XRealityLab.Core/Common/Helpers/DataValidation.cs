@@ -1,16 +1,19 @@
-﻿using Infrastructure.Entities;
+﻿/*using Infrastructure.Entities;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
+using XRealityLab.Models;
+
+
 
 namespace Common.Helpers
 {
-    public class TOREMOVE_ClassValidation
+    public class DataValidation
     {
-        public async static Task<ResponseDTO> UserValidation(XRealityLabdbContext _context, IFormCollection _data)
+        public async static Task<ResponseDTO> UserValidation(XRealityLabdbContext _context, UserDTO _data)
         {
             try
             {
@@ -42,3 +45,4 @@ namespace Common.Helpers
         }
     }
 }
+*/

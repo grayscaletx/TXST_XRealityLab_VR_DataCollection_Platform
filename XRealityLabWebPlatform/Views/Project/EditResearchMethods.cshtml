@@ -1,0 +1,56 @@
+﻿@model XRealityLab.Models.ProjectDTO
+
+@{
+    ViewBag.Title = "EditResearchMethods";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!--Header-->
+<div class="content-heading">
+    <div>
+        <strong>@Model.FullName</strong>
+    </div>
+</div>
+
+<!--Alert dialog-->
+@if (ViewBag.actionMessage != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        @ViewBag.actionMessage
+    </div>
+}
+
+<div class="container" style="float: left;">
+    <div>Edit Research Methods of <strong>@Model.FullName</strong></div>
+    <div class="card">
+        <h3>Research Methods of @Model.FullName</h3>
+        <table class="table table-bordered table-hover" style="width:100%" id="table-ext-1">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th style="width:40%">Research Title</th>
+                    <th>Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    @{string passToken = Model.PassToken;}  
+                    <td class="text-primary" colspan="40" align="left" onclick="location.href='/Project/NewResearchMethod?passToken=@passToken'">New Research Method +</td>
+                </tr>
+                @foreach (var item in Model.ResearchDTOs)
+                {
+                    <tr>
+                        <td align="right">
+                            <a class="btn btn-primary" asp-action="DeleteResearchMethod" asp-route-passToken="@Model.PassToken" asp-route-researchId="@item.ResearchId">Remove</a>
+                        </td>
+                        <td class="text-primary" onclick="location.href='#'">@item.Title</td>
+                        <td>@item.TypeId</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>    
+</div>

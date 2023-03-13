@@ -1,0 +1,69 @@
+﻿@model XRealityLab.Models.SessionDTO
+
+@{
+    ViewBag.Title = "Participants";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!--Header-->
+<div class="content-heading">
+    <div>
+        <strong>Participants</strong>
+    </div>
+</div>
+
+<!--Alert dialog-->
+@if (ViewBag.actionMessage != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        @ViewBag.actionMessage
+    </div>
+}
+
+<div class="container" style="float: left;">
+    <h2>@Model.Title</h2>
+    <div class="card">
+        <table class="table table-bordered table-hover" id="table-ext-1">
+            <thead>
+                <tr>
+                    <th style="width:10%">ID</th>
+                    <th style="width:25%">Name</th>
+                    <th style="width:20%">Email</th>
+                    <th>Created</th>
+                    <th>Intake Qs</th>
+                    <th>Protocol</th>
+                    <th>Exit Qs</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    @{string passToken = Model.PassToken;}
+                    <td class="text-primary" colspan="40" align="left" onclick="location.href='/Project/NewParticipant?passToken=@passToken'">New Participant +</td>
+                </tr>
+                @foreach (var item in Model.participantDTOs)
+                {
+                    <tr>
+                        <td>@item.ParticipantId</td>
+                        <td class="text-primary" onclick="location.href='#'">@item.FirstName @item.LastName</td>
+                        <td>@item.Email</td>
+                        <td>@item.Registered</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td align="right">
+                            <a class="fa-2x mr-2 fas fa-ellipsis-h text-dark" data-toggle="dropdown"></a>
+                            <div class="dropdown-menu" role="menu">
+                                <a class="dropdown-item" href="#">Edit</a>
+                                <a class="dropdown-item" asp-action="DeleteParticipant" asp-route-passToken="@Model.PassToken" asp-route-participantId="@item.ParticipantId">Remove</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

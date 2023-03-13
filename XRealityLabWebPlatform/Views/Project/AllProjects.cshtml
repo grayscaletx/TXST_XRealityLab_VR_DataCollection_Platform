@@ -8,7 +8,7 @@
 <!--Header-->
 <div class="content-heading">
     <div>
-        <strong>Labs</strong>
+        <strong>All Projects</strong>
     </div>
 </div>
 
@@ -31,8 +31,11 @@
                 <div align="right">
                     <a class="fa-2x mr-2 fas fa-ellipsis-h text-white" data-toggle="dropdown"></a>
                     <div class="dropdown-menu" role="menu">
-                        <a class="dropdown-item" href="/LabDirector/EditProject?passToken=@item.PassToken">Edit Project</a>
-                        <a class="dropdown-item" href="/LabDirector/RemoveProject?passToken=@item.PassToken">Remove Project</a>
+                        <a class="dropdown-item" href="/Project/EditProject?passToken=@item.PassToken">Edit Project</a>
+                        <a class="dropdown-item" href="/Project/RemoveProject?passToken=@item.PassToken">Remove Project</a>
+                        <a class="dropdown-item" href="/User/AddPrincipleInvestigatorsToProject?passToken=@item.PassToken">Add Principle Investigators</a>
+                        <a class="dropdown-item" href="/User/AddResearchAssistantsToProject?passToken=@item.PassToken">Add Research Assistants</a>
+                        <a class="dropdown-item" href="/Project/EditResearchMethods?passToken=@item.PassToken">Add Research Method</a>
                     </div>
                 </div>
                 <div align="center" style="padding :10px 0 0 0">
@@ -41,12 +44,15 @@
                 <h3 class="text-white" style="margin:10px">@item.FullName</h3>
                 <div class="card-body">
                     <div style="background-color: black; margin: 0px -16px; height: 50px">
-                        <h4 class="card-title text-white" style="padding: 13px">Director of IT</h4>
+                        <h4 class="card-title text-white" style="padding: 13px">Supervising PIs</h4>
                     </div>
                     <div style="background-color:white;margin:0px -16px; height:103px">
-                        <span class="fa fa-envelope" style="padding:15px 10px">
-                            @*@(item.LabDirector.Firstname + " " + item.LabDirector.Lastname)*@
-                        </span>
+                        @foreach (var PI in item.UserDTOs)
+                        {
+                            <span class="fa fa-envelope" style="padding:15px 10px">
+                                @PI.Firstname @PI.Lastname
+                            </span>
+                        }
                     </div>
                 </div>
             </div>
