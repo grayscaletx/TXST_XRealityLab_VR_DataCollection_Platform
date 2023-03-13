@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31005.135
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XRealityLab", "XRealityLab.csproj", "{9B76E21D-E729-4CD5-84FA-FB153AC74287}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XRealityLab", "XRealityLab.csproj", "{9B76E21D-E729-4CD5-84FA-FB153AC74287}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "XRealityLab.Core", "XRealityLab.Core", "{ACDF5C1E-99C0-4BAE-BD15-08427CF8BBA5}"
 EndProject
@@ -15,15 +15,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "XRealityLab.Tests", "XReali
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "XRealityLab.Web", "XRealityLab.Web", "{1C9ADFB7-2413-4321-98B9-14BCA541B7E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "..\XRealityLab.Core\Application\Application.csproj", "{196AB732-C678-4768-ADDD-E87C3A7BC1B5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "..\XRealityLab.Core\Application\Application.csproj", "{196AB732-C678-4768-ADDD-E87C3A7BC1B5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "..\XRealityLab.Core\Common\Common.csproj", "{F8CE6FFF-1030-4CB9-A965-D6DEC8AD68A5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "..\XRealityLab.Core\Common\Common.csproj", "{F8CE6FFF-1030-4CB9-A965-D6DEC8AD68A5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "..\XRealityLab.Infrastructure\Infrastructure\Infrastructure.csproj", "{AC2A7671-8FAD-4C86-89F0-78961A70C0EF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "..\XRealityLab.Infrastructure\Infrastructure\Infrastructure.csproj", "{AC2A7671-8FAD-4C86-89F0-78961A70C0EF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureStorage", "..\XRealityLab.Service\AzureStorage\AzureStorage.csproj", "{185D3F1C-365B-45C5-8DF3-D07E0E3AAF7E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureStorage", "..\XRealityLab.Service\AzureStorage\AzureStorage.csproj", "{185D3F1C-365B-45C5-8DF3-D07E0E3AAF7E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mail", "..\XRealityLab.Service\Mail\Mail.csproj", "{7F07A3EB-B3AE-4DBF-A6E3-BFFEBE8C784B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mail", "..\XRealityLab.Service\Mail\Mail.csproj", "{7F07A3EB-B3AE-4DBF-A6E3-BFFEBE8C784B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XRealityLabAPI", "..\XRealityLabAPI\XRealityLabAPI.csproj", "{EFA9CE70-144E-4408-B65A-69E936279346}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +57,10 @@ Global
 		{7F07A3EB-B3AE-4DBF-A6E3-BFFEBE8C784B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7F07A3EB-B3AE-4DBF-A6E3-BFFEBE8C784B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7F07A3EB-B3AE-4DBF-A6E3-BFFEBE8C784B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFA9CE70-144E-4408-B65A-69E936279346}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFA9CE70-144E-4408-B65A-69E936279346}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFA9CE70-144E-4408-B65A-69E936279346}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFA9CE70-144E-4408-B65A-69E936279346}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -66,6 +72,7 @@ Global
 		{AC2A7671-8FAD-4C86-89F0-78961A70C0EF} = {E3A13392-6F9F-4C19-A10C-B3B4F356FB3B}
 		{185D3F1C-365B-45C5-8DF3-D07E0E3AAF7E} = {77B72671-AD5A-4A90-95AE-73566C4D768B}
 		{7F07A3EB-B3AE-4DBF-A6E3-BFFEBE8C784B} = {77B72671-AD5A-4A90-95AE-73566C4D768B}
+		{EFA9CE70-144E-4408-B65A-69E936279346} = {1C9ADFB7-2413-4321-98B9-14BCA541B7E4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F0C68781-859C-4EE1-B87A-A6ECB4B3E28B}

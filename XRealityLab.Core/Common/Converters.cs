@@ -34,5 +34,17 @@ namespace XRealityLab.Common
             return descriptionAttributes.Length > 0 ? descriptionAttributes[0].Description : enumValue.ToString();
         }
 
+        public static string CreatePassword(int _length)
+        {
+            const string valid = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$%^*()";
+            StringBuilder res = new StringBuilder();
+            Random rnd = new Random();
+            while (0 < _length--)
+            {
+                res.Append(valid[rnd.Next(valid.Length)]);
+            }
+            return res.ToString();
+        }
+
     }
 }

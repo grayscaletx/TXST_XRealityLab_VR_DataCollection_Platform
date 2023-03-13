@@ -11,6 +11,7 @@ namespace Infrastructure.Entities
             LabUser = new HashSet<LabUser>();
             Organization = new HashSet<Organization>();
             ProjectUser = new HashSet<ProjectUser>();
+            UserAuthToken = new HashSet<UserAuthToken>();
         }
 
         public int UserId { get; set; }
@@ -30,5 +31,6 @@ namespace Infrastructure.Entities
         public virtual ICollection<LabUser> LabUser { get; set; }
         public virtual ICollection<Organization> Organization { get; set; }
         public virtual ICollection<ProjectUser> ProjectUser { get; set; }
+        public virtual ICollection<UserAuthToken> UserAuthToken { get; set; }
     }
 }

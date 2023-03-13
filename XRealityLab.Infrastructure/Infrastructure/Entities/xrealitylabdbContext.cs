@@ -19,13 +19,18 @@ namespace Infrastructure.Entities
         public virtual DbSet<LabUser> LabUser { get; set; }
         public virtual DbSet<Organization> Organization { get; set; }
         public virtual DbSet<OrganizationLab> OrganizationLab { get; set; }
+        public virtual DbSet<Participant> Participant { get; set; }
         public virtual DbSet<Project> Project { get; set; }
         public virtual DbSet<ProjectResearch> ProjectResearch { get; set; }
+        public virtual DbSet<ProjectSession> ProjectSession { get; set; }
         public virtual DbSet<ProjectUser> ProjectUser { get; set; }
         public virtual DbSet<Research> Research { get; set; }
         public virtual DbSet<ResearchMethod> ResearchMethod { get; set; }
         public virtual DbSet<Role> Role { get; set; }
+        public virtual DbSet<Session> Session { get; set; }
+        public virtual DbSet<SessionParticipant> SessionParticipant { get; set; }
         public virtual DbSet<User> User { get; set; }
+        public virtual DbSet<UserAuthToken> UserAuthToken { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -165,6 +170,25 @@ namespace Infrastructure.Entities
                     .HasConstraintName("FK_OrganizationLab_Organization");
             });
 
+            modelBuilder.Entity<Participant>(entity =>
+            {
+                entity.Property(e => e.ParticipantId).HasColumnName("ParticipantID");
+
+                entity.Property(e => e.Email)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.FirstName)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.LastName)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Registered).HasColumnType("datetime");
+            });
+
             modelBuilder.Entity<Project>(entity =>
             {
                 entity.Property(e => e.ProjectId).HasColumnName("ProjectID");
@@ -192,9 +216,7 @@ namespace Infrastructure.Entities
             {
                 entity.HasKey(e => e.ProjectReseachId);
 
-                entity.Property(e => e.ProjectReseachId)
-                    .HasColumnName("ProjectReseachID")
-                    .ValueGeneratedNever();
+                entity.Property(e => e.ProjectReseachId).HasColumnName("ProjectReseachID");
 
                 entity.Property(e => e.ProjectId).HasColumnName("ProjectID");
 
@@ -211,6 +233,27 @@ namespace Infrastructure.Entities
                     .HasForeignKey(d => d.ResearchId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ProjectResearch_Research");
+            });
+
+            modelBuilder.Entity<ProjectSession>(entity =>
+            {
+                entity.Property(e => e.ProjectSessionId).HasColumnName("ProjectSessionID");
+
+                entity.Property(e => e.ProjectId).HasColumnName("ProjectID");
+
+                entity.Property(e => e.SessionId).HasColumnName("SessionID");
+
+                entity.HasOne(d => d.Project)
+                    .WithMany(p => p.ProjectSession)
+                    .HasForeignKey(d => d.ProjectId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_ProjectSession_Project");
+
+                entity.HasOne(d => d.Session)
+                    .WithMany(p => p.ProjectSession)
+                    .HasForeignKey(d => d.SessionId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_ProjectSession_Session");
             });
 
             modelBuilder.Entity<ProjectUser>(entity =>
@@ -257,9 +300,7 @@ namespace Infrastructure.Entities
 
             modelBuilder.Entity<ResearchMethod>(entity =>
             {
-                entity.Property(e => e.ResearchMethodId)
-                    .HasColumnName("ResearchMethodID")
-                    .ValueGeneratedNever();
+                entity.Property(e => e.ResearchMethodId).HasColumnName("ResearchMethodID");
 
                 entity.Property(e => e.TypeId)
                     .IsRequired()
@@ -276,6 +317,40 @@ namespace Infrastructure.Entities
                 entity.Property(e => e.Type)
                     .IsRequired()
                     .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<Session>(entity =>
+            {
+                entity.Property(e => e.SessionId).HasColumnName("SessionID");
+
+                entity.Property(e => e.Description).HasMaxLength(250);
+
+                entity.Property(e => e.Registered).HasColumnType("datetime");
+
+                entity.Property(e => e.Title)
+                    .IsRequired()
+                    .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<SessionParticipant>(entity =>
+            {
+                entity.Property(e => e.SessionParticipantId).HasColumnName("SessionParticipantID");
+
+                entity.Property(e => e.ParticipantId).HasColumnName("ParticipantID");
+
+                entity.Property(e => e.SessionId).HasColumnName("SessionID");
+
+                entity.HasOne(d => d.Participant)
+                    .WithMany(p => p.SessionParticipant)
+                    .HasForeignKey(d => d.ParticipantId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_SessionParticipant_Participant");
+
+                entity.HasOne(d => d.Session)
+                    .WithMany(p => p.SessionParticipant)
+                    .HasForeignKey(d => d.SessionId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_SessionParticipant_Session");
             });
 
             modelBuilder.Entity<User>(entity =>
@@ -318,6 +393,25 @@ namespace Infrastructure.Entities
                     .HasForeignKey(d => d.RoleId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_User_Role");
+            });
+
+            modelBuilder.Entity<UserAuthToken>(entity =>
+            {
+                entity.Property(e => e.UserAuthTokenId).HasColumnName("UserAuthTokenID");
+
+                entity.Property(e => e.AuthToken)
+                    .IsRequired()
+                    .HasMaxLength(150);
+
+                entity.Property(e => e.GeneratedAt).HasColumnType("datetime");
+
+                entity.Property(e => e.UserId).HasColumnName("UserID");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.UserAuthToken)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_UserAuthToken_User");
             });
 
             OnModelCreatingPartial(modelBuilder);
