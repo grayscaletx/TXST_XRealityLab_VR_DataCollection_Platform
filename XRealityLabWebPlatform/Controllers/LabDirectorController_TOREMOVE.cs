@@ -27,8 +27,7 @@ using EnumsNET;
 using Microsoft.AspNetCore.Authorization;
 
 namespace XRealityLab.Controllers
-{
-    /*[Authorize(Roles = "Υπεύθυνος Παραγωγής,Επόπτης Λογιστής,Υπεύθυνος Ροών Εταιρίας")]*/
+{/*
     public class LabDirectorController : Controller
     {
         private readonly XRealityLabdbContext _context;
@@ -40,8 +39,8 @@ namespace XRealityLab.Controllers
         public LabDirectorController(XRealityLabdbContext context, IHostingEnvironment IHostingEnvironment, CustomIDataProtection customIDataProtection)
         {
             _context = context;
-/*            _userRepository = new UserRepository(_context);
-*/            _environment = IHostingEnvironment;
+*//*            _userRepository = new UserRepository(_context);
+*//*            _environment = IHostingEnvironment;
             protector = customIDataProtection;
         }
 
@@ -63,7 +62,7 @@ namespace XRealityLab.Controllers
 
 
 
-        /* public async Task<IActionResult> Orders(string actionMessage)
+        *//* public async Task<IActionResult> Orders(string actionMessage)
          {
              List<EDIOrderDTO> orderDtos = await _context.Orders.Include(k => k.Material).Select(k => new EDIOrderDTO
              {
@@ -535,7 +534,7 @@ namespace XRealityLab.Controllers
 
              return new JsonResult("ok");
          }
- */
+ *//*
 
 
 
@@ -551,7 +550,7 @@ namespace XRealityLab.Controllers
 
         ///////////////
         //OLD
-        /*  [HttpPost]
+        *//*  [HttpPost]
           public JsonResult UpdatedOrderMaterialValue(string passToken, string selectedItem, string materialId, string quantity)
           {
               //var orderMaterial = _context.OrderMaterials.Where(k => k.OrderMaterialId == int.Parse(selectedItem)).FirstOrDefault();
@@ -584,7 +583,7 @@ namespace XRealityLab.Controllers
               //_context.SaveChangesAsync();
 
               return new JsonResult("ok");
-          }*/
+          }*//*
 
 
 
@@ -682,7 +681,7 @@ namespace XRealityLab.Controllers
         //    return Json(warehouseSuppliesDTOs);
         //}
 
-        /* [HttpPost]*/
+        *//* [HttpPost]*/
         /* public JsonResult AddOrderItem(string truckId, string orderId)
          {
              var truckOrder = new TruckOrder { OrderId = int.Parse(orderId), TruckId = int.Parse(truckId) };
@@ -690,7 +689,7 @@ namespace XRealityLab.Controllers
              _context.SaveChangesAsync();
 
              return new JsonResult(truckId);
-         }*/
+         }*//*
         //[HttpPost]
         //public JsonResult RemoveOrderItem(string truckId, string orderId)
         //{
@@ -775,7 +774,7 @@ namespace XRealityLab.Controllers
 
 
         //Helpers
-        /*public static int GetLot(DateTime formDateTime)
+        *//*public static int GetLot(DateTime formDateTime)
         {
             DateTime referenceDate = new DateTime(2021, 1, 1);
             TimeSpan difference = formDateTime - referenceDate;
@@ -788,7 +787,7 @@ namespace XRealityLab.Controllers
         public static DateTime GetMaxDeliveryDate(DateTime formDateTime, int lagerDays)
         {
             return formDateTime.AddDays(lagerDays - 1);
-        }*/
+        }*//*
 
-    }
+    }*/
 }

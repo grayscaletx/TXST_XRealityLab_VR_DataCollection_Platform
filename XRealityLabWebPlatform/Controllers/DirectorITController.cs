@@ -28,6 +28,7 @@ using Microsoft.AspNetCore.Authorization;
 using Common.Helpers;
 using Microsoft.AspNetCore.Identity;
 using Common;
+using System.Security.Claims;
 
 namespace XRealityLab.Controllers
 {
@@ -51,8 +52,9 @@ namespace XRealityLab.Controllers
         }
 
         public async Task<IActionResult> Labs(string actionMessage)
-        {
-            List<LabDTO> labDTOs = await _context.Lab.Include(k => k.LabDirector).Select(k => new LabDTO
+        {      
+            int organizationId = _context.Organization.Where(k => k.ItdirectorId == (_context.User.Where(k => k.Email == User.Identity.Name).FirstOrDefault().UserId)).FirstOrDefault().OrganizationId;
+            List<LabDTO> labDTOs = await _context.Lab.Include(k => k.OrganizationLab).Where(k => k.OrganizationLab.Select(k => k.OrganizationId).Contains(organizationId)).Include(k => k.LabDirector).Select(k => new LabDTO
             {
                 LabId = k.LabId,
                 PassToken = _protector.Decode(k.LabId.ToString()),
@@ -85,23 +87,21 @@ namespace XRealityLab.Controllers
             {
                 return RedirectToAction(nameof(AddLab), new { _actionMessage = "Δεν προσθέσατε τα πεδία σωστά. Παρακαλώ προσπαθήστε ξανά." });
             }
-
-            //ResponseDTO responseDTO = await ModelValidation.UserValidation(_context, _data);
-            //if (responseDTO.Result == Enum.GetName(typeof(RoleType), MethodResult.Failed))
-            //    return Json(responseDTO);
-
             UserDTO userDTO = new UserDTO
             {
                 Firstname = labDirectorDTO.Firstname,
                 Lastname = labDirectorDTO.Lastname,
                 Email = labDirectorDTO.Email,
-                Password = IdentityConversions.MD5Hash("test123"),
-                RoleId = (int)RoleType.DirectorOfIT,
+                Password = "test123",
+                RoleId = (int)RoleType.LabDirector,
                 PhotoUrl = PhotoUrl.DIRECTOR_OF_IT_ICON_PNG,
                 Telephone = "698132154",
                 RegistrationDateTime = DateTime.Now,
                 IsActive = true
             };
+            ResponseDTO responseDTO = await DataValidation.UserValidation(_context, userDTO);
+            if (responseDTO.Result == "Failed")
+                return Json(responseDTO);
 
             if (await _context.User.AnyAsync(k => k.Email == userDTO.Email.Trim()))
                 return Json(MessageConverter.GetResponse("Failed to create the user", MethodResult.Failed));
@@ -121,7 +121,8 @@ namespace XRealityLab.Controllers
 
             //Get director id
             var director = _context.User.Where(k => k.Email == labDirectorDTO.Email).FirstOrDefault();
-
+            int organizationId = _context.Organization.Where(k => k.ItdirectorId == (_context.User.Where(k => k.Email == User.Identity.Name).FirstOrDefault().UserId)).FirstOrDefault().OrganizationId;
+            
             //Save data
             Lab lab = new Lab
             {
@@ -132,7 +133,30 @@ namespace XRealityLab.Controllers
                 PhotoUrl = PhotoUrl.LAB_ICON_PNG,
                 Registered = DateTime.Now
             };
+            responseDTO = await DataValidation.LabValidation(_context, lab);
+            if (responseDTO.Result == Enum.GetName(typeof(RoleType), MethodResult.Failed))
+            {
+                _context.User.Remove(director);
+                await _context.SaveChangesAsync();
+                return Json(responseDTO);
+            }                
             await _context.Lab.AddAsync(lab);
+            //Get LabId
+            await _context.SaveChangesAsync();
+            Lab thisLab = _context.Lab.Where(k => k.FullName == lab.FullName).FirstOrDefault();
+            OrganizationLab organizationLab = new OrganizationLab
+            {
+                OrganizationId = organizationId,                
+                LabId = thisLab.LabId
+            };
+            LabUser labUser = new LabUser
+            {
+                LabId = thisLab.LabId,
+                UserId = director.UserId,
+                RoleId = 3
+            };
+            await _context.LabUser.AddAsync(labUser);
+            await _context.OrganizationLab.AddAsync(organizationLab);
             await _context.SaveChangesAsync();
 
 
@@ -186,6 +210,9 @@ namespace XRealityLab.Controllers
             lab.Color = labDirectorDTO.Color;
             lab.PhotoUrl = PhotoUrl.LAB_ICON_PNG;
             lab.Registered = DateTime.Now;
+            ResponseDTO responseDTO = await DataValidation.LabValidation(_context, lab);
+            if (responseDTO.Result == Enum.GetName(typeof(RoleType), MethodResult.Failed))
+                return Json(responseDTO);
 
             _context.Lab.Update(lab);
             await _context.SaveChangesAsync();

@@ -54,6 +54,10 @@ namespace XRealityLab.Controllers
                     return RedirectToAction("Labs", RoleType.DirectorOfIT.GetEnumDescription());
                 else if (role == RoleType.LabDirector.GetEnumDescription())
                     return RedirectToAction("AllProjects", "Project");
+                else if (role == RoleType.PrincipleInvestigator.GetEnumDescription())
+                    return RedirectToAction("MyProjects", "Project");
+                else if (role == RoleType.ResearchAssistant.GetEnumDescription())
+                    return RedirectToAction("MyProjects", "Project");
                 else
                     return RedirectToAction("Organizations", RoleType.Administrator.GetEnumDescription());
             }
@@ -73,8 +77,12 @@ namespace XRealityLab.Controllers
                     return RedirectToAction("Labs", RoleType.DirectorOfIT.GetEnumDescription());
                 else if (role == RoleType.LabDirector.GetEnumDescription())
                     return RedirectToAction("AllProjects", "Project");
+                else if (role == RoleType.PrincipleInvestigator.GetEnumDescription())
+                    return RedirectToAction("MyProjects", "Project");
+                else if (role == RoleType.ResearchAssistant.GetEnumDescription())
+                    return RedirectToAction("MyProjects", "Project");
                 else
-                    return RedirectToAction("Organizations", RoleType.Administrator.GetEnumDescription());
+                    return RedirectToAction("MyProjects", "Project");
             }
             else
                 return View();
@@ -165,8 +173,12 @@ namespace XRealityLab.Controllers
                 return RedirectToAction("Labs", RoleType.DirectorOfIT.GetEnumDescription());
             else if (user.RoleId == (int)RoleType.LabDirector)
                 return RedirectToAction("AllProjects", "Project");
+            else if (user.RoleId == (int)RoleType.PrincipleInvestigator)
+                return RedirectToAction("MyProjects", "Project");
+            else if (user.RoleId == (int)RoleType.ResearchAssistant)
+                return RedirectToAction("MyProjects", "Project");
             else
-                return RedirectToAction("Organizations", RoleType.Administrator.GetEnumDescription());
+                return RedirectToAction("MyProjects", "Project");
         }
 
         [AllowAnonymous]

@@ -14,6 +14,11 @@ namespace XRealityLab.Models
         public string PhotoUrl { get; set; }
         public string Description { get; set; }
         public string Color { get; set; }
+        public int ResearchMethodId { get; set; }
+        public string Title { get; set; }
         public DateTime Registered { get; set; }
+        public List<UserDTO> UserDTOs { get; set; }
+        public List<ResearchDTO> ResearchDTOs { get; set; }
+        public List<SessionDTO> SessionDTOs { get; set; }
     }
 }

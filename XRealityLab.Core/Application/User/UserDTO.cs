@@ -30,5 +30,6 @@ namespace XRealityLab.Models
         public IEnumerable<SelectListItem> RoleListItems { get; set; }
         [Display(Name = "Ρόλος")]
         public string SelectedRole { get; set; }
+        public bool IsInProject { get; set; }
     }
 }

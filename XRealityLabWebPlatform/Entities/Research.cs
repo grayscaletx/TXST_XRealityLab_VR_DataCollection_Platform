@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace XRealityLab.Entities
 {
     public partial class Research
     {
         public Research()
         {
-            ProjectResearches = new HashSet<ProjectResearch>();
+            ProjectResearch = new HashSet<ProjectResearch>();
         }
 
         public int ResearchId { get; set; }
@@ -17,6 +15,6 @@ namespace XRealityLab.Entities
         public int ResearchMethodId { get; set; }
         public DateTime Registered { get; set; }
 
-        public virtual ICollection<ProjectResearch> ProjectResearches { get; set; }
+        public virtual ICollection<ProjectResearch> ProjectResearch { get; set; }
     }
 }

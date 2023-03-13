@@ -99,17 +99,47 @@
                     </a>
                 </li>
                 <li>
-                    <a href="@Url.Action("PrincipleInvestigators", "PrincipleInvestigator")" title="PrincipleIvestigators">
+                    <a href="@Url.Action("PrincipleInvestigators", "User")" title="PrincipleIvestigators">
                         <em class="fa-2x mr-2 fas fa-users"></em>
                         <span>Principle Ivestigators</span>
                     </a>
                 </li>
                 <li>
-                    <a href="@Url.Action("ResearchAssistants", "PrincipleInvestigator")" title="ResearchAssistants">
+                    <a href="@Url.Action("ResearchAssistants", "User")" title="ResearchAssistants">
                         <em class="fa-2x mr-2 fas fa-users"></em>
                         <span>Research Assistants</span>
                     </a>
                 </li>
+            }
+            else if (role == RoleType.PrincipleInvestigator.GetEnumDescription())
+            {
+                <li>
+                    <a href="@Url.Action("MyProjects", "Project")" title="My Projects">
+                        <em class="fa-2x mr-2 far fa-clipboard"></em>
+                        <span>My Projects</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("PrincipleInvestigators", "User")" title="PrincipleIvestigators">
+                        <em class="fa-2x mr-2 fas fa-users"></em>
+                        <span>Principle Ivestigators</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("ResearchAssistants", "User")" title="ResearchAssistants">
+                        <em class="fa-2x mr-2 fas fa-users"></em>
+                        <span>Research Assistants</span>
+                    </a>
+                </li>
+            }
+            else if (role == RoleType.ResearchAssistant.GetEnumDescription())
+            {
+                <li>
+                    <a href="@Url.Action("MyProjects", "Project")" title="Organizations">
+                        <em class="fa-2x mr-2 far fa-clipboard"></em>
+                        <span>My Projects</span>
+                    </a>
+                </li>                
             }
             <li>
                 <a href="@Url.Action("Index", "General")">

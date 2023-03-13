@@ -1,4 +1,4 @@
-﻿@model XRealityLab.Models.LabDirectorDTO
+﻿@model XRealityLab.Models.ProjectDTO
 @using System.Security.Claims;
 @using XRealityLab.Common;
 
@@ -10,7 +10,7 @@
 <!--Header-->
 <div class="content-heading">
     <div>
-        <strong>New Lab and Director</strong>
+        <strong>New Project</strong>
     </div>
 </div>
 
@@ -26,7 +26,7 @@
 }
 
 <!--Projects Cards-->
-<form asp-action="AddLab">
+<form asp-action="AddProject">
     <div class="row">
         <div class="col-xl-6">
             <div class="card card-default">
