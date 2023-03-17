@@ -35,11 +35,12 @@
                     <input type="hidden" asp-for="PassToken" />
                     <div class="form-group" align="center">
                         <div align="center" style="padding :10px 0 0 0">
-                            <img src="~/_images/group_icons/organization_blank_icon.png" alt="Avatar" width="90" height="90" class="rounded-circle" />
+                            <img id="imgIcon" src="~/_images/group_icons/organization_blank_icon.png" alt="Avatar" width="90" height="90" class="rounded-circle" />
+                            <input id="inputBase64" asp-for="PhotoBase64" type="text" hidden />
                         </div>
                         <label class="col-md-6 col-form-label">Organization Icon</label>
                         <div>
-                            <input class="form-control filestyle" type="file" data-classbutton="btn btn-secondary" data-classinput="form-control inline" data-icon="&lt;span class='fa fa-upload mr'&gt;&lt;/span&gt;" />
+                            <input  id="inputFileToLoad" class="form-control filestyle" type="file" data-classbutton="btn btn-secondary" data-classinput="form-control inline" onchange="encodeImageFileAsURL()" data-icon="&lt;span class='fa fa-upload mr'&gt;&lt;/span&gt;" />
                         </div>
                     </div>
                     <div class="form-group">
@@ -84,30 +85,52 @@
                 </div>
             </div>
         </div>
+
         <div class="col-xl-4">
             <div class="card card-default">
                 <div class="card-body">
-                    <h2>Research Director and Contact</h2>
-                    <div class="form-group" style="pointer-events: none;">
-                        <label>Rank</label>
-                        <input asp-for="Rank" class="form-control" type="text" placeholder="Enter Rank"/>
+                    <h2>Email address</h2>
+                    <div align="right">
+                        <a class="fa mr fas fa-ellipsis-h text-black" data-toggle="dropdown"></a>
+                        <div class="dropdown-menu" role="menu">
+                            <a class="dropdown-item" href="/Administrator/ChangeITDirector">Change Director of IT</a>
+                        </div>
                     </div>
-                    <div class="form-group" style="pointer-events: none;">
+                    <div class="form-group" style="pointer-events: none">
+                        <input asp-for="Email" class="form-control" type="email" placeholder="Enter email" style="background-color:lightgray" />
+                    </div>
+                </div>
+            </div>
+            <div class="card card-default">
+                <div class="card-body">
+                    <h2>Research Director and Contact</h2>
+                    <div class="form-group">
+                        <label>Rank</label>
+                        <select asp-for="Rank" class="form-control form-control-lg">
+                            <option>Ms.</option>
+                            <option>Mr.</option>
+                            <option>Dr.</option>
+                            <option>Mx.</option>
+                        </select>
+                        @*<input asp-for="Rank" class="form-control" type="text" placeholder="Enter Rank" />*@
+                    </div>
+                    <div class="form-group">
                         <label>First Name</label>
                         <input asp-for="Firstname" class="form-control" type="text" placeholder="Enter First Name" />
                     </div>
-                    <div class="form-group" style="pointer-events: none;">
+                    <div class="form-group">
                         <label>Last Name</label>
-                        <input asp-for="Lastname" class="form-control" type="text" placeholder="Enter Last Name"/>
+                        <input asp-for="Lastname" class="form-control" type="text" placeholder="Enter Last Name" />
                     </div>
-                    <div class="form-group" style="pointer-events: none;">
-                        <label>Email address</label>
-                        <input asp-for="Email" class="form-control" type="email" placeholder="Enter email"/>
-                    </div>
-                    <div class="form-group" style="pointer-events: none;">
+
+                    <div class="form-group">
                         <label>Phone Number</label>
-                        <input asp-for="Telephone" class="form-control" type="text" placeholder="Enter Phone Number"/>
+                        <input asp-for="Telephone" class="form-control" type="text" placeholder="Enter Phone Number" />
                     </div>
+                </div>
+            </div>
+            <div class="card card-default">
+                <div class="card-body">
                     <div class="form-group">
                         <label>Number of Allowed Labs</label>
                         <input asp-for="NoAllowedLabs" type="number" class="form-control mb-2" id="inlineFormInput" placeholder="Enter Max Labs">
@@ -140,5 +163,20 @@
 
 @section Scripts {
     <script src="~/vendor/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.js"></script>
+    <script type='text/javascript'>
+        function encodeImageFileAsURL() {
 
+            var filesSelected = document.getElementById("inputFileToLoad").files;
+            if (filesSelected.length > 0) {
+                var fileToLoad = filesSelected[0];
+                var fileReader = new FileReader();
+                fileReader.onload = function (fileLoadedEvent) {
+                    var srcData = fileLoadedEvent.target.result; // <--- data: base64
+                    document.getElementById("imgIcon").src = srcData;
+                    document.getElementById("inputBase64").innerText = srcData;
+                }
+                fileReader.readAsDataURL(fileToLoad);
+            }
+        }
+    </script>
 }

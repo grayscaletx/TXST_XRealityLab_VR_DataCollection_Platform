@@ -25,11 +25,11 @@
     </div>
 }
 
-<div class="container" style="float: left;">
+<div class="container" style="float: left; display: block; " >
     <div class="card-columns">
         @foreach (var item in Model)
         {
-            <div class="card mb-4" style="background-color : @item.Color;padding:10px 0;height:360px" onclick="location.href='/Administrator/Organization?passToken='+ @item.PassToken">
+            <div class="card row mb-4" style="background-color : @item.Color;padding:10px 0;height:360px" onclick="location.href='/Administrator/Organization?passToken='+ @item.PassToken">
                 <div align="right">
                     <a class="fa-2x mr-2 fas fa-ellipsis-h text-white" data-toggle="dropdown"></a>
                     <div class="dropdown-menu" role="menu">
@@ -53,7 +53,7 @@
                 </div>
             </div>
         }
-        <div class="card mb-4" style="height:360px;background-color:transparent" onclick="location.href='/Administrator/AddOrganization'">
+        <div class="card row mb-4" style="height:360px;background-color:transparent" onclick="location.href='/Administrator/AddOrganization'">
             <div align="center" style="padding :60px 0 0 0">
                 <h4 style="color: #4bc4e9;font-size:100px">+</h4>
                 <h4 style="color: #4bc4e9">New Organization</h4>

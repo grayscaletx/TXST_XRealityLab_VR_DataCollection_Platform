@@ -204,7 +204,13 @@ namespace XRealityLab.Controllers
             //Get director id
             var directorIT = _context.User.Where(k => k.Email == organizationDirectorDTO.Email).FirstOrDefault();
 
-            //Save data
+            //Upload icon
+            if (!string.IsNullOrWhiteSpace(organizationDirectorDTO.PhotoBase64))
+            {
+                
+            }
+
+            //Update organization data
             Organization organization = _context.Organization.Where(k => k.OrganizationId == int.Parse(_protector.Encode(organizationDirectorDTO.PassToken))).FirstOrDefault();
             organization.OrganizationId = int.Parse(_protector.Encode(organizationDirectorDTO.PassToken));
             organization.FullName = organizationDirectorDTO.FullName;
@@ -225,6 +231,14 @@ namespace XRealityLab.Controllers
                 return Json(responseDTO);
 
             _context.Organization.Update(organization);
+
+            //Update user data
+            directorIT.Firstname = organizationDirectorDTO.Firstname;
+            directorIT.Lastname = organizationDirectorDTO.Lastname;
+            directorIT.Telephone = organizationDirectorDTO.Telephone;
+
+            _context.User.Update(directorIT);
+             
             await _context.SaveChangesAsync();
 
 
@@ -236,6 +250,28 @@ namespace XRealityLab.Controllers
             await Migration.RemoveOrganizationDirectorAsync(_context, _userManager, organization);
 
             return RedirectToAction(nameof(Organizations));
+        }
+
+        public IActionResult ChangeITDirector(string passToken/*organizationPassToken*/) { return View(); }
+        [HttpPost]
+        public async Task<IActionResult> ChangeITDirector(OrganizationDirectorDTO organizationDirectorDTO)
+        {
+            //Data validation
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(AddOrganization), new { _actionMessage = "Δεν προσθέσατε τα πεδία σωστά. Παρακαλώ προσπαθήστε ξανά." });
+            }
+
+            ///Write your code
+            ///
+
+            //_context.Organization.Update(..);
+            //_context.User.Update(directorIT);
+
+            await _context.SaveChangesAsync();
+
+
+            return RedirectToAction("Organizations", "Administrator");
         }
     }
 }

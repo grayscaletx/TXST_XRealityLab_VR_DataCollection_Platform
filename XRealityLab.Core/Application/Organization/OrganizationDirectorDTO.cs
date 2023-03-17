@@ -19,6 +19,7 @@ namespace XRealityLab.Models
         public string ZIPCode { get; set; }
         public string Color { get; set; }
         public string PhotoUrl { get; set; }
+        public string PhotoBase64 { get; set; }
         public int NoAllowedLabs { get; set; }
         public DateTime Registered { get; set; }
         public DateTime SubscriptionStarted { get; set; }
