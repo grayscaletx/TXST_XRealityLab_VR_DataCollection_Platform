@@ -63,6 +63,7 @@ namespace XRealityLabAPI.Controllers
                 Email = user.Email,
                 AuthToken = authTokenHash,
                 IsActive = user.IsActive,
+                RoleId = user.RoleId,
                 RegistrationDateTime = user.RegistrationDateTime
             };
 

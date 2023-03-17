@@ -7,3 +7,4 @@ C:\NIH\XRealityLab\XRealityLab.Infrastructure\Infrastructure\obj\Debug\netstanda
 C:\NIH\XRealityLab\XRealityLab.Infrastructure\Infrastructure\obj\Debug\netstandard2.1\Infrastructure.csproj.CoreCompileInputs.cache
 C:\NIH\XRealityLab\XRealityLab.Infrastructure\Infrastructure\obj\Debug\netstandard2.1\Infrastructure.dll
 C:\NIH\XRealityLab\XRealityLab.Infrastructure\Infrastructure\obj\Debug\netstandard2.1\Infrastructure.pdb
+C:\NIH\XRealityLab\XRealityLab.Infrastructure\Infrastructure\obj\Debug\netstandard2.1\Infrastructure.csproj.AssemblyReference.cache

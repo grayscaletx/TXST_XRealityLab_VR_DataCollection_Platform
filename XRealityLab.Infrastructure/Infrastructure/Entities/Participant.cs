@@ -7,6 +7,7 @@ namespace Infrastructure.Entities
     {
         public Participant()
         {
+            ParticipantResult = new HashSet<ParticipantResult>();
             SessionParticipant = new HashSet<SessionParticipant>();
         }
 
@@ -16,6 +17,7 @@ namespace Infrastructure.Entities
         public string Email { get; set; }
         public DateTime Registered { get; set; }
 
+        public virtual ICollection<ParticipantResult> ParticipantResult { get; set; }
         public virtual ICollection<SessionParticipant> SessionParticipant { get; set; }
     }
 }

@@ -32,7 +32,7 @@ using System.Security.Claims;
 
 namespace XRealityLab.Controllers
 {
-    [Authorize(Roles = "LabDirector,Principle Investigator")]
+    [Authorize(Roles = "LabDirector,PrincipleInvestigator")]
     public class UserController : Controller
     {
         private readonly XRealityLabdbContext _context;

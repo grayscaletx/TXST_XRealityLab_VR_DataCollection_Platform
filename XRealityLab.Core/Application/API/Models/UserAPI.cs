@@ -11,8 +11,8 @@ namespace XRealityLab.API
         public string LastName { get; set; }
         public string Email { get; set; }
         public string AuthToken { get; set; }
-        public string PhotoUrl { get; set; }
         public byte IsActive { get; set; }
+        public int RoleId { get; set; }
         public DateTime RegistrationDateTime { get; set; }
     }
 }

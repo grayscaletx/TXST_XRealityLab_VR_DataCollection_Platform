@@ -504,3 +504,16 @@ C:\NIH\XRealityLab\XRealityLabWebPlatform\obj\Debug\netcoreapp3.1\Razor\Views\Re
 C:\NIH\XRealityLab\XRealityLabWebPlatform\obj\Debug\netcoreapp3.1\Razor\Views\ResearchAssistant_TOREMOVE\Participants.cshtml.g.cs
 C:\NIH\XRealityLab\XRealityLabWebPlatform\obj\Debug\netcoreapp3.1\Razor\Views\UniversityAdmin_TOREMOVE\Labs.cshtml.g.cs
 C:\NIH\XRealityLab\XRealityLabWebPlatform\obj\Debug\netcoreapp3.1\Razor\Views\UniversityAdmin_TOREMOVE\NewLab.cshtml.g.cs
+C:\NIH\XRealityLab\XRealityLabWebPlatform\obj\Debug\netcoreapp3.1\Razor\Views\Project\DataCollections.cshtml.g.cs
+C:\NIH\XRealityLab\XRealityLabWebPlatform\obj\Debug\netcoreapp3.1\Razor\Views\Project\EditProject.cshtml.g.cs
+C:\NIH\XRealityLab\XRealityLabWebPlatform\obj\Debug\netcoreapp3.1\Razor\Views\Project\EditResearchMethods.cshtml.g.cs
+C:\NIH\XRealityLab\XRealityLabWebPlatform\obj\Debug\netcoreapp3.1\Razor\Views\Project\NewParticipant.cshtml.g.cs
+C:\NIH\XRealityLab\XRealityLabWebPlatform\obj\Debug\netcoreapp3.1\Razor\Views\Project\NewResearchMethod.cshtml.g.cs
+C:\NIH\XRealityLab\XRealityLabWebPlatform\obj\Debug\netcoreapp3.1\Razor\Views\Project\NewSession.cshtml.g.cs
+C:\NIH\XRealityLab\XRealityLabWebPlatform\obj\Debug\netcoreapp3.1\Razor\Views\Project\Participants.cshtml.g.cs
+C:\NIH\XRealityLab\XRealityLabWebPlatform\obj\Debug\netcoreapp3.1\Razor\Views\User\AddPrincipleInvestigator.cshtml.g.cs
+C:\NIH\XRealityLab\XRealityLabWebPlatform\obj\Debug\netcoreapp3.1\Razor\Views\User\AddPrincipleInvestigatorsToProject.cshtml.g.cs
+C:\NIH\XRealityLab\XRealityLabWebPlatform\obj\Debug\netcoreapp3.1\Razor\Views\User\AddResearchAssistant.cshtml.g.cs
+C:\NIH\XRealityLab\XRealityLabWebPlatform\obj\Debug\netcoreapp3.1\Razor\Views\User\AddResearchAssistantsToProject.cshtml.g.cs
+C:\NIH\XRealityLab\XRealityLabWebPlatform\obj\Debug\netcoreapp3.1\Razor\Views\User\PrincipleInvestigators.cshtml.g.cs
+C:\NIH\XRealityLab\XRealityLabWebPlatform\obj\Debug\netcoreapp3.1\Razor\Views\User\ResearchAssistants.cshtml.g.cs

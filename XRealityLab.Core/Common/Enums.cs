@@ -13,9 +13,9 @@ namespace XRealityLab.Common
         DirectorOfIT,
         [Description("LabDirector")]
         LabDirector,
-        [Description("Principle Investigator")]
+        [Description("PrincipleInvestigator")]
         PrincipleInvestigator,
-        [Description("Research Assistant")]
+        [Description("ResearchAssistant")]
         ResearchAssistant
     }
 

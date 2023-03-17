@@ -56,7 +56,7 @@ namespace XRealityLab
                     photoUrl = PhotoUrl.LAB_DIRECTOR_ICON_PNG;
                     break;
                 case RoleType.PrincipleInvestigator:
-                    photoUrl = PhotoUrl.PRINCIPLE_INVESTIGATOR_OF_IT_ICON_PNG;
+                    photoUrl = PhotoUrl.PRINCIPLE_INVESTIGATOR_ICON_PNG;
                     break;
                 default:
                     photoUrl = PhotoUrl.RESEARCH_ASSISTANT_ICON_PNG;

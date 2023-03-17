@@ -20,6 +20,7 @@ namespace Infrastructure.Entities
         public virtual DbSet<Organization> Organization { get; set; }
         public virtual DbSet<OrganizationLab> OrganizationLab { get; set; }
         public virtual DbSet<Participant> Participant { get; set; }
+        public virtual DbSet<ParticipantResult> ParticipantResult { get; set; }
         public virtual DbSet<Project> Project { get; set; }
         public virtual DbSet<ProjectResearch> ProjectResearch { get; set; }
         public virtual DbSet<ProjectSession> ProjectSession { get; set; }
@@ -187,6 +188,31 @@ namespace Infrastructure.Entities
                     .HasMaxLength(50);
 
                 entity.Property(e => e.Registered).HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<ParticipantResult>(entity =>
+            {
+                entity.Property(e => e.ParticipantResultId).HasColumnName("ParticipantResultID");
+
+                entity.Property(e => e.Notes).HasMaxLength(250);
+
+                entity.Property(e => e.ParticipantId).HasColumnName("ParticipantID");
+
+                entity.Property(e => e.Registered).HasColumnType("datetime");
+
+                entity.Property(e => e.SessionId).HasColumnName("SessionID");
+
+                entity.HasOne(d => d.Participant)
+                    .WithMany(p => p.ParticipantResult)
+                    .HasForeignKey(d => d.ParticipantId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_ParticipantResult_Participant");
+
+                entity.HasOne(d => d.Session)
+                    .WithMany(p => p.ParticipantResult)
+                    .HasForeignKey(d => d.SessionId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_ParticipantResult_Session");
             });
 
             modelBuilder.Entity<Project>(entity =>

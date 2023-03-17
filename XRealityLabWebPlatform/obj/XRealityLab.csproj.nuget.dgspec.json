@@ -10,14 +10,14 @@
         "projectUniqueName": "C:\\NIH\\XRealityLab\\XRealityLab.Core\\Application\\Application.csproj",
         "projectName": "Application",
         "projectPath": "C:\\NIH\\XRealityLab\\XRealityLab.Core\\Application\\Application.csproj",
-        "packagesPath": "C:\\Users\\gntak\\.nuget\\packages\\",
+        "packagesPath": "C:\\Users\\mikek\\.nuget\\packages\\",
         "outputPath": "C:\\NIH\\XRealityLab\\XRealityLab.Core\\Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\gntak\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\mikek\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -79,7 +79,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.413\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.414\\RuntimeIdentifierGraph.json"
         }
       }
     },
@@ -89,14 +89,14 @@
         "projectUniqueName": "C:\\NIH\\XRealityLab\\XRealityLab.Core\\Common\\Common.csproj",
         "projectName": "Common",
         "projectPath": "C:\\NIH\\XRealityLab\\XRealityLab.Core\\Common\\Common.csproj",
-        "packagesPath": "C:\\Users\\gntak\\.nuget\\packages\\",
+        "packagesPath": "C:\\Users\\mikek\\.nuget\\packages\\",
         "outputPath": "C:\\NIH\\XRealityLab\\XRealityLab.Core\\Common\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\gntak\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\mikek\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -155,7 +155,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.413\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.414\\RuntimeIdentifierGraph.json"
         }
       }
     },
@@ -165,14 +165,14 @@
         "projectUniqueName": "C:\\NIH\\XRealityLab\\XRealityLab.Infrastructure\\Infrastructure\\Infrastructure.csproj",
         "projectName": "Infrastructure",
         "projectPath": "C:\\NIH\\XRealityLab\\XRealityLab.Infrastructure\\Infrastructure\\Infrastructure.csproj",
-        "packagesPath": "C:\\Users\\gntak\\.nuget\\packages\\",
+        "packagesPath": "C:\\Users\\mikek\\.nuget\\packages\\",
         "outputPath": "C:\\NIH\\XRealityLab\\XRealityLab.Infrastructure\\Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\gntak\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\mikek\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -243,7 +243,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.413\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.414\\RuntimeIdentifierGraph.json"
         }
       }
     },
@@ -253,14 +253,14 @@
         "projectUniqueName": "C:\\NIH\\XRealityLab\\XRealityLab.Service\\AzureStorage\\AzureStorage.csproj",
         "projectName": "AzureStorage",
         "projectPath": "C:\\NIH\\XRealityLab\\XRealityLab.Service\\AzureStorage\\AzureStorage.csproj",
-        "packagesPath": "C:\\Users\\gntak\\.nuget\\packages\\",
+        "packagesPath": "C:\\Users\\mikek\\.nuget\\packages\\",
         "outputPath": "C:\\NIH\\XRealityLab\\XRealityLab.Service\\AzureStorage\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\gntak\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\mikek\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -311,7 +311,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.413\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.414\\RuntimeIdentifierGraph.json"
         }
       }
     },
@@ -321,14 +321,14 @@
         "projectUniqueName": "C:\\NIH\\XRealityLab\\XRealityLab.Service\\Mail\\Mail.csproj",
         "projectName": "Mail",
         "projectPath": "C:\\NIH\\XRealityLab\\XRealityLab.Service\\Mail\\Mail.csproj",
-        "packagesPath": "C:\\Users\\gntak\\.nuget\\packages\\",
+        "packagesPath": "C:\\Users\\mikek\\.nuget\\packages\\",
         "outputPath": "C:\\NIH\\XRealityLab\\XRealityLab.Service\\Mail\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\gntak\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\mikek\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -379,7 +379,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.413\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.414\\RuntimeIdentifierGraph.json"
         }
       }
     },
@@ -389,14 +389,14 @@
         "projectUniqueName": "C:\\NIH\\XRealityLab\\XRealityLabWebPlatform\\XRealityLab.csproj",
         "projectName": "XRealityLab",
         "projectPath": "C:\\NIH\\XRealityLab\\XRealityLabWebPlatform\\XRealityLab.csproj",
-        "packagesPath": "C:\\Users\\gntak\\.nuget\\packages\\",
+        "packagesPath": "C:\\Users\\mikek\\.nuget\\packages\\",
         "outputPath": "C:\\NIH\\XRealityLab\\XRealityLabWebPlatform\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\gntak\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\mikek\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -552,7 +552,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.413\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.414\\RuntimeIdentifierGraph.json"
         }
       }
     }
