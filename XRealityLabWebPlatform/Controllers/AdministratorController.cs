@@ -91,6 +91,12 @@ namespace XRealityLab.Controllers
                 return RedirectToAction(nameof(AddOrganization), new { _actionMessage = "Δεν προσθέσατε τα πεδία σωστά. Παρακαλώ προσπαθήστε ξανά." });
             }
 
+            //Upload icon
+            if (!string.IsNullOrWhiteSpace(organizationDirectorDTO.PhotoBase64))
+            {
+
+            }
+
             UserDTO userDTO = new UserDTO
             {
                 Firstname = organizationDirectorDTO.Firstname,
@@ -207,7 +213,46 @@ namespace XRealityLab.Controllers
             //Upload icon
             if (!string.IsNullOrWhiteSpace(organizationDirectorDTO.PhotoBase64))
             {
+                //Check if the file is jpg or png
+                //
+                //if (!(FileExtension == ".jpg" || FileExtension == ".png") && file.Length > 220000)
+                //    return RedirectToAction(nameof(EditProfile));
+
+
+                //CONVERT base64 to Image <-Library
+
+                //Reference GeneralController\UpdateProfilePhoto
+                //byte[] bytes = Convert.FromBase64String("R0lGODlhAQABAIAAAAAAAAAAACH5BAAAAAAALAAAAAABAAEAAAICTAEAOw==");
+                //..
+                //var image = Converters.resizeImage(Image.FromStream(file.OpenReadStream()), new Size(150, 150));
+
+                //newFileName = myUniqueFileName + FileExtension;
+                /*fileName = Path.Combine(_environment.WebRootPath, "images", "profilephoto") + $@"\{newFileName}";
+                image.Save(fileName);
+
+                //SAVE LOCAL TO WWWROOT
+
+
+                //UPLOAD
+
+                bool isUploaded = await ContainerService.UploadOperationAsync(Path.Combine(_environment.WebRootPath, "images", "profilephoto"),
+                    newFileName, AzureGPV2Credentials.CONTAINER_PROFILE_PHOTO_SHARE);
+
+                if (isUploaded)
+                {
+                    var user = _context.User.Where(k => k.UserId == _profileId).FirstOrDefault();
+                    user.PhotoUrl = Path.Combine(BaseLink.AZURE_BLOB_URL, PhotoUrl.TRAINING_WEB_PROFILE_PHOTOS_DIRECTORY, newFileName);
+                    await Migration.UpdateUserAsync(_context, _configuration, _protector, user, string.Empty, User, _userManager,
+                        this.GetType().Name, nameof(EditProfile), ActionTypeID.UpdatePhoto,
+                        string.Format("update profile photo icon [{0}]", user.FirstName + " " + user.LastName), HttpContext);
+                    return RedirectToAction(nameof(EditProfile));
                 
+                //DELETE photo for update
+                }
+                */
+
+
+
             }
 
             //Update organization data

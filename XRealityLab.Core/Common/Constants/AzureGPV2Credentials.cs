@@ -11,6 +11,6 @@ namespace Common.Constants
         public const string CONTAINER_LAB_ICONS = "lab-icons";
         public const string CONTAINER_PROJECT_ICONS = "projects-icons";
         public const string CONTAINER_PDF_FILES = "pdf-files";
-        public const string STORAGE_ACCOUNT_CONNECTION_STRING = "DefaultEndpointsProtocol=https;AccountName=midassa;AccountKey=D+AmsV15sPRT6jBoe1jxahyAzM04Peht6oO9VSG4UwssHiKtb9XJrxKD27Awf+rRBYdq2S5fKBYhmPiXxjXzAA==;EndpointSuffix=core.windows.net";
+        public const string STORAGE_ACCOUNT_CONNECTION_STRING = "DefaultEndpointsProtocol=https;AccountName=xrealitylabstorage;AccountKey=jLV1me2FkblRg/L+s+TxRXpDgaPhAh3ggsDEb0+MvRCtcPUfsc2aVkkJ86MsOIgTMppG7OVZBHpS+AStg0z00g==;EndpointSuffix=core.windows.net";
     }
 }
