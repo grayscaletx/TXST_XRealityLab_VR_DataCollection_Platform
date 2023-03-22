@@ -29,6 +29,7 @@ using Common.Helpers;
 using Microsoft.AspNetCore.Identity;
 using Common;
 using System.Security.Claims;
+using System.Drawing;
 
 namespace XRealityLab.Controllers
 {
@@ -215,6 +216,60 @@ namespace XRealityLab.Controllers
 
             //Save data
             Lab lab = _context.Lab.Where(k => k.LabId == int.Parse(_protector.Encode(labDirectorDTO.PassToken))).FirstOrDefault();
+
+            //Upload icon
+            if (!string.IsNullOrWhiteSpace(labDirectorDTO.PhotoBase64))
+            {
+                //Check if the file is jpg or png
+                if (!(labDirectorDTO.PhotoBase64.StartsWith("data:image/png;base64,") || labDirectorDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,")))
+                {
+                    return RedirectToAction(nameof(Labs), new { _actionMessage = "Invalid Data" });
+                }
+                //CONVERT base64 to Image <-Library
+                string base64 = labDirectorDTO.PhotoBase64.Substring(labDirectorDTO.PhotoBase64.IndexOf(',') + 1);
+                base64 = base64.Trim('\0');
+                byte[] chartData = Convert.FromBase64String(base64);
+                System.Drawing.Image image;
+                using (var ms = new MemoryStream(chartData, 0, chartData.Length))
+                {
+                    image = System.Drawing.Image.FromStream(ms);
+                }
+                image = new Bitmap(image, new Size(150, 150));
+                string myUniqueFileName = Convert.ToString(Guid.NewGuid());
+                string fileExtension = "";
+                if (labDirectorDTO.PhotoBase64.StartsWith("data:image/png;base64,"))
+                {
+                    fileExtension = ".png";
+                }
+                else if (labDirectorDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,"))
+                {
+                    fileExtension = ".jpeg";
+                }
+                string newFileName = myUniqueFileName + fileExtension;
+                var fileName = string.Empty;
+                fileName = Path.Combine(_environment.WebRootPath, "_images", "lab-photos") + $@"\{newFileName}";
+                image.Save(fileName);
+
+                bool isUploaded = await ContainerService.UploadOperationAsync(Path.Combine(_environment.WebRootPath, "_images", "lab-photos"),
+                    newFileName, AzureGPV2Credentials.CONTAINER_LAB_ICONS);
+
+                if (isUploaded)
+                {
+                    lab.PhotoUrl = Path.Combine(BaseLink.AZURE_BLOB_URL, AzureGPV2Credentials.CONTAINER_LAB_ICONS, newFileName);
+                }
+
+                //DELETE from root
+                if (System.IO.File.Exists(Path.Combine(_environment.WebRootPath, "_images", "lab-photos") + $@"\{newFileName}"))
+                {
+                    System.IO.File.Delete(Path.Combine(_environment.WebRootPath, "_images", "lab-photos") + $@"\{newFileName}");
+                }
+
+
+
+            }
+
+
+
             lab.LabId = int.Parse(_protector.Encode(labDirectorDTO.PassToken));
             lab.FullName = labDirectorDTO.FullName;
             lab.LabDirectorId = director.UserId;

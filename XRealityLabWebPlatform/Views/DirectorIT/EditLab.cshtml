@@ -35,12 +35,28 @@
                     <input type="hidden" asp-for="PassToken" />
                     <div class="form-group" align="center">
                         <div align="center" style="padding :10px 0 0 0">
-                            <img src="~/_images/group_icons/organization_blank_icon.png" alt="Avatar" width="90" height="90" class="rounded-circle" />
+                            <img id="imgIcon" src="~/_images/group_icons/organization_blank_icon.png" alt="Avatar" width="90" height="90" class="rounded-circle" />
+                            <input id="inputBase64" type="hidden" asp-for="PhotoBase64" />
                         </div>
-                        <label class="col-md-6 col-form-label">Lab Icon</label>
+                        <label class="col-md-6 col-form-label">Organization Icon</label>
                         <div>
-                            <input class="form-control filestyle" type="file" data-classbutton="btn btn-secondary" data-classinput="form-control inline" data-icon="&lt;span class='fa fa-upload mr'&gt;&lt;/span&gt;" />
+                            <input id="inputFileToLoad" class="form-control filestyle" type="file" data-classbutton="btn btn-secondary" data-classinput="form-control inline" onchange="encodeImageFileAsURL()" data-icon="&lt;span class='fa fa-upload mr'&gt;&lt;/span&gt;" />
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Color</label>
+                        <select id="color" asp-for="Color" class="form-control form-control-lg">
+                            <option style="background-color:#5BB79E" value="#5BB79E">C1</option>
+                            <option style="background-color:#4F91CD" value="#4F91CD">C2</option>
+                            <option style="background-color:#9F78B9" value="#9F78B9">C3</option>
+                            <option style="background-color:#E1BD42" value="#E1BD42">C4</option>
+                            <option style="background-color:#D07F39" value="#D07F39">C5</option>
+                            <option style="background-color:#CE5543" value="#CE5543">C6</option>
+                            <option style="background-color:#76CB8E" value="#76CB8E">C7</option>
+                            <option style="background-color:#364658" value="#364658">C8</option>
+                            <option style="background-color:#A5B0B1" value="#A5B0B1">C9</option>
+                            <option style="background-color:#53A564" value="#53A564">C10</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Lab Title</label>
@@ -97,7 +113,7 @@
                     <div class="form-group">
                         <label>Last Name</label>
                         <input asp-for="Lastname" class="form-control" type="text" placeholder="Enter Last Name" />
-                    </div>                   
+                    </div>
                     <div class="form-group">
                         <label>Phone Number</label>
                         <input asp-for="Telephone" class="form-control" type="text" placeholder="Enter Phone Number" />
@@ -116,5 +132,19 @@
 
 @section Scripts {
     <script src="~/vendor/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.js"></script>
-
+    <script type='text/javascript'>
+        function encodeImageFileAsURL() {
+            var filesSelected = document.getElementById("inputFileToLoad").files;
+            if (filesSelected.length > 0) {
+                var fileToLoad = filesSelected[0];
+                var fileReader = new FileReader();
+                fileReader.onload = function (fileLoadedEvent) {
+                    var srcData = fileLoadedEvent.target.result; // <--- data: base64
+                    document.getElementById("imgIcon").src = srcData;
+                    document.getElementById("inputBase64").value = srcData;
+                }
+                fileReader.readAsDataURL(fileToLoad);
+            }
+        }
+    </script>
 }

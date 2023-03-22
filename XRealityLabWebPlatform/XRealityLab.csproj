@@ -70,6 +70,7 @@
     <Folder Include="wwwroot\lidl-orders\" />
     <Folder Include="wwwroot\pdf-requests\" />
     <Folder Include="wwwroot\pdf-files\" />
+    <Folder Include="wwwroot\_images\lab-photos\" />
     <Folder Include="wwwroot\_images\organization-photos\" />
   </ItemGroup>
 
