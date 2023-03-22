@@ -42,23 +42,13 @@
                     </div>
                     <div class="form-group">
                         <label>Color</label>
-                        @*<input id="ColorHex" asp-for="Color"/>*@
-                        <select id="color" asp-for="Color" class="form-control form-control-lg" onchange="SelectColor()">
-                            @*@foreach (var item in Enum.GetValues(typeof(Color)))
-                            {
-                                <option>@((Color)item).</option>
-                            }*@
-                            <option style="background-color:#5BB79E" value="#5BB79E">C1</option>
-                            <option style="background-color:#4F91CD" value="#4F91CD">C2</option>
-                            <option style="background-color:#9F78B9" value="#9F78B9">C3</option>
-                            <option style="background-color:#E1BD42" value="#E1BD42">C4</option>
-                            <option style="background-color:#D07F39" value="#D07F39">C5</option>
-                            <option style="background-color:#CE5543" value="#CE5543">C6</option>
-                            <option style="background-color:#76CB8E" value="#76CB8E">C7</option>
-                            <option style="background-color:#364658" value="#364658">C8</option>
-                            <option style="background-color:#A5B0B1" value="#A5B0B1">C9</option>
-                            <option style="background-color:#53A564" value="#53A564">C10</option>
-                        </select>
+                        <div class="example full">
+                            <div id="colorDiv" class="clr-field" style="color: rgb(255, 204, 0);">
+                                <button  type="button" aria-labelledby="clr-open-label"></button>
+                                <input  type="text" class="coloris instance3" value="#ffcc00" onchange="changeColor()">
+                                <input id="colorValue" type="hidden" asp-for="Color" />
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>Organization Title</label>
@@ -154,7 +144,55 @@
 
 @section Styles {
     <link href="~/vendor/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/coloris.css" />
+    <style>
+        input {
+            width: 150px;
+            height: 32px;
+            padding: 0 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: inherit;
+            font-weight: inherit;
+            box-sizing: border-box;
+        }
 
+        .examples {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .example {
+            flex-shrink: 0;
+            width: 300px;
+            margin-bottom: 30px;
+        }
+
+        .square .clr-field button,
+        .circle .clr-field button {
+            width: 22px;
+            height: 22px;
+            left: 5px;
+            right: auto;
+            border-radius: 5px;
+        }
+
+        .square .clr-field input,
+        .circle .clr-field input {
+            padding-left: 36px;
+        }
+
+        .circle .clr-field button {
+            border-radius: 50%;
+        }
+
+        .full .clr-field button {
+            width: 100%;
+            height: 100%;
+            border-radius: 5px;
+        }
+    </style>
 }
 
 @section Scripts {
@@ -162,13 +200,52 @@
     <script src="~/vendor/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.js"></script>
     <script src="~/master/js/modules/extras/calendar.js"></script>
     <script src="~/master/js/modules/forms/color-picker.js"></script>
+    <script src="/js/coloris.js"></script>
     <script type='text/javascript'>
-        function SelectColor() {
-            
+        Coloris({
+            el: '.coloris',
+            swatches: [
+                '#5BB79E',
+                '#4F91CD',
+                '#9F78B9',
+                '#E1BD42',
+                '#D07F39',
+                '#CE5543',
+                '#76CB8E',
+                '#364658',
+                '#A5B0B1',
+                '#53A564'
+            ]
+        });
+        Coloris.setInstance('.instance3', {
+            theme: 'polaroid',
+            swatchesOnly: true
+        });
 
+        function changeColor()
+        {
+            var colorDiv = document.getElementById("colorDiv").style.color;
+            var colorHex = RGBToHex(colorDiv);
+            document.getElementById("colorValue").value = colorHex;
+        }
+        function RGBToHex(rgb) {
+            // Choose correct separator
+            let sep = rgb.indexOf(",") > -1 ? "," : " ";
+            // Turn "rgb(r,g,b)" into [r,g,b]
+            rgb = rgb.substr(4).split(")")[0].split(sep);
 
+            let r = (+rgb[0]).toString(16),
+                g = (+rgb[1]).toString(16),
+                b = (+rgb[2]).toString(16);
 
-            document.getElementById("inputBase64").value = "";            
+            if (r.length == 1)
+                r = "0" + r;
+            if (g.length == 1)
+                g = "0" + g;
+            if (b.length == 1)
+                b = "0" + b;
+
+            return "#" + r + g + b;
         }
     </script>
 }

@@ -57,9 +57,9 @@ namespace XRealityLab.Controllers
             {
                 OrganizationId = k.OrganizationId,
                 PassToken = _protector.Decode(k.OrganizationId.ToString()),
-                FullName = k.FullName.Length<25 ? k.FullName : k.FullName.Substring(0,25) + "...",
+                FullName = k.FullName.Length < 25 ? k.FullName : string.Format("{0}...", k.FullName.Substring(0,25)),
                 ITDirectorId = k.ItdirectorId,
-                Address = k.Street + ", " + k.City + ", " + k.State + ", " + k.Country + ", " + k.Zipcode,
+                Address = string.Format("{0},{1},{2},{3},{4}",k.Street, k.City, k.State, k.Country, k.Zipcode),
                 Color = k.Color,
                 PhotoUrl = k.PhotoUrl,
                 NoAllowedLabs = k.NoAllowedLabs,
@@ -89,17 +89,7 @@ namespace XRealityLab.Controllers
         [HttpPost]
         public async Task<IActionResult> AddOrganization(OrganizationDirectorDTO organizationDirectorDTO)
         {
-            //Data validation
-            if (!ModelState.IsValid)
-            {
-                return RedirectToAction(nameof(AddOrganization), new { _actionMessage = "Δεν προσθέσατε τα πεδία σωστά. Παρακαλώ προσπαθήστε ξανά." });
-            }
-
-            //Upload icon
-            if (!string.IsNullOrWhiteSpace(organizationDirectorDTO.PhotoBase64))
-            {
-
-            }
+            if (!ModelState.IsValid) return RedirectToAction(nameof(AddOrganization), new { _actionMessage = "Δεν προσθέσατε τα πεδία σωστά. Παρακαλώ προσπαθήστε ξανά." });
 
             UserDTO userDTO = new UserDTO
             {
@@ -114,6 +104,7 @@ namespace XRealityLab.Controllers
                 RegistrationDateTime = DateTime.Now,
                 IsActive = true
             };
+
             ResponseDTO responseDTO = await DataValidation.UserValidation(_context, userDTO);
             if (responseDTO.Result == "Failed")
                 return Json(responseDTO);
@@ -161,11 +152,9 @@ namespace XRealityLab.Controllers
                 await _context.SaveChangesAsync();
                 return Json(responseDTO);
             }
-                
 
             await _context.Organization.AddAsync(organization);
             await _context.SaveChangesAsync();
-
 
             return RedirectToAction("Organizations", "Administrator");
         }
@@ -206,11 +195,7 @@ namespace XRealityLab.Controllers
         [HttpPost]
         public async Task<IActionResult> EditOrganization(OrganizationDirectorDTO organizationDirectorDTO)
         {
-            //Data validation
-            if (!ModelState.IsValid)
-            {
-                return RedirectToAction(nameof(Organizations), new { _actionMessage = "Invalid Data" });
-            }
+            if (!ModelState.IsValid) return RedirectToAction(nameof(Organizations), new { _actionMessage = "Invalid Data" });
 
             //Get director id
             var directorIT = _context.User.Where(k => k.Email == organizationDirectorDTO.Email).FirstOrDefault();
@@ -224,9 +209,8 @@ namespace XRealityLab.Controllers
             {
                 //Check if the file is jpg or png
                 if (!(organizationDirectorDTO.PhotoBase64.StartsWith("data:image/png;base64,") || organizationDirectorDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,")))
-                {
                     return RedirectToAction(nameof(Organizations), new { _actionMessage = "Invalid Data" });
-                }
+
                 //CONVERT base64 to Image <-Library
                 string base64 = organizationDirectorDTO.PhotoBase64.Substring(organizationDirectorDTO.PhotoBase64.IndexOf(',') + 1);
                 base64 = base64.Trim('\0');
@@ -238,40 +222,27 @@ namespace XRealityLab.Controllers
                 }
                 image = new Bitmap(image, new Size(150, 150));
                 string myUniqueFileName = Convert.ToString(Guid.NewGuid());
-                string fileExtension = "";
+                string fileExtension = string.Empty;
                 if (organizationDirectorDTO.PhotoBase64.StartsWith("data:image/png;base64,"))
-                {
                     fileExtension = ".png";
-                }
                 else if (organizationDirectorDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,"))
-                {
                     fileExtension = ".jpeg";
-                }
                 string newFileName = myUniqueFileName + fileExtension;
-                var fileName = string.Empty;
-                fileName = Path.Combine(_environment.WebRootPath, "_images", "organization-photos") + $@"\{newFileName}";
+                var fileName = Path.Combine(_environment.WebRootPath, "_images", "organization-photos") + $@"\{newFileName}";
                 image.Save(fileName);
 
                 bool isUploaded = await ContainerService.UploadOperationAsync(Path.Combine(_environment.WebRootPath, "_images", "organization-photos"),
                     newFileName, AzureGPV2Credentials.CONTAINER_ORGANIZATION_ICONS);
 
                 if (isUploaded)
-                {
                     organization.PhotoUrl = Path.Combine(BaseLink.AZURE_BLOB_URL, AzureGPV2Credentials.CONTAINER_ORGANIZATION_ICONS, newFileName);
-                }
 
                 //DELETE from root
                 if (System.IO.File.Exists(Path.Combine(_environment.WebRootPath, "_images", "organization-photos") + $@"\{newFileName}"))
-                {
                     System.IO.File.Delete(Path.Combine(_environment.WebRootPath, "_images", "organization-photos") + $@"\{newFileName}");
-                }
-
-
-
             }
 
             //Update organization data
-
             organization.OrganizationId = int.Parse(_protector.Encode(organizationDirectorDTO.PassToken));
             organization.FullName = organizationDirectorDTO.FullName;
             organization.ItdirectorId = directorIT.UserId;
@@ -280,12 +251,12 @@ namespace XRealityLab.Controllers
             organization.State = organizationDirectorDTO.State;
             organization.Zipcode = organizationDirectorDTO.ZIPCode;
             organization.Color = organizationDirectorDTO.Color;
-            //organization.PhotoUrl = PhotoUrl.ORGANIZATION_ICON_PNG;
             organization.NoAllowedLabs = organizationDirectorDTO.NoAllowedLabs;
             organization.SubscriptionStarted = organizationDirectorDTO.SubscriptionStarted;
             organization.SubscriptionExpiration = organizationDirectorDTO.SubscriptionExpiration;
             organization.Registered = DateTime.Now;
             organization.Country = organizationDirectorDTO.Country;
+            
             ResponseDTO responseDTO = await DataValidation.OrganizationValidation(_context, organization);
             if (responseDTO.Result == Enum.GetName(typeof(RoleType), MethodResult.Failed))
                 return Json(responseDTO);
@@ -299,9 +270,7 @@ namespace XRealityLab.Controllers
             directorIT.Telephone = organizationDirectorDTO.Telephone;
 
             _context.User.Update(directorIT);
-             
             await _context.SaveChangesAsync();
-
 
             return RedirectToAction("Organizations", "Administrator");
         }
@@ -313,7 +282,7 @@ namespace XRealityLab.Controllers
             return RedirectToAction(nameof(Organizations));
         }
 
-        public IActionResult ChangeITDirector(string passToken/*organizationPassToken*/) 
+        public IActionResult ChangeITDirector(string passToken) 
         {
             OrganizationDirectorDTO organizationDirectorDTO = _context.Organization
                 .Where(k => k.OrganizationId == int.Parse(_protector.Encode(passToken))).Select(k => new OrganizationDirectorDTO
@@ -351,16 +320,7 @@ namespace XRealityLab.Controllers
         public async Task<IActionResult> ChangeITDirector(OrganizationDirectorDTO organizationDirectorDTO)
         {
             //Data validation
-            if (!ModelState.IsValid)
-            {
-                return RedirectToAction(nameof(AddOrganization), new { _actionMessage = "Δεν προσθέσατε τα πεδία σωστά. Παρακαλώ προσπαθήστε ξανά." });
-            }
-
-            //Upload icon
-            if (!string.IsNullOrWhiteSpace(organizationDirectorDTO.PhotoBase64))
-            {
-
-            }
+            if (!ModelState.IsValid) return RedirectToAction(nameof(AddOrganization), new { _actionMessage = "Δεν προσθέσατε τα πεδία σωστά. Παρακαλώ προσπαθήστε ξανά." });
 
             UserDTO userDTO = new UserDTO
             {
@@ -371,7 +331,7 @@ namespace XRealityLab.Controllers
                 Password = "test123",
                 RoleId = (int)RoleType.DirectorOfIT,
                 PhotoUrl = PhotoUrl.DIRECTOR_OF_IT_ICON_PNG,
-                Telephone = "698132154",
+                Telephone = organizationDirectorDTO.Telephone,
                 RegistrationDateTime = DateTime.Now,
                 IsActive = true
             };
@@ -408,7 +368,6 @@ namespace XRealityLab.Controllers
             _context.User.Remove(oldDirectorIT);
 
             await _context.SaveChangesAsync();
-
 
             return RedirectToAction("Organizations", "Administrator");
         }

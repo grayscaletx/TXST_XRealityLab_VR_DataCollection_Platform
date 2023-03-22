@@ -1,12 +1,9 @@
 ﻿using Application.Security;
 using XRealityLab.Common;
 using XRealityLab.Models;
-using XRealityLab.PDFTemplates.Models;
 using XRealityLab.Users.Queries;
 using Common.Constants;
 using Infrastructure.Entities;
-using iTextSharp.text;
-using iTextSharp.text.pdf;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -16,19 +13,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using AzureStorage;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using EdiTools;
-using Microsoft.AspNetCore.Http;
-using System.Web;
-using System.Net.Http.Headers;
-using DocumentFormat.OpenXml.EMMA;
-using Newtonsoft.Json;
-using EnumsNET;
 using Microsoft.AspNetCore.Authorization;
 using Common.Helpers;
 using Microsoft.AspNetCore.Identity;
-using Common;
-using System.Security.Claims;
 using System.Drawing;
 
 namespace XRealityLab.Controllers
@@ -263,9 +250,6 @@ namespace XRealityLab.Controllers
                 {
                     System.IO.File.Delete(Path.Combine(_environment.WebRootPath, "_images", "lab-photos") + $@"\{newFileName}");
                 }
-
-
-
             }
 
 
@@ -275,7 +259,6 @@ namespace XRealityLab.Controllers
             lab.LabDirectorId = director.UserId;
             lab.Description = labDirectorDTO.Description;
             lab.Color = labDirectorDTO.Color;
-            lab.PhotoUrl = PhotoUrl.LAB_ICON_PNG;
             lab.Registered = DateTime.Now;
             ResponseDTO responseDTO = await DataValidation.LabValidation(_context, lab);
             if (responseDTO.Result == Enum.GetName(typeof(RoleType), MethodResult.Failed))
