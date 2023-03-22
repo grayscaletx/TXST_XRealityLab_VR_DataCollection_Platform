@@ -36,12 +36,27 @@
                     <div class="form-group" align="center">
                         <div align="center" style="padding :10px 0 0 0">
                             <img id="imgIcon" src="~/_images/group_icons/organization_blank_icon.png" alt="Avatar" width="90" height="90" class="rounded-circle" />
-                            <input id="inputBase64" asp-for="PhotoBase64" type="text" hidden />
+                            <input id="inputBase64" type="hidden" asp-for="PhotoBase64"/>
                         </div>
                         <label class="col-md-6 col-form-label">Organization Icon</label>
                         <div>
-                            <input  id="inputFileToLoad" class="form-control filestyle" type="file" data-classbutton="btn btn-secondary" data-classinput="form-control inline" onchange="encodeImageFileAsURL()" data-icon="&lt;span class='fa fa-upload mr'&gt;&lt;/span&gt;" />
+                            <input id="inputFileToLoad" class="form-control filestyle" type="file" data-classbutton="btn btn-secondary" data-classinput="form-control inline" onchange="encodeImageFileAsURL()" data-icon="&lt;span class='fa fa-upload mr'&gt;&lt;/span&gt;" />
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Color</label>
+                        <select id="color" asp-for="Color" class="form-control form-control-lg">
+                            <option style="background-color:#5BB79E" value="#5BB79E">C1</option>
+                            <option style="background-color:#4F91CD" value="#4F91CD">C2</option>
+                            <option style="background-color:#9F78B9" value="#9F78B9">C3</option>
+                            <option style="background-color:#E1BD42" value="#E1BD42">C4</option>
+                            <option style="background-color:#D07F39" value="#D07F39">C5</option>
+                            <option style="background-color:#CE5543" value="#CE5543">C6</option>
+                            <option style="background-color:#76CB8E" value="#76CB8E">C7</option>
+                            <option style="background-color:#364658" value="#364658">C8</option>
+                            <option style="background-color:#A5B0B1" value="#A5B0B1">C9</option>
+                            <option style="background-color:#53A564" value="#53A564">C10</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Organization Title</label>
@@ -73,15 +88,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label>Hex Color</label>
-                        <div class="col-6">
-                            <div class="demo-colorpicker" data-container="true" data-color="rgb(50,216,62)" data-inline="true"></div>
-                        </div>
-                        <div class="col-3">
-                            <input asp-for="Color" class="form-control" type="text" placeholder="#FFFFFF" />
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -93,7 +99,7 @@
                     <div align="right">
                         <a class="fa mr fas fa-ellipsis-h text-black" data-toggle="dropdown"></a>
                         <div class="dropdown-menu" role="menu">
-                            <a class="dropdown-item" href="/Administrator/ChangeITDirector">Change Director of IT</a>
+                            <a class="dropdown-item" href="/Administrator/ChangeITDirector?passToken=@Model.PassToken">Change Director of IT</a>
                         </div>
                     </div>
                     <div class="form-group" style="pointer-events: none">
@@ -106,11 +112,11 @@
                     <h2>Research Director and Contact</h2>
                     <div class="form-group">
                         <label>Rank</label>
-                        <select asp-for="Rank" class="form-control form-control-lg">
-                            <option>Ms.</option>
-                            <option>Mr.</option>
-                            <option>Dr.</option>
-                            <option>Mx.</option>
+                        <select id="rank" asp-for="Rank" class="form-control form-control-lg">
+                            @foreach (var item in Enum.GetValues(typeof(Rank)))
+                            {
+                                <option value=@((int)item)>@((Rank)item).</option>
+                            }
                         </select>
                         @*<input asp-for="Rank" class="form-control" type="text" placeholder="Enter Rank" />*@
                     </div>
@@ -172,7 +178,7 @@
                 fileReader.onload = function (fileLoadedEvent) {
                     var srcData = fileLoadedEvent.target.result; // <--- data: base64
                     document.getElementById("imgIcon").src = srcData;
-                    document.getElementById("inputBase64").innerText = srcData;
+                    document.getElementById("inputBase64").value = srcData;
                 }
                 fileReader.readAsDataURL(fileToLoad);
             }

@@ -30,7 +30,7 @@ namespace XRealityLab.Models
         public int UserId { get; set; }
         public string UserPassToken { get; set; }
         [Display(Name = "Rank")]
-        public string Rank { get; set; }
+        public int Rank { get; set; }
         [Display(Name = "First name")]
         public string Firstname { get; set; }
         [Display(Name = "Last name")]

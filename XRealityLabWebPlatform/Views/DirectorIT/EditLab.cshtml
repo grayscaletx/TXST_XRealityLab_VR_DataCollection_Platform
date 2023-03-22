@@ -65,24 +65,40 @@
         <div class="col-xl-4">
             <div class="card card-default">
                 <div class="card-body">
-                    <h2>Research Director and Contact</h2>
-                    <div class="form-group" style="pointer-events: none;">
-                        <label>Rank</label>
-                        <input asp-for="Rank" class="form-control" type="text" placeholder="Enter Rank" />
+                    <h2>Email address</h2>
+                    <div align="right">
+                        <a class="fa mr fas fa-ellipsis-h text-black" data-toggle="dropdown"></a>
+                        <div class="dropdown-menu" role="menu">
+                            <a class="dropdown-item" href="/DirectorIT/ChangeLabDirector?passToken=@Model.PassToken">Change Lab Director</a>
+                        </div>
                     </div>
-                    <div class="form-group" style="pointer-events: none;">
+                    <div class="form-group" style="pointer-events: none">
+                        <input asp-for="Email" class="form-control" type="email" placeholder="Enter email" style="background-color:lightgray" />
+                    </div>
+                </div>
+            </div>
+            <div class="card card-default">
+                <div class="card-body">
+                    <h2>Lab Director and Contact</h2>
+                    <div class="form-group">
+                        <label>Rank</label>
+                        <select id="rank" asp-for="Rank" class="form-control form-control-lg">
+                            @foreach (var item in Enum.GetValues(typeof(Rank)))
+                            {
+                                <option value=@((int)item)>@((Rank)item).</option>
+                            }
+                        </select>
+                        @*<input asp-for="Rank" class="form-control" type="text" placeholder="Enter Rank" />*@
+                    </div>
+                    <div class="form-group">
                         <label>First Name</label>
                         <input asp-for="Firstname" class="form-control" type="text" placeholder="Enter First Name" />
                     </div>
-                    <div class="form-group" style="pointer-events: none;">
+                    <div class="form-group">
                         <label>Last Name</label>
                         <input asp-for="Lastname" class="form-control" type="text" placeholder="Enter Last Name" />
-                    </div>
-                    <div class="form-group" style="pointer-events: none;">
-                        <label>Email address</label>
-                        <input asp-for="Email" class="form-control" type="email" placeholder="Enter email" />
-                    </div>
-                    <div class="form-group" style="pointer-events: none;">
+                    </div>                   
+                    <div class="form-group">
                         <label>Phone Number</label>
                         <input asp-for="Telephone" class="form-control" type="text" placeholder="Enter Phone Number" />
                     </div>

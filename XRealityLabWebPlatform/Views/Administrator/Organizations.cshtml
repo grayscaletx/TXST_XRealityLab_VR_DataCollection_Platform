@@ -30,6 +30,14 @@
         @foreach (var item in Model)
         {
             <div class="card row mb-4" style="background-color : @item.Color;padding:10px 0;height:360px" onclick="location.href='/Administrator/Organization?passToken='+ @item.PassToken">
+                @if(item.Expired)
+                {
+                    <div class="px-2 float-left badge badge-danger" style="margin:6px 10px">Expired: @item.SubscriptionExpiration.ToString("MM/dd/yyyy")</div>
+                }
+                else if(item.NotStarted)
+                {
+                    <div class="px-2 float-left badge badge-success" style="margin:6px 10px">Starting: @item.SubscriptionStarted.ToString("MM/dd/yyyy")</div>
+                }
                 <div align="right">
                     <a class="fa-2x mr-2 fas fa-ellipsis-h text-white" data-toggle="dropdown"></a>
                     <div class="dropdown-menu" role="menu">
@@ -47,7 +55,7 @@
                     </div>
                     <div style="background-color:white;margin:0px -16px; height:103px">
                         <span class="fa fa-envelope" style="padding:15px 10px">
-                            @(item.ITDirector.Firstname + " " + item.ITDirector.Lastname)
+                            @((Rank)item.ITDirector.Rank  + ". " + item.ITDirector.Firstname + " " + item.ITDirector.Lastname)
                         </span>
                     </div>
                 </div>

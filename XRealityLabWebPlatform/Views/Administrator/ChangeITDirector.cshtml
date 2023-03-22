@@ -1,0 +1,83 @@
+﻿@model XRealityLab.Models.OrganizationDirectorDTO
+@using System.Security.Claims;
+@using XRealityLab.Common;
+
+@{
+    ViewBag.Title = "ChangeITDIrector";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!--Header-->
+<div class="content-heading">
+    <div>
+        <strong>New Lab Director</strong>
+    </div>
+</div>
+
+<!--Alert dialog-->
+@if (ViewBag.actionMessage != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        @ViewBag.actionMessage
+    </div>
+}
+
+<!--Projects Cards-->
+<form asp-action="ChangeITDirector">
+    <div class="row">        
+        <div class="col-xl-4">
+            <div class="card card-default">
+                <div class="card-body">
+                    <h2>New IT director for: @Model.FullName</h2>
+                    <div class="form-group" style="display: none;">
+                        <label>passToken</label>
+                        <input asp-for="PassToken" class="form-control" type="text" placeholder="Enter Title" />
+                    </div>
+                    <div class="form-group">
+                        <label>Rank</label>
+                        <select id="rank" asp-for="Rank" class="form-control form-control-lg">
+                            @foreach (var item in Enum.GetValues(typeof(Rank)))
+                            {
+                                <option value=@((int)item)>@((Rank)item).</option>
+                            }
+                        </select>
+                        @*<input asp-for="Rank" class="form-control" type="text" placeholder="Enter Rank" />*@
+                    </div>
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input asp-for="Firstname" class="form-control" type="text" placeholder="Enter First Name" />
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input asp-for="Lastname" class="form-control" type="text" placeholder="Enter Last Name" />
+                    </div>
+                    <div class="form-group">
+                        <label>Email address</label>
+                        <input asp-for="Email" class="form-control" type="email" placeholder="Enter email" />
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input asp-for="Telephone" class="form-control" type="text" placeholder="Enter Phone Number" />
+                    </div>
+                </div>
+            </div>            
+        </div>
+    </div>
+    <button class="btn btn-sm btn-primary" type="submit">Submit</button>
+</form>
+
+@section Styles {
+    <link href="~/vendor/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.css" rel="stylesheet" />
+
+}
+
+@section Scripts {
+    <script src="~/vendor/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="~/vendor/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.js"></script>
+    <script src="~/master/js/modules/extras/calendar.js"></script>
+    <script src="~/master/js/modules/forms/color-picker.js"></script>
+
+}

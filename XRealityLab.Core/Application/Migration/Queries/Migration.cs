@@ -27,6 +27,7 @@ namespace XRealityLab
                 return new User
                 {
                     IdentityId = Guid.NewGuid().ToString(),
+                    Rank = _userDTO.Rank,
                     Firstname = _userDTO.Firstname.Trim(),
                     Lastname = _userDTO.Lastname.Trim(),
                     PasswordHash = IdentityConversions.MD5Hash(_userDTO.Password),

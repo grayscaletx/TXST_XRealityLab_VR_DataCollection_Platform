@@ -11,6 +11,8 @@ namespace XRealityLab.Models
         public string Password { get; set; }
         public string PassToken { get; set; }
         [Display(Name = "First name")]
+        public int Rank { get; set; }
+        [Display(Name = "Rank")]
         public string Firstname { get; set; }
         [Display(Name = "Last name")]
         public string Lastname { get; set; }

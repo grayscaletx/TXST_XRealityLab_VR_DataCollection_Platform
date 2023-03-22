@@ -17,4 +17,9 @@ namespace Common.Constants
         public static string PROJECT_ICON_PNG = "/_Images/group_icons/project_icon.png";
         public static string DEFAULT_ICON = "https://atshero.com/Images/icons/profile_icon_trainee.svg";
     }
+
+    public static class BaseLink
+    {
+        public static string AZURE_BLOB_URL = "https://xrealitylabstorage.blob.core.windows.net/";
+    }
 }

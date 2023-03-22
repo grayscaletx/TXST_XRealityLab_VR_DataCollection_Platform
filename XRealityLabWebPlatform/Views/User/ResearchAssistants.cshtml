@@ -1,4 +1,5 @@
 ﻿@model List<XRealityLab.Models.UserDTO>
+@using XRealityLab.Common;
 
 @{
     ViewBag.Title = "ResearchAssistants";
@@ -40,7 +41,7 @@
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td class="text-primary" onclick="location.href='#'">@item.Firstname @item.Lastname</td>
+                        <td class="text-primary" onclick="location.href='#'">@((Rank)item.Rank  + ". " + item.Firstname + " " + item.Lastname)</td>
                         <td>@item.Email</td>
                         <td align="right">
                             <a class="fa-2x mr-2 fas fa-ellipsis-h text-dark" data-toggle="dropdown"></a>

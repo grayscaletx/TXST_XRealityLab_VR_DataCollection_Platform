@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+
 
 namespace XRealityLab.Models
 {
@@ -14,10 +16,12 @@ namespace XRealityLab.Models
         public string Color { get; set; }
         public string PhotoUrl { get; set; }
         public int NoAllowedLabs { get; set; }
+        public bool NotStarted { get; set; }
+        public bool Expired { get; set; }
         public DateTime Registered { get; set; }
         public DateTime SubscriptionStarted { get; set; }
         public DateTime SubscriptionExpiration { get; set; }
         public UserDTO ITDirector { get; set; }
-        public LabDTO LabDTO { get; set; }
+        public List<LabDTO> LabDTOs { get; set; }
     }
 }

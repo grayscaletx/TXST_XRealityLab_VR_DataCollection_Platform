@@ -1,6 +1,8 @@
 ﻿@model XRealityLab.Models.OrganizationDirectorDTO
 @using System.Security.Claims;
 @using XRealityLab.Common;
+@using Common.Constants;
+
 
 @{
     ViewBag.Title = "AddOrganization";
@@ -37,9 +39,26 @@
                             <img src="~/_images/group_icons/organization_blank_icon.png" alt="Avatar" width="90" height="90" class="rounded-circle" />
                         </div>
                         <label class="col-md-6 col-form-label">Organization Icon</label>
-                        <div>
-                            <input class="form-control filestyle" type="file" data-classbutton="btn btn-secondary" data-classinput="form-control inline" data-icon="&lt;span class='fa fa-upload mr'&gt;&lt;/span&gt;" />
-                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Color</label>
+                        @*<input id="ColorHex" asp-for="Color"/>*@
+                        <select id="color" asp-for="Color" class="form-control form-control-lg" onchange="SelectColor()">
+                            @*@foreach (var item in Enum.GetValues(typeof(Color)))
+                            {
+                                <option>@((Color)item).</option>
+                            }*@
+                            <option style="background-color:#5BB79E" value="#5BB79E">C1</option>
+                            <option style="background-color:#4F91CD" value="#4F91CD">C2</option>
+                            <option style="background-color:#9F78B9" value="#9F78B9">C3</option>
+                            <option style="background-color:#E1BD42" value="#E1BD42">C4</option>
+                            <option style="background-color:#D07F39" value="#D07F39">C5</option>
+                            <option style="background-color:#CE5543" value="#CE5543">C6</option>
+                            <option style="background-color:#76CB8E" value="#76CB8E">C7</option>
+                            <option style="background-color:#364658" value="#364658">C8</option>
+                            <option style="background-color:#A5B0B1" value="#A5B0B1">C9</option>
+                            <option style="background-color:#53A564" value="#53A564">C10</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Organization Title</label>
@@ -54,7 +73,7 @@
                         <input asp-for="City" class="form-control" type="text" placeholder="" />
                     </div>
                     <div class="form-group">
-                        <label>City</label>
+                        <label>Country</label>
                         <input asp-for="Country" class="form-control" type="text" placeholder="" />
                     </div>
                     <div class="form-row align-items-center">
@@ -71,45 +90,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <p class="text-muted"><small>Choose a Color</small></p>
-                        <ul class="list-inline" id="external-event-color-selector">
-                            <li class="list-inline-item p-0">
-                                <div class="circle bg-danger circle-xl selected"></div>
-                            </li>
-                            <li class="list-inline-item p-0">
-                                <div class="circle bg-primary circle-xl"></div>
-                            </li>
-                            <li class="list-inline-item p-0">
-                                <div class="circle bg-info circle-xl"></div>
-                            </li>
-                            <li class="list-inline-item p-0">
-                                <div class="circle bg-success circle-xl"></div>
-                            </li>
-                            <li class="list-inline-item p-0">
-                                <div class="circle bg-warning circle-xl"></div>
-                            </li>
-                            <li class="list-inline-item p-0">
-                                <div class="circle bg-green circle-xl"></div>
-                            </li>
-                            <li class="list-inline-item p-0">
-                                <div class="circle bg-pink circle-xl"></div>
-                            </li>
-                            <li class="list-inline-item p-0">
-                                <div class="circle bg-inverse circle-xl"></div>
-                            </li>
-                            <li class="list-inline-item p-0">
-                                <div class="circle bg-purple circle-xl"></div>
-                            </li>
-                        </ul>
-                        <label>Hex Color</label>
-                        <div class="col-6">
-                            <div class="demo-colorpicker" data-container="true" data-color="rgb(50,216,62)" data-inline="true"></div>
-                        </div>
-                        <div class="col-3">
-                            <input asp-for="Color" class="form-control" type="text" placeholder="#FFFFFF" />
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -120,10 +100,10 @@
                     <div class="form-group">
                         <label>Rank</label>
                         <select id="rank" asp-for="Rank" class="form-control form-control-lg">
-                            <option>Ms.</option>
-                            <option>Mr.</option>
-                            <option>Dr.</option>
-                            <option>Mx.</option>
+                            @foreach (var item in Enum.GetValues(typeof(Rank)))
+                            {
+                                <option value=@((int)item)>@((Rank)item).</option>
+                            }
                         </select>
                         @*<input asp-for="Rank" class="form-control" type="text" placeholder="Enter Rank" />*@
                     </div>
@@ -182,5 +162,13 @@
     <script src="~/vendor/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.js"></script>
     <script src="~/master/js/modules/extras/calendar.js"></script>
     <script src="~/master/js/modules/forms/color-picker.js"></script>
+    <script type='text/javascript'>
+        function SelectColor() {
+            
 
+
+
+            document.getElementById("inputBase64").value = "";            
+        }
+    </script>
 }

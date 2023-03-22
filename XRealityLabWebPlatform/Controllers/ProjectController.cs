@@ -66,6 +66,7 @@ namespace XRealityLab.Controllers
                     User principleInvestigator = _context.User.Where(k => k.UserId == projectPIId).FirstOrDefault();
                     userDTOs.Add(new UserDTO
                     {
+                        Rank = principleInvestigator.Rank,
                         Firstname = principleInvestigator.Firstname,
                         Lastname = principleInvestigator.Lastname,
                         PassToken = _protector.Decode(principleInvestigator.UserId.ToString()),
@@ -73,13 +74,15 @@ namespace XRealityLab.Controllers
                         Telephone = principleInvestigator.Telephone,
                         RegistrationDateTime = principleInvestigator.RegistrationDateTime
                     });
+                    if (userDTOs.Count() > 3)
+                        break;
                 }
                 Project project = _context.Project.Where(k => k.ProjectId == projectId).FirstOrDefault();
                 projectDTOs.Add(new ProjectDTO
                 {
                     ProjectId = project.ProjectId,
                     PassToken = _protector.Decode(project.ProjectId.ToString()),
-                    FullName = project.FullName,
+                    FullName = project.FullName.Length < 25 ? project.FullName : project.FullName.Substring(0, 25) + "...",
                     Color = project.Color,
                     PhotoUrl = project.PhotoUrl,
                     Registered = project.Registered,
@@ -103,6 +106,7 @@ namespace XRealityLab.Controllers
                     User principleInvestigator = _context.User.Where(k => k.UserId == projectPIId).FirstOrDefault();
                     userDTOs.Add(new UserDTO
                     {
+                        Rank = principleInvestigator.Rank,
                         Firstname = principleInvestigator.Firstname,
                         Lastname = principleInvestigator.Lastname,
                         PassToken = _protector.Decode(principleInvestigator.UserId.ToString()),
@@ -110,13 +114,15 @@ namespace XRealityLab.Controllers
                         Telephone = principleInvestigator.Telephone,
                         RegistrationDateTime = principleInvestigator.RegistrationDateTime
                     });
+                    if (userDTOs.Count() > 3)
+                        break;
                 }
                 Project project = _context.Project.Where(k => k.ProjectId == projectId).FirstOrDefault();
                 projectDTOs.Add(new ProjectDTO
                 {
                     ProjectId = project.ProjectId,
                     PassToken = _protector.Decode(project.ProjectId.ToString()),
-                    FullName = project.FullName,
+                    FullName = project.FullName.Length < 25 ? project.FullName : project.FullName.Substring(0, 25) + "...",
                     Color = project.Color,
                     PhotoUrl = project.PhotoUrl,
                     Registered = project.Registered,

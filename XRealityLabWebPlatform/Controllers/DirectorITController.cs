@@ -53,12 +53,13 @@ namespace XRealityLab.Controllers
 
         public async Task<IActionResult> Labs(string actionMessage)
         {      
-            int organizationId = _context.Organization.Where(k => k.ItdirectorId == (_context.User.Where(k => k.Email == User.Identity.Name).FirstOrDefault().UserId)).FirstOrDefault().OrganizationId;
-            List<LabDTO> labDTOs = await _context.Lab.Include(k => k.OrganizationLab).Where(k => k.OrganizationLab.Select(k => k.OrganizationId).Contains(organizationId)).Include(k => k.LabDirector).Select(k => new LabDTO
+            Organization organization = _context.Organization.Where(k => k.ItdirectorId == (_context.User.Where(k => k.Email == User.Identity.Name).FirstOrDefault().UserId)).FirstOrDefault();
+            
+            List<LabDTO> labDTOs = await _context.Lab.Include(k => k.OrganizationLab).Where(k => k.OrganizationLab.Select(k => k.OrganizationId).Contains(organization.OrganizationId)).Include(k => k.LabDirector).Select(k => new LabDTO
             {
                 LabId = k.LabId,
                 PassToken = _protector.Decode(k.LabId.ToString()),
-                FullName = k.FullName,
+                FullName = k.FullName.Length < 25 ? k.FullName : k.FullName.Substring(0, 25) + "...",
                 LabDirectorId = k.LabDirectorId,
                 Color = k.Color,
                 PhotoUrl = k.PhotoUrl,
@@ -66,6 +67,7 @@ namespace XRealityLab.Controllers
                 LabDirector = new UserDTO
                 {
                     UserId = k.LabDirector.UserId,
+                    Rank = k.LabDirector.Rank,
                     Firstname = k.LabDirector.Firstname,
                     Lastname = k.LabDirector.Lastname,
                     Email = k.LabDirector.Email,
@@ -76,12 +78,21 @@ namespace XRealityLab.Controllers
                     RegistrationDateTime = k.LabDirector.RegistrationDateTime
                 }
             }).ToListAsync();
-            return View(labDTOs);
+            OrganizationDTO organizationDTO = new OrganizationDTO
+            {
+                FullName = organization.FullName,
+                NoAllowedLabs = organization.NoAllowedLabs,
+                LabDTOs = labDTOs
+            };
+            return View(organizationDTO);
         }
         public IActionResult AddLab() { return View(); }
         [HttpPost]
         public async Task<IActionResult> AddLab(LabDirectorDTO labDirectorDTO)
         {
+            if (_context.OrganizationLab.Where(k => k.OrganizationId == _context.Organization.Where(k => k.ItdirectorId == (_context.User.Where(k => k.Email == User.Identity.Name).FirstOrDefault().UserId)).FirstOrDefault().OrganizationId).Count() >= _context.Organization.Where(k => k.ItdirectorId == (_context.User.Where(k => k.Email == User.Identity.Name).FirstOrDefault().UserId)).FirstOrDefault().NoAllowedLabs)
+                return RedirectToAction(nameof(Labs), new { _actionMessage = "Please Refrain From Hacking Me" });
+
             //Data validation
             if (!ModelState.IsValid)
             {
@@ -89,6 +100,7 @@ namespace XRealityLab.Controllers
             }
             UserDTO userDTO = new UserDTO
             {
+                Rank = labDirectorDTO.Rank,
                 Firstname = labDirectorDTO.Firstname,
                 Lastname = labDirectorDTO.Lastname,
                 Email = labDirectorDTO.Email,
@@ -178,7 +190,7 @@ namespace XRealityLab.Controllers
 
             var director = _context.User.Where(k => k.UserId == labDirectorDTO.UserId).FirstOrDefault();
 
-            labDirectorDTO.Rank = "Rank";
+            labDirectorDTO.Rank = director.Rank;
             labDirectorDTO.Firstname = director.Firstname;
             labDirectorDTO.Lastname = director.Lastname;
             labDirectorDTO.Email = director.Email;
@@ -215,6 +227,14 @@ namespace XRealityLab.Controllers
                 return Json(responseDTO);
 
             _context.Lab.Update(lab);
+
+            //Update user data
+            director.Rank = labDirectorDTO.Rank;
+            director.Firstname = labDirectorDTO.Firstname;
+            director.Lastname = labDirectorDTO.Lastname;
+            director.Telephone = labDirectorDTO.Telephone;
+
+            _context.User.Update(director);
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Labs", RoleType.DirectorOfIT.GetEnumDescription());
@@ -225,6 +245,116 @@ namespace XRealityLab.Controllers
             await Migration.RemoveLabDirectorAsync(_context, _userManager, lab);
 
             return RedirectToAction(nameof(Labs));
+        }
+        public IActionResult ChangeLabDirector(string passToken/*LabPassToken*/)
+        {
+            LabDirectorDTO labDirectorDTO = _context.Lab
+                .Where(k => k.LabId == int.Parse(_protector.Encode(passToken))).Select(k => new LabDirectorDTO
+                {
+                    FullName = k.FullName,
+                    PassToken = _protector.Decode(k.LabId.ToString()),
+                    UserId = k.LabDirectorId,
+                    Description = k.Description,
+                    Color = k.Color,
+                    PhotoUrl = k.PhotoUrl,
+                    Registered = DateTime.Now,
+                }).FirstOrDefault();
+
+            var director = _context.User.Where(k => k.UserId == labDirectorDTO.UserId).FirstOrDefault();
+
+            labDirectorDTO.Rank = director.Rank;
+            labDirectorDTO.Firstname = director.Firstname;
+            labDirectorDTO.Lastname = director.Lastname;
+            labDirectorDTO.Email = director.Email;
+            labDirectorDTO.Telephone = director.Telephone;
+            labDirectorDTO.UserPhotoUrl = director.PhotoUrl;
+            labDirectorDTO.IsActive = director.IsActive == 1 ? true : false;
+            labDirectorDTO.RegistrationDateTime = director.RegistrationDateTime;
+
+            return View(labDirectorDTO);
+        }
+        [HttpPost]
+        public async Task<IActionResult> ChangeLabDirector(LabDirectorDTO labDirectorDTO)
+        {
+            //Data validation
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(ChangeLabDirector), new { _actionMessage = "Δεν προσθέσατε τα πεδία σωστά. Παρακαλώ προσπαθήστε ξανά." });
+            }
+
+            //Upload icon
+            if (!string.IsNullOrWhiteSpace(labDirectorDTO.PhotoBase64))
+            {
+
+            }
+
+            UserDTO userDTO = new UserDTO
+            {
+                Rank = labDirectorDTO.Rank,
+                Firstname = labDirectorDTO.Firstname,
+                Lastname = labDirectorDTO.Lastname,
+                Email = labDirectorDTO.Email,
+                Password = "test123",
+                RoleId = (int)RoleType.LabDirector,
+                PhotoUrl = PhotoUrl.LAB_DIRECTOR_ICON_PNG,
+                Telephone = labDirectorDTO.Telephone,
+                RegistrationDateTime = DateTime.Now,
+                IsActive = true
+            };
+            ResponseDTO responseDTO = await DataValidation.UserValidation(_context, userDTO);
+            if (responseDTO.Result == "Failed")
+                return Json(responseDTO);
+
+            if (await _context.User.AnyAsync(k => k.Email == userDTO.Email.Trim()))
+                return Json(MessageConverter.GetResponse("Failed to create the user", MethodResult.Failed));
+
+            var hasCreated = await IdentityMigration.CreateIdentityUserAsync(_userManager, userDTO.Email.Trim(), userDTO.Password);
+            if (!hasCreated.Succeeded)
+                return Json(MessageConverter.GetResponse("Couldn't create the user identity", MethodResult.Failed));
+
+            User user = await Migration.ToUser(_context, userDTO);
+
+            if (user == null)
+                return Json(MessageConverter.GetResponse("Failed to create the user", MethodResult.Failed));
+
+            await Migration.InsertUserAsync(_context, user);
+            if (_context.Organization.Where(k => k.Registered.AddDays(1) > DateTime.Now).Count() >= 10)
+                return Json(MessageConverter.GetResponse("No new organizations can be added today", MethodResult.Failed));
+
+            //Get new director id
+            var newLabDirector = _context.User.Where(k => k.Email == labDirectorDTO.Email).FirstOrDefault();
+            //Get Lab
+            Lab lab = _context.Lab.Where(k => k.LabId == int.Parse(_protector.Encode(labDirectorDTO.PassToken))).FirstOrDefault();
+            //find old director and change role from LabDirector to to PrincipleInvestigator
+            User oldLabDirector = _context.User.Where(k => k.UserId == _context.LabUser.Where(x => x.LabId == lab.LabId && x.RoleId == (int)RoleType.LabDirector).FirstOrDefault().UserId).FirstOrDefault();
+            oldLabDirector.RoleId = (int)RoleType.PrincipleInvestigator;
+            _context.User.Update(oldLabDirector);
+            //Change old LabUser from LabDirector to PrincipleInvestigator
+            LabUser oldLabUser = _context.LabUser.Where(k => k.UserId == oldLabDirector.UserId && k.RoleId == (int)RoleType.LabDirector).FirstOrDefault();
+            oldLabUser.RoleId = (int)RoleType.PrincipleInvestigator;
+            _context.LabUser.Update(oldLabUser);
+            //Create new LabUser
+            LabUser newLabUser = new LabUser
+            {
+                LabId = lab.LabId,
+                UserId = newLabDirector.UserId,
+                RoleId = (int)RoleType.LabDirector
+            };
+            _context.LabUser.Add(newLabUser);
+            //Change labDirector of ProjectUser
+            List<ProjectUser> projectUsers = _context.ProjectUser.Where(k => k.UserId == oldLabDirector.UserId && k.RoleId == (int)RoleType.LabDirector).ToList();
+            foreach (var projectUser in projectUsers)
+            {
+                projectUser.UserId = newLabDirector.UserId;
+            }
+            _context.ProjectUser.UpdateRange(projectUsers);
+            //Change LabDirector of Lab
+            lab.LabDirectorId = newLabDirector.UserId;
+            _context.Lab.Update(lab);
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Labs", "DirectorIT");
         }
     }
 }

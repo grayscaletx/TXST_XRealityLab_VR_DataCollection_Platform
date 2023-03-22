@@ -28,6 +28,7 @@ using Microsoft.AspNetCore.Authorization;
 using Common.Helpers;
 using Microsoft.AspNetCore.Identity;
 using Common;
+using System.Drawing;
 
 namespace XRealityLab.Controllers
 {
@@ -56,18 +57,21 @@ namespace XRealityLab.Controllers
             {
                 OrganizationId = k.OrganizationId,
                 PassToken = _protector.Decode(k.OrganizationId.ToString()),
-                FullName = k.FullName,
+                FullName = k.FullName.Length<25 ? k.FullName : k.FullName.Substring(0,25) + "...",
                 ITDirectorId = k.ItdirectorId,
                 Address = k.Street + ", " + k.City + ", " + k.State + ", " + k.Country + ", " + k.Zipcode,
                 Color = k.Color,
                 PhotoUrl = k.PhotoUrl,
                 NoAllowedLabs = k.NoAllowedLabs,
+                NotStarted = k.SubscriptionStarted > DateTime.Now,
+                Expired = k.SubscriptionExpiration < DateTime.Now,
                 Registered = k.Registered,
                 SubscriptionStarted = k.SubscriptionStarted,
                 SubscriptionExpiration = k.SubscriptionExpiration,
                 ITDirector = new UserDTO
                 {
                     UserId = k.Itdirector.UserId,
+                    Rank = k.Itdirector.Rank,
                     Firstname = k.Itdirector.Firstname,
                     Lastname = k.Itdirector.Lastname,
                     Email = k.Itdirector.Email,
@@ -99,13 +103,14 @@ namespace XRealityLab.Controllers
 
             UserDTO userDTO = new UserDTO
             {
+                Rank = organizationDirectorDTO.Rank,
                 Firstname = organizationDirectorDTO.Firstname,
                 Lastname = organizationDirectorDTO.Lastname,
                 Email = organizationDirectorDTO.Email,
                 Password ="test123",
                 RoleId = (int)RoleType.DirectorOfIT,
                 PhotoUrl = PhotoUrl.DIRECTOR_OF_IT_ICON_PNG,
-                Telephone = "698132154",
+                Telephone = organizationDirectorDTO.Telephone,
                 RegistrationDateTime = DateTime.Now,
                 IsActive = true
             };
@@ -141,7 +146,7 @@ namespace XRealityLab.Controllers
                 City = organizationDirectorDTO.City,
                 State = organizationDirectorDTO.State,
                 Zipcode = organizationDirectorDTO.ZIPCode,
-                Color = "#6a5738",
+                Color = organizationDirectorDTO.Color,
                 PhotoUrl = PhotoUrl.ORGANIZATION_ICON_PNG,
                 NoAllowedLabs = organizationDirectorDTO.NoAllowedLabs,
                 SubscriptionStarted = organizationDirectorDTO.SubscriptionStarted,
@@ -187,7 +192,7 @@ namespace XRealityLab.Controllers
 
             var directorIT = _context.User.Where(k => k.UserId == organizationDirectorDTO.UserId).FirstOrDefault();
 
-            organizationDirectorDTO.Rank = "Rank";
+            organizationDirectorDTO.Rank = directorIT.Rank;
             organizationDirectorDTO.Firstname = directorIT.Firstname;
             organizationDirectorDTO.Lastname = directorIT.Lastname;
             organizationDirectorDTO.Email = directorIT.Email;
@@ -204,59 +209,69 @@ namespace XRealityLab.Controllers
             //Data validation
             if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(AddOrganization), new { _actionMessage = "Δεν προσθέσατε τα πεδία σωστά. Παρακαλώ προσπαθήστε ξανά." });
+                return RedirectToAction(nameof(Organizations), new { _actionMessage = "Invalid Data" });
             }
 
             //Get director id
             var directorIT = _context.User.Where(k => k.Email == organizationDirectorDTO.Email).FirstOrDefault();
 
+            Organization organization = _context.Organization.Where(k => k.OrganizationId == int.Parse(_protector.Encode(organizationDirectorDTO.PassToken))).FirstOrDefault();
+            if (_context.OrganizationLab.Where(k => k.OrganizationId == organization.OrganizationId).Count() > organizationDirectorDTO.NoAllowedLabs)
+                return RedirectToAction(nameof(Organizations), new { _actionMessage = "No of Allowed Labs Invalid" });
+
             //Upload icon
             if (!string.IsNullOrWhiteSpace(organizationDirectorDTO.PhotoBase64))
             {
                 //Check if the file is jpg or png
-                //
-                //if (!(FileExtension == ".jpg" || FileExtension == ".png") && file.Length > 220000)
-                //    return RedirectToAction(nameof(EditProfile));
-
-
+                if (!(organizationDirectorDTO.PhotoBase64.StartsWith("data:image/png;base64,") || organizationDirectorDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,")))
+                {
+                    return RedirectToAction(nameof(Organizations), new { _actionMessage = "Invalid Data" });
+                }
                 //CONVERT base64 to Image <-Library
-
-                //Reference GeneralController\UpdateProfilePhoto
-                //byte[] bytes = Convert.FromBase64String("R0lGODlhAQABAIAAAAAAAAAAACH5BAAAAAAALAAAAAABAAEAAAICTAEAOw==");
-                //..
-                //var image = Converters.resizeImage(Image.FromStream(file.OpenReadStream()), new Size(150, 150));
-
-                //newFileName = myUniqueFileName + FileExtension;
-                /*fileName = Path.Combine(_environment.WebRootPath, "images", "profilephoto") + $@"\{newFileName}";
+                string base64 = organizationDirectorDTO.PhotoBase64.Substring(organizationDirectorDTO.PhotoBase64.IndexOf(',') + 1);
+                base64 = base64.Trim('\0');
+                byte[] chartData = Convert.FromBase64String(base64);
+                System.Drawing.Image image;
+                using (var ms = new MemoryStream(chartData, 0, chartData.Length))
+                {
+                    image = System.Drawing.Image.FromStream(ms);
+                }
+                image = new Bitmap(image, new Size(150, 150));
+                string myUniqueFileName = Convert.ToString(Guid.NewGuid());
+                string fileExtension = "";
+                if (organizationDirectorDTO.PhotoBase64.StartsWith("data:image/png;base64,"))
+                {
+                    fileExtension = ".png";
+                }
+                else if (organizationDirectorDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,"))
+                {
+                    fileExtension = ".jpeg";
+                }
+                string newFileName = myUniqueFileName + fileExtension;
+                var fileName = string.Empty;
+                fileName = Path.Combine(_environment.WebRootPath, "_images", "organization-photos") + $@"\{newFileName}";
                 image.Save(fileName);
 
-                //SAVE LOCAL TO WWWROOT
-
-
-                //UPLOAD
-
-                bool isUploaded = await ContainerService.UploadOperationAsync(Path.Combine(_environment.WebRootPath, "images", "profilephoto"),
-                    newFileName, AzureGPV2Credentials.CONTAINER_PROFILE_PHOTO_SHARE);
+                bool isUploaded = await ContainerService.UploadOperationAsync(Path.Combine(_environment.WebRootPath, "_images", "organization-photos"),
+                    newFileName, AzureGPV2Credentials.CONTAINER_ORGANIZATION_ICONS);
 
                 if (isUploaded)
                 {
-                    var user = _context.User.Where(k => k.UserId == _profileId).FirstOrDefault();
-                    user.PhotoUrl = Path.Combine(BaseLink.AZURE_BLOB_URL, PhotoUrl.TRAINING_WEB_PROFILE_PHOTOS_DIRECTORY, newFileName);
-                    await Migration.UpdateUserAsync(_context, _configuration, _protector, user, string.Empty, User, _userManager,
-                        this.GetType().Name, nameof(EditProfile), ActionTypeID.UpdatePhoto,
-                        string.Format("update profile photo icon [{0}]", user.FirstName + " " + user.LastName), HttpContext);
-                    return RedirectToAction(nameof(EditProfile));
-                
-                //DELETE photo for update
+                    organization.PhotoUrl = Path.Combine(BaseLink.AZURE_BLOB_URL, AzureGPV2Credentials.CONTAINER_ORGANIZATION_ICONS, newFileName);
                 }
-                */
+
+                //DELETE from root
+                if (System.IO.File.Exists(Path.Combine(_environment.WebRootPath, "_images", "organization-photos") + $@"\{newFileName}"))
+                {
+                    System.IO.File.Delete(Path.Combine(_environment.WebRootPath, "_images", "organization-photos") + $@"\{newFileName}");
+                }
 
 
 
             }
 
             //Update organization data
-            Organization organization = _context.Organization.Where(k => k.OrganizationId == int.Parse(_protector.Encode(organizationDirectorDTO.PassToken))).FirstOrDefault();
+
             organization.OrganizationId = int.Parse(_protector.Encode(organizationDirectorDTO.PassToken));
             organization.FullName = organizationDirectorDTO.FullName;
             organization.ItdirectorId = directorIT.UserId;
@@ -265,7 +280,7 @@ namespace XRealityLab.Controllers
             organization.State = organizationDirectorDTO.State;
             organization.Zipcode = organizationDirectorDTO.ZIPCode;
             organization.Color = organizationDirectorDTO.Color;
-            organization.PhotoUrl = PhotoUrl.ORGANIZATION_ICON_PNG;
+            //organization.PhotoUrl = PhotoUrl.ORGANIZATION_ICON_PNG;
             organization.NoAllowedLabs = organizationDirectorDTO.NoAllowedLabs;
             organization.SubscriptionStarted = organizationDirectorDTO.SubscriptionStarted;
             organization.SubscriptionExpiration = organizationDirectorDTO.SubscriptionExpiration;
@@ -278,6 +293,7 @@ namespace XRealityLab.Controllers
             _context.Organization.Update(organization);
 
             //Update user data
+            directorIT.Rank = organizationDirectorDTO.Rank;
             directorIT.Firstname = organizationDirectorDTO.Firstname;
             directorIT.Lastname = organizationDirectorDTO.Lastname;
             directorIT.Telephone = organizationDirectorDTO.Telephone;
@@ -297,7 +313,40 @@ namespace XRealityLab.Controllers
             return RedirectToAction(nameof(Organizations));
         }
 
-        public IActionResult ChangeITDirector(string passToken/*organizationPassToken*/) { return View(); }
+        public IActionResult ChangeITDirector(string passToken/*organizationPassToken*/) 
+        {
+            OrganizationDirectorDTO organizationDirectorDTO = _context.Organization
+                .Where(k => k.OrganizationId == int.Parse(_protector.Encode(passToken))).Select(k => new OrganizationDirectorDTO
+                {
+                    FullName = k.FullName,
+                    PassToken = _protector.Decode(k.OrganizationId.ToString()),
+                    UserId = k.ItdirectorId,
+                    Street = k.Street,
+                    City = k.City,
+                    State = k.State,
+                    Country = k.Country,
+                    ZIPCode = k.Zipcode,
+                    Color = k.Color,
+                    PhotoUrl = k.PhotoUrl,
+                    NoAllowedLabs = k.NoAllowedLabs,
+                    SubscriptionStarted = k.SubscriptionStarted,
+                    SubscriptionExpiration = k.SubscriptionExpiration,
+                    Registered = DateTime.Now,
+                }).FirstOrDefault();
+
+            var directorIT = _context.User.Where(k => k.UserId == organizationDirectorDTO.UserId).FirstOrDefault();
+
+            organizationDirectorDTO.Rank = directorIT.Rank;
+            organizationDirectorDTO.Firstname = directorIT.Firstname;
+            organizationDirectorDTO.Lastname = directorIT.Lastname;
+            organizationDirectorDTO.Email = directorIT.Email;
+            organizationDirectorDTO.Telephone = directorIT.Telephone;
+            organizationDirectorDTO.UserPhotoUrl = directorIT.PhotoUrl;
+            organizationDirectorDTO.IsActive = directorIT.IsActive == 1 ? true : false;
+            organizationDirectorDTO.RegistrationDateTime = directorIT.RegistrationDateTime;
+
+            return View(organizationDirectorDTO); 
+        }
         [HttpPost]
         public async Task<IActionResult> ChangeITDirector(OrganizationDirectorDTO organizationDirectorDTO)
         {
@@ -307,11 +356,56 @@ namespace XRealityLab.Controllers
                 return RedirectToAction(nameof(AddOrganization), new { _actionMessage = "Δεν προσθέσατε τα πεδία σωστά. Παρακαλώ προσπαθήστε ξανά." });
             }
 
-            ///Write your code
-            ///
+            //Upload icon
+            if (!string.IsNullOrWhiteSpace(organizationDirectorDTO.PhotoBase64))
+            {
 
-            //_context.Organization.Update(..);
-            //_context.User.Update(directorIT);
+            }
+
+            UserDTO userDTO = new UserDTO
+            {
+                Rank = organizationDirectorDTO.Rank,
+                Firstname = organizationDirectorDTO.Firstname,
+                Lastname = organizationDirectorDTO.Lastname,
+                Email = organizationDirectorDTO.Email,
+                Password = "test123",
+                RoleId = (int)RoleType.DirectorOfIT,
+                PhotoUrl = PhotoUrl.DIRECTOR_OF_IT_ICON_PNG,
+                Telephone = "698132154",
+                RegistrationDateTime = DateTime.Now,
+                IsActive = true
+            };
+            ResponseDTO responseDTO = await DataValidation.UserValidation(_context, userDTO);
+            if (responseDTO.Result == "Failed")
+                return Json(responseDTO);
+
+            if (await _context.User.AnyAsync(k => k.Email == userDTO.Email.Trim()))
+                return Json(MessageConverter.GetResponse("Failed to create the user", MethodResult.Failed));
+
+            var hasCreated = await IdentityMigration.CreateIdentityUserAsync(_userManager, userDTO.Email.Trim(), userDTO.Password);
+            if (!hasCreated.Succeeded)
+                return Json(MessageConverter.GetResponse("Couldn't create the user identity", MethodResult.Failed));
+
+            User user = await Migration.ToUser(_context, userDTO);
+
+            if (user == null)
+                return Json(MessageConverter.GetResponse("Failed to create the user", MethodResult.Failed));
+
+            await Migration.InsertUserAsync(_context, user);
+            if (_context.Organization.Where(k => k.Registered.AddDays(1) > DateTime.Now).Count() >= 10)
+                return Json(MessageConverter.GetResponse("No new organizations can be added today", MethodResult.Failed));
+
+            //Get new director id
+            var newDirectorIT = _context.User.Where(k => k.Email == organizationDirectorDTO.Email).FirstOrDefault();
+            //Get organization
+            Organization organization = _context.Organization.Where(k => k.OrganizationId == int.Parse(_protector.Encode(organizationDirectorDTO.PassToken))).FirstOrDefault();
+            //find old director
+            User oldDirectorIT = _context.User.Where(k => k.UserId == organization.ItdirectorId).FirstOrDefault();
+            //Change director id of organization
+            organization.ItdirectorId = newDirectorIT.UserId;
+            _context.Organization.Update(organization);
+            //Delete old director
+            _context.User.Remove(oldDirectorIT);
 
             await _context.SaveChangesAsync();
 

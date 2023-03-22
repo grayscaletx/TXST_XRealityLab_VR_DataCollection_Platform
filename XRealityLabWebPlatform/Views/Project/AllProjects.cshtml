@@ -1,4 +1,5 @@
 ﻿@model List<XRealityLab.Models.ProjectDTO>
+@using XRealityLab.Common;
 
 @{
     ViewBag.Title = "Labs";
@@ -50,7 +51,7 @@
                         @foreach (var PI in item.UserDTOs)
                         {
                             <span class="fa fa-envelope" style="padding:15px 10px">
-                                @PI.Firstname @PI.Lastname
+                                @((Rank)PI.Rank  + ". " + PI.Firstname + " " + PI.Lastname)
                             </span>
                         }
                     </div>

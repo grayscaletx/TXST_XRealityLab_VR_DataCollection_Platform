@@ -63,9 +63,9 @@
                     <div style="background-color:white;margin:0px -16px; height:103px">
                         @foreach (var PI in item.UserDTOs)
                         {
-                            <span class="fa fa-envelope" style="padding:15px 10px">
-                                @PI.Firstname @PI.Lastname
-                            </span>
+                        <span class="fa fa-envelope" style="padding:15px 10px">
+                            @((Rank)PI.Rank  + ". " + PI.Firstname + " " + PI.Lastname)
+                        </span>
                         }
                     </div>
                 </div>

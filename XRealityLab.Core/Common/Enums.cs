@@ -18,6 +18,40 @@ namespace XRealityLab.Common
         [Description("ResearchAssistant")]
         ResearchAssistant
     }
+    public enum Rank
+    {
+        [Description("Ms.")]
+        Ms = 1,
+        [Description("Mr.")]
+        Mr,
+        [Description("Dr.")]
+        Dr,
+        [Description("Mx.")]
+        Mx,
+    }
+    public enum Color
+    {
+        [Description("#5BB79E")]
+        C1 = 1,
+        [Description("#4F91CD")]
+        C2,
+        [Description("#9F78B9")]
+        C3,
+        [Description("#E1BD42")]
+        C4,
+        [Description("#D07F39")]
+        C5,
+        [Description("#CE5543")]
+        C6,
+        [Description("#76CB8E")]
+        C7,
+        [Description("#364658")]
+        C8,
+        [Description("#A5B0B1")]
+        C9,
+        [Description("#53A564")]
+        C10
+    }
 
     //TODO
     public enum OrderStatus

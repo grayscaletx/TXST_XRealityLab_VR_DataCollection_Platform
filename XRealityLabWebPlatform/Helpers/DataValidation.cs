@@ -17,6 +17,9 @@ namespace XRealityLab
         {
             try
             {
+/*                if (user.Rank != "Dr." && user.Rank != "Mr." && user.Rank != "Ms." && user.Rank != "Mx.")
+                    return MessageConverter.GetResponse("User validation failed", MethodResult.Failed);
+*/
                 if (user.Firstname.Length < 2 || user.Firstname.Length > 26)
                     return MessageConverter.GetResponse("User validation failed", MethodResult.Failed);
 

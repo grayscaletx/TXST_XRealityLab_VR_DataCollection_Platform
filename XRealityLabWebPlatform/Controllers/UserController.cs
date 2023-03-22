@@ -60,6 +60,7 @@ namespace XRealityLab.Controllers
             {
                 User principleInvestigator = _context.User.Where(k => k.UserId == userId).FirstOrDefault();
                 userDTOs.Add(new UserDTO{
+                    Rank = principleInvestigator.Rank,
                     Firstname = principleInvestigator.Firstname,
                     Lastname = principleInvestigator.Lastname,
                     PassToken = _protector.Decode(principleInvestigator.UserId.ToString()),
@@ -195,6 +196,7 @@ namespace XRealityLab.Controllers
                 User principleInvestigator = _context.User.Where(k => k.UserId == userId).FirstOrDefault();
                 userDTOs.Add(new UserDTO
                 {
+                    Rank = principleInvestigator.Rank,
                     Firstname = principleInvestigator.Firstname,
                     Lastname = principleInvestigator.Lastname,
                     PassToken = _protector.Decode(principleInvestigator.UserId.ToString()),

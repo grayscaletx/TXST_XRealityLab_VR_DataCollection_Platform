@@ -14,6 +14,7 @@ namespace XRealityLab.Models
         public int LabDirectorId { get; set; }
         public string Description { get; set; }
         public string PhotoUrl { get; set; }
+        public string PhotoBase64 { get; set; }
         public string Color { get; set; }
         public DateTime Registered { get; set; }
         public UserDTO LabDirector { get; set; }
@@ -21,7 +22,7 @@ namespace XRealityLab.Models
         public int UserId { get; set; }
         public string UserPassToken { get; set; }
         [Display(Name = "Rank")]
-        public string Rank { get; set; }
+        public int Rank { get; set; }
         [Display(Name = "First name")]
         public string Firstname { get; set; }
         [Display(Name = "Last name")]
