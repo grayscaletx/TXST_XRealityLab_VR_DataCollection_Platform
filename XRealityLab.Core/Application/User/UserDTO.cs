@@ -23,6 +23,7 @@ namespace XRealityLab.Models
         [RegularExpression("^[0-9+ ]+$", ErrorMessage = "Value is not acceptable.")]
         [DataType(DataType.PhoneNumber)] public string Telephone { get; set; }        
         public string PhotoUrl { get; set; }
+        public string PhotoBase64 { get; set; }
         public int RoleId { get; set; }
         [Display(Name = "Active")]
         public bool IsActive { get; set; }

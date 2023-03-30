@@ -12,6 +12,7 @@ namespace XRealityLab.Models
         public string PassToken { get; set; }
         public string FullName { get; set; }
         public string PhotoUrl { get; set; }
+        public string PhotoBase64 { get; set; }
         public string Description { get; set; }
         public string Color { get; set; }
         public int ResearchMethodId { get; set; }

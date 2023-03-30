@@ -12,8 +12,10 @@ namespace Infrastructure.Entities
         public int NoOfMistakes { get; set; }
         public DateTime Registered { get; set; }
         public string Notes { get; set; }
+        public int? ResearchId { get; set; }
 
         public virtual Participant Participant { get; set; }
+        public virtual Research Research { get; set; }
         public virtual Session Session { get; set; }
     }
 }

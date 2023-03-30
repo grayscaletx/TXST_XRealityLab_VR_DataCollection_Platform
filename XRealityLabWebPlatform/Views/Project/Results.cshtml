@@ -1,0 +1,280 @@
+﻿@model XRealityLab.Models.ResultDTO
+@using XRealityLab.Common;
+
+@{
+    ViewBag.Title = "Results";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!--Header-->
+<div class="content-heading">
+    <h2>Results of @Model.ParticipantDTO.FirstName @Model.ParticipantDTO.LastName (@Model.ParticipantDTO.Email).</h2>
+    <h2>Data Collection: @Model.Title</h2>
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="form-group">
+                <div class="input-group mb-3">
+                    <input type="hidden" style="pointer-events: none" id="participant-pass-token" value=@Model.ParticipantPassToken />
+                    <div class="input-group-append">
+                        <button onclick="copyParticipantPassTokenToClipboard()" class="btn btn-info" type="button">Copy Participant Pass Token</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="form-group">
+                <div class="input-group mb-3">
+                    <input type="hidden" style="pointer-events: none" id="session-pass-token" value=@Model.SessionPassToken />
+                    <div class="input-group-append">
+                        <button onclick="copySessionPassTokenToClipboard()" class="btn btn-info" type="button">Copy Session Pass Token</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Alert dialog-->
+@if (ViewBag.actionMessage != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        @ViewBag.actionMessage
+    </div>
+}
+
+<div class="container" style="float: left;">      
+    @{int i = 0; }
+    <div class="card">
+
+        @foreach (var research in Model.ResearchDTOs)
+        {
+            <div class="card">
+                @{
+                    i++;
+                    string researchId = "research-pass-token-" + i.ToString();
+                    string noteId = "note-id-" + i.ToString();
+                }
+                <div class="row">
+                    <div class="col-xl-3 col-md-6">
+                        <h3>@research.Title (@research.TypeId)</h3>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="form-group">
+                            <div class="input-group mb-3">
+                                <input type="hidden" style="pointer-events: none" id="@researchId" value=@research.ResearchPassToken />
+                                <div class="input-group-append">
+                                    <button onclick="copyResearchPassTokenToClipboard('@researchId')" class="btn btn-info" type="button">Copy Research Pass Token</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @if (research.TypeId == ResearchType.VirtualAugmentedReality.GetEnumDescription())
+                {
+
+                    @if (research.VAResultDTOs.Count == 0)
+                    {
+                        <h4>No results yet</h4>
+                    }
+                    else
+                    {
+                        @foreach (var vAResult in research.VAResultDTOs)
+                        {
+                            @if (vAResult != null)
+                            {
+                                <div class="row">
+                                    <div class="col-xl-3 col-md-6">
+                                        <div class="card flex-row align-items-center align-items-stretch border-0">
+                                            <div class="col-4 d-flex align-items-center bg-green-dark justify-content-center rounded-left">
+                                                <em class="fa-4x mr-2 far fa-clock"></em>
+                                            </div>
+                                            <div class="col-8 py-3 bg-green rounded-right">
+                                                <div class="h2 mt-0">@vAResult.Time</div>
+                                                <div class="text">Total Time</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-3 col-md-6">
+                                        <div class="card flex-row align-items-center align-items-stretch border-0">
+                                            <div class="col-4 d-flex align-items-center bg-danger-dark justify-content-center rounded-left">
+                                                <em class="fa-4x mr-2 fas fa-ban"></em>
+                                            </div>
+                                            <div class="col-8 py-3 bg-danger rounded-right">
+                                                <div class="h2 mt-0">@vAResult.NoOfMistakes</div>
+                                                <div class="text">No of Mistakes</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <h4>No results yet</h4>
+                            }
+                        }
+                    }
+
+                }
+                else if (research.TypeId == ResearchType.QualtricsQuestionnaire.GetEnumDescription())
+                {
+                    @if (research.QualtricsResultDTO != null)
+                    {
+                        //UP COMING
+                    }
+                    else
+                    {
+                        <h4>No results yet</h4>
+                    }
+                }
+                else if (research.TypeId == ResearchType.OfflineMethod.GetEnumDescription())
+                {
+                    @if (research.OfflineResultDTO != null)
+                    {
+                        <div class="row">
+                            @if (research.OfflineResultDTO.DocumentUrl.Length > 0)
+                            {
+                                <div class="col-md-1">
+                                    <a href=@research.OfflineResultDTO.DocumentUrl target="_blank" class="fa-5x mr-2 fas fa-file" style="color:gray"></a>
+                                </div>
+                            }
+                            <div class="col-xl-3 col-md-6">
+                                <div class="form-group">
+                                    <form id="modal-update-photo-form" method="post" enctype="multipart/form-data" asp-action="UploadFile" asp-route-participantPassToken=@Model.ParticipantPassToken asp-route-sessionPassToken=@Model.SessionPassToken asp-route-researchPassToken=@research.ResearchPassToken>
+                                        <div class="form-group">
+                                            <div class="col-md-10">
+                                                <input type="file" name="files" accept="application/pdf, application/vnd.ms-excel" class="btn btn-primary btn-sm" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="col-md-10">
+                                                <input type="submit" value="Upload & Replace" class="btn btn-primary" style="width:200px;color:white" />
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-md-6">
+                                <div class="form-group">
+                                    <form id="modal-update-photo-form" method="post" enctype="multipart/form-data" asp-action="TakeNote" asp-route-participantPassToken=@Model.ParticipantPassToken asp-route-sessionPassToken=@Model.SessionPassToken asp-route-researchPassToken=@research.ResearchPassToken>
+                                        <div class="form-group">
+                                            <div class="col-md-10">
+                                                <textarea id="@noteId" name="notes" rows="8" cols="70">@research.OfflineResultDTO.Notes</textarea>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="col-md-10">
+                                                <input type="submit" value="Take Note" class="btn btn-primary" style="width:200px;color:white" />
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <h4>No results yet. Upload file</h4>
+                        <div class="row">                            
+                            <div class="col-xl-3 col-md-6">
+                                <div class="form-group">
+                                    <form id="modal-update-photo-form" method="post" enctype="multipart/form-data" asp-action="UploadFile" asp-route-participantPassToken=@Model.ParticipantPassToken asp-route-sessionPassToken=@Model.SessionPassToken asp-route-researchPassToken=@research.ResearchPassToken>
+                                        <div class="form-group">
+                                            <div class="col-md-10">
+                                                <input type="file" name="files" accept="application/pdf, application/vnd.ms-excel" class="btn btn-primary btn-sm" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="col-md-10">
+                                                <input type="submit" value="Upload & Save" class="btn btn-primary" style="width:200px;color:white" />
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-md-6">
+                                <div class="form-group">
+                                    <form id="modal-update-photo-form" method="post" enctype="multipart/form-data" asp-action="TakeNote" asp-route-participantPassToken=@Model.ParticipantPassToken asp-route-sessionPassToken=@Model.SessionPassToken asp-route-researchPassToken=@research.ResearchPassToken>
+                                        <div class="form-group">
+                                            <div class="col-md-10">
+                                                <textarea id="@noteId" name="notes" rows="8" cols="70"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="col-md-10">
+                                                <input type="submit" value="Take Note" class="btn btn-primary" style="width:200px;color:white" />
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>                        
+                    }
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script type='text/javascript'>
+        function copyParticipantPassTokenToClipboard() {
+            // Get the text field
+            var copyText = document.getElementById("participant-pass-token");
+
+            // Select the text field
+            copyText.select();
+
+            // Copy the text inside the text field
+            navigator.clipboard.writeText(copyText.value);
+
+            // Alert the copied text
+            //alert("Copied the text: " + copyText.value);
+        }
+    </script>
+    <script type='text/javascript'>
+        function copySessionPassTokenToClipboard() {
+            // Get the text field
+            var copyText = document.getElementById("session-pass-token");
+
+            // Select the text field
+            copyText.select();
+
+            // Copy the text inside the text field
+            navigator.clipboard.writeText(copyText.value);
+
+            // Alert the copied text
+            //alert("Copied the text: " + copyText.value);
+        }
+    </script>
+    <script type='text/javascript'>
+        function copyResearchPassTokenToClipboard(thisResearchId) {
+            // Get the text field
+            var copyText = document.getElementById(thisResearchId);
+
+            // Select the text field
+            copyText.select();
+
+            // Copy the text inside the text field
+            navigator.clipboard.writeText(copyText.value);
+
+            // Alert the copied text
+            //alert("Copied the text: " + copyText.value);
+        }
+    </script>
+    @*<script type='text/javascript'>
+        function uploadButton() {
+
+
+        }
+    </script>
+    <script type='text/javascript'>
+        function uploadFile() {
+
+
+        }
+    </script>*@
+}
+

@@ -16,5 +16,6 @@ namespace XRealityLab.Models
         public string ProjectPassToken { get; set; }
         public int ParticipantsCount { get; set; }
         public List<ParticipantDTO> participantDTOs { get; set; }
+        public List<ResearchDTO> researchDTOs { get; set; }
     }
 }

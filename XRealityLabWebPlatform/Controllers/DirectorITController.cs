@@ -39,7 +39,7 @@ namespace XRealityLab.Controllers
             _protector = customIDataProtection;
         }
 
-        public async Task<IActionResult> Labs(string actionMessage)
+        public async Task<IActionResult> Labs(string _actionMessage)
         {      
             Organization organization = _context.Organization.Where(k => k.ItdirectorId == (_context.User.Where(k => k.Email == User.Identity.Name).FirstOrDefault().UserId)).FirstOrDefault();
             
@@ -72,9 +72,10 @@ namespace XRealityLab.Controllers
                 NoAllowedLabs = organization.NoAllowedLabs,
                 LabDTOs = labDTOs
             };
+            ViewBag.actionMessage = _actionMessage;
             return View(organizationDTO);
         }
-        public IActionResult AddLab() { return View(); }
+        public IActionResult AddLab(string _actionMessage) { ViewBag.actionMessage = _actionMessage; return View(); }
         [HttpPost]
         public async Task<IActionResult> AddLab(LabDirectorDTO labDirectorDTO)
         {
@@ -84,7 +85,7 @@ namespace XRealityLab.Controllers
             //Data validation
             if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(AddLab), new { _actionMessage = "Δεν προσθέσατε τα πεδία σωστά. Παρακαλώ προσπαθήστε ξανά." });
+                return RedirectToAction(nameof(AddLab), new { _actionMessage = "Invalid Data" });
             }
             UserDTO userDTO = new UserDTO
             {
@@ -92,33 +93,32 @@ namespace XRealityLab.Controllers
                 Firstname = labDirectorDTO.Firstname,
                 Lastname = labDirectorDTO.Lastname,
                 Email = labDirectorDTO.Email,
-                Password = "test123",
+                Password = labDirectorDTO.Password,
                 RoleId = (int)RoleType.LabDirector,
                 PhotoUrl = PhotoUrl.DIRECTOR_OF_IT_ICON_PNG,
-                Telephone = "698132154",
+                Telephone = labDirectorDTO.Telephone,
                 RegistrationDateTime = DateTime.Now,
                 IsActive = true
             };
             ResponseDTO responseDTO = await DataValidation.UserValidation(_context, userDTO);
             if (responseDTO.Result == "Failed")
-                return Json(responseDTO);
+                return RedirectToAction(nameof(AddLab), new { _actionMessage = responseDTO.Message });
 
             if (await _context.User.AnyAsync(k => k.Email == userDTO.Email.Trim()))
-                return Json(MessageConverter.GetResponse("Failed to create the user", MethodResult.Failed));
+                return RedirectToAction(nameof(AddLab), new { _actionMessage = "Failed to create user" });
 
             var hasCreated = await IdentityMigration.CreateIdentityUserAsync(_userManager, userDTO.Email.Trim(), userDTO.Password);
             if (!hasCreated.Succeeded)
-                return Json(MessageConverter.GetResponse("Couldn't create the user identity", MethodResult.Failed));
+                return RedirectToAction(nameof(AddLab), new { _actionMessage = "Couldn't create the user identity" });
 
             User user = await Migration.ToUser(_context, userDTO);
 
             if (user == null)
-                return Json(MessageConverter.GetResponse("Failed to create the user", MethodResult.Failed));
+                return RedirectToAction(nameof(AddLab), new { _actionMessage = "Failed to create user" });
 
             await Migration.InsertUserAsync(_context, user);
             if (_context.Lab.Where(k => k.Registered.AddDays(1) > DateTime.Now).Count() >= 10)
-                return Json(MessageConverter.GetResponse("No new labs can be added today", MethodResult.Failed));
-
+                return RedirectToAction(nameof(AddLab), new { _actionMessage = "No new Labs can be added today" });
             //Get director id
             var director = _context.User.Where(k => k.Email == labDirectorDTO.Email).FirstOrDefault();
             int organizationId = _context.Organization.Where(k => k.ItdirectorId == (_context.User.Where(k => k.Email == User.Identity.Name).FirstOrDefault().UserId)).FirstOrDefault().OrganizationId;
@@ -129,16 +129,68 @@ namespace XRealityLab.Controllers
                 FullName = labDirectorDTO.FullName,
                 LabDirectorId = director.UserId,
                 Description = labDirectorDTO.Description,
-                Color = "#6a5738",
-                PhotoUrl = PhotoUrl.LAB_ICON_PNG,
+                Color = labDirectorDTO.Color,
                 Registered = DateTime.Now
             };
+
+            //Upload icon
+            if (!string.IsNullOrWhiteSpace(labDirectorDTO.PhotoBase64))
+            {
+                //Check if the file is jpg or png
+                if (!(labDirectorDTO.PhotoBase64.StartsWith("data:image/png;base64,") || labDirectorDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,")))
+                {
+                    return RedirectToAction(nameof(AddLab), new { _actionMessage = "Invalid Data" });
+                }
+                //CONVERT base64 to Image <-Library
+                string base64 = labDirectorDTO.PhotoBase64.Substring(labDirectorDTO.PhotoBase64.IndexOf(',') + 1);
+                base64 = base64.Trim('\0');
+                byte[] chartData = Convert.FromBase64String(base64);
+                System.Drawing.Image image;
+                using (var ms = new MemoryStream(chartData, 0, chartData.Length))
+                {
+                    image = System.Drawing.Image.FromStream(ms);
+                }
+                image = new Bitmap(image, new Size(150, 150));
+                string myUniqueFileName = Convert.ToString(Guid.NewGuid());
+                string fileExtension = "";
+                if (labDirectorDTO.PhotoBase64.StartsWith("data:image/png;base64,"))
+                {
+                    fileExtension = ".png";
+                }
+                else if (labDirectorDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,"))
+                {
+                    fileExtension = ".jpeg";
+                }
+                string newFileName = myUniqueFileName + fileExtension;
+                var fileName = string.Empty;
+                fileName = Path.Combine(_environment.WebRootPath, "_images", "lab-photos") + $@"\{newFileName}";
+                image.Save(fileName);
+
+                bool isUploaded = await ContainerService.UploadOperationAsync(Path.Combine(_environment.WebRootPath, "_images", "lab-photos"),
+                    newFileName, AzureGPV2Credentials.CONTAINER_LAB_ICONS);
+
+                if (isUploaded)
+                {
+                    lab.PhotoUrl = Path.Combine(BaseLink.AZURE_BLOB_URL, AzureGPV2Credentials.CONTAINER_LAB_ICONS, newFileName);
+                }
+
+                //DELETE from root
+                if (System.IO.File.Exists(Path.Combine(_environment.WebRootPath, "_images", "lab-photos") + $@"\{newFileName}"))
+                {
+                    System.IO.File.Delete(Path.Combine(_environment.WebRootPath, "_images", "lab-photos") + $@"\{newFileName}");
+                }
+            }
+            else
+            {
+                lab.PhotoUrl = PhotoUrl.LAB_ICON_PNG;
+            }
+
             responseDTO = await DataValidation.LabValidation(_context, lab);
             if (responseDTO.Result == Enum.GetName(typeof(RoleType), MethodResult.Failed))
             {
                 _context.User.Remove(director);
                 await _context.SaveChangesAsync();
-                return Json(responseDTO);
+                return RedirectToAction(nameof(AddLab), new { _actionMessage = responseDTO.Message });
             }                
             await _context.Lab.AddAsync(lab);
             //Get LabId
@@ -160,9 +212,9 @@ namespace XRealityLab.Controllers
             await _context.SaveChangesAsync();
 
 
-            return RedirectToAction("Labs", RoleType.DirectorOfIT.GetEnumDescription());
+            return RedirectToAction(nameof(Labs));
         }
-        public IActionResult EditLab(string passToken)
+        public IActionResult EditLab(string passToken, string _actionMessage)
         {
             LabDirectorDTO labDirectorDTO = _context.Lab
                 .Where(k => k.LabId == int.Parse(_protector.Encode(passToken))).Select(k => new LabDirectorDTO
@@ -187,6 +239,7 @@ namespace XRealityLab.Controllers
             labDirectorDTO.IsActive = director.IsActive == 1 ? true : false;
             labDirectorDTO.RegistrationDateTime = director.RegistrationDateTime;
 
+            ViewBag.actionMessage = _actionMessage;
             return View(labDirectorDTO);
         }
         [HttpPost]
@@ -195,7 +248,7 @@ namespace XRealityLab.Controllers
             //Data validation
             if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(AddLab), new { _actionMessage = "Δεν προσθέσατε τα πεδία σωστά. Παρακαλώ προσπαθήστε ξανά." });
+                return RedirectToAction(nameof(EditLab), new {passToken = labDirectorDTO.PassToken, _actionMessage = "Invalid Data" });
             }
 
             //Get director id
@@ -210,7 +263,7 @@ namespace XRealityLab.Controllers
                 //Check if the file is jpg or png
                 if (!(labDirectorDTO.PhotoBase64.StartsWith("data:image/png;base64,") || labDirectorDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,")))
                 {
-                    return RedirectToAction(nameof(Labs), new { _actionMessage = "Invalid Data" });
+                    return RedirectToAction(nameof(EditLab), new { passToken = labDirectorDTO.PassToken, _actionMessage = "Invalid Data" });
                 }
                 //CONVERT base64 to Image <-Library
                 string base64 = labDirectorDTO.PhotoBase64.Substring(labDirectorDTO.PhotoBase64.IndexOf(',') + 1);
@@ -275,7 +328,7 @@ namespace XRealityLab.Controllers
             _context.User.Update(director);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Labs", RoleType.DirectorOfIT.GetEnumDescription());
+            return RedirectToAction(nameof(EditLab));
         }
         public async Task<IActionResult> RemoveLab(string passToken)
         {
@@ -284,7 +337,7 @@ namespace XRealityLab.Controllers
 
             return RedirectToAction(nameof(Labs));
         }
-        public IActionResult ChangeLabDirector(string passToken/*LabPassToken*/)
+        public IActionResult ChangeLabDirector(string passToken, string _actionMessage)
         {
             LabDirectorDTO labDirectorDTO = _context.Lab
                 .Where(k => k.LabId == int.Parse(_protector.Encode(passToken))).Select(k => new LabDirectorDTO
@@ -309,6 +362,7 @@ namespace XRealityLab.Controllers
             labDirectorDTO.IsActive = director.IsActive == 1 ? true : false;
             labDirectorDTO.RegistrationDateTime = director.RegistrationDateTime;
 
+            ViewBag.actionMessage = _actionMessage;
             return View(labDirectorDTO);
         }
         [HttpPost]
@@ -317,7 +371,7 @@ namespace XRealityLab.Controllers
             //Data validation
             if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(ChangeLabDirector), new { _actionMessage = "Δεν προσθέσατε τα πεδία σωστά. Παρακαλώ προσπαθήστε ξανά." });
+                return RedirectToAction(nameof(ChangeLabDirector), new { passToken = labDirectorDTO.PassToken , _actionMessage = "Invalid Data" });
             }
 
             //Upload icon
@@ -332,7 +386,7 @@ namespace XRealityLab.Controllers
                 Firstname = labDirectorDTO.Firstname,
                 Lastname = labDirectorDTO.Lastname,
                 Email = labDirectorDTO.Email,
-                Password = "test123",
+                Password = labDirectorDTO.Password,
                 RoleId = (int)RoleType.LabDirector,
                 PhotoUrl = PhotoUrl.LAB_DIRECTOR_ICON_PNG,
                 Telephone = labDirectorDTO.Telephone,
@@ -341,23 +395,23 @@ namespace XRealityLab.Controllers
             };
             ResponseDTO responseDTO = await DataValidation.UserValidation(_context, userDTO);
             if (responseDTO.Result == "Failed")
-                return Json(responseDTO);
+                return RedirectToAction(nameof(ChangeLabDirector), new { passToken = labDirectorDTO.PassToken, _actionMessage = responseDTO.Message });
 
             if (await _context.User.AnyAsync(k => k.Email == userDTO.Email.Trim()))
-                return Json(MessageConverter.GetResponse("Failed to create the user", MethodResult.Failed));
+                return RedirectToAction(nameof(ChangeLabDirector), new { passToken = labDirectorDTO.PassToken, _actionMessage = "Failed to create the user" });
 
             var hasCreated = await IdentityMigration.CreateIdentityUserAsync(_userManager, userDTO.Email.Trim(), userDTO.Password);
             if (!hasCreated.Succeeded)
-                return Json(MessageConverter.GetResponse("Couldn't create the user identity", MethodResult.Failed));
+                return RedirectToAction(nameof(ChangeLabDirector), new { passToken = labDirectorDTO.PassToken, _actionMessage = "Couldn't create the user identity" });
 
             User user = await Migration.ToUser(_context, userDTO);
 
             if (user == null)
-                return Json(MessageConverter.GetResponse("Failed to create the user", MethodResult.Failed));
+                return RedirectToAction(nameof(ChangeLabDirector), new { passToken = labDirectorDTO.PassToken, _actionMessage = "Failed to create the user" });
 
             await Migration.InsertUserAsync(_context, user);
             if (_context.Organization.Where(k => k.Registered.AddDays(1) > DateTime.Now).Count() >= 10)
-                return Json(MessageConverter.GetResponse("No new organizations can be added today", MethodResult.Failed));
+                return RedirectToAction(nameof(ChangeLabDirector), new { passToken = labDirectorDTO.PassToken, _actionMessage = "No new organizations can be added today" });
 
             //Get new director id
             var newLabDirector = _context.User.Where(k => k.Email == labDirectorDTO.Email).FirstOrDefault();
@@ -392,7 +446,13 @@ namespace XRealityLab.Controllers
 
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Labs", "DirectorIT");
+            return RedirectToAction(nameof(Labs));
+        }
+        //Init Data
+        [HttpGet]
+        public JsonResult GetPhotoUrl()
+        {
+            return new JsonResult(_context.User.Where(k => k.Email == User.Identity.Name).FirstOrDefault().PhotoUrl);
         }
     }
 }

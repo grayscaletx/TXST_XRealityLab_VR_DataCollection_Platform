@@ -15,5 +15,6 @@ namespace XRealityLab.Models
         public string Email { get; set; }
         public DateTime Registered { get; set; }
         public string SessionPassToken { get; set; }
+        public List<ResearchCompletionDTO> researchCompletionDTOs { get; set; }
     }
 }

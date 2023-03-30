@@ -29,6 +29,7 @@
         <table class="table table-bordered table-hover" id="table-ext-1">
             <thead>
                 <tr>
+                    <th style="width:60px"></th>
                     <th style="width:40%">Name</th>
                     <th>Email</th>
                     <th></th>
@@ -36,17 +37,22 @@
             </thead>
             <tbody>
                 <tr>
-                    <td class="text-primary" colspan="40" align="left" onclick="location.href='/User/AddPrincipleInvestigator'">New Principle Investigator +</td>
+                    <td></td>
+                    <td class="text-primary" colspan="40" align="left" ><a href="/User/AddPrincipleInvestigator">New Principle Investigator +</a></td>
                 </tr>
                 @foreach (var item in Model)
                 {
                     <tr>
+                        <td>
+                            <div class="media">
+                                 <img class="img-fluid circle" src="@item.PhotoUrl" alt="Image" />
+                            </div>
+                        </td>
                         <td class="text-primary" onclick="location.href='#'">@((Rank)item.Rank  + ". " + item.Firstname + " " + item.Lastname)</td>
                         <td>@item.Email</td>
                         <td align="right">
                             <a class="fa-2x mr-2 fas fa-ellipsis-h text-dark" data-toggle="dropdown"></a>
                             <div class="dropdown-menu" role="menu">
-                                <a class="dropdown-item" href="#">Edit PI</a>
                                 <a class="dropdown-item" href="/User/RemovePrincipleInvestigator?passToken=@item.PassToken">Remove PI</a>
                             </div>
                         </td>

@@ -7,8 +7,10 @@ namespace Infrastructure.Entities
     {
         public Session()
         {
+            OfflineResult = new HashSet<OfflineResult>();
             ParticipantResult = new HashSet<ParticipantResult>();
             ProjectSession = new HashSet<ProjectSession>();
+            QualtricsResult = new HashSet<QualtricsResult>();
             SessionParticipant = new HashSet<SessionParticipant>();
         }
 
@@ -17,8 +19,10 @@ namespace Infrastructure.Entities
         public string Description { get; set; }
         public DateTime Registered { get; set; }
 
+        public virtual ICollection<OfflineResult> OfflineResult { get; set; }
         public virtual ICollection<ParticipantResult> ParticipantResult { get; set; }
         public virtual ICollection<ProjectSession> ProjectSession { get; set; }
+        public virtual ICollection<QualtricsResult> QualtricsResult { get; set; }
         public virtual ICollection<SessionParticipant> SessionParticipant { get; set; }
     }
 }

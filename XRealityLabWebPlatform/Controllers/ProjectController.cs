@@ -29,6 +29,9 @@ using Common.Helpers;
 using Microsoft.AspNetCore.Identity;
 using Common;
 using System.Security.Claims;
+using System.Drawing;
+
+
 
 namespace XRealityLab.Controllers
 {
@@ -51,7 +54,7 @@ namespace XRealityLab.Controllers
             _protector = customIDataProtection;
         }
 
-        public async Task<IActionResult> AllProjects(string actionMessage)
+        public async Task<IActionResult> AllProjects(string _actionMessage)
         {
             //Get labDirectorId
             int labDirectrorId = _context.User.Where(k => k.Email == User.Identity.Name).FirstOrDefault().UserId;
@@ -88,11 +91,12 @@ namespace XRealityLab.Controllers
                     Registered = project.Registered,
                     UserDTOs = userDTOs
                 });
-            }       
-            
+            }
+
+            ViewBag.actionMessage = _actionMessage;
             return View(projectDTOs);
         }
-        public async Task<IActionResult> MyProjects(string actionMessage)
+        public async Task<IActionResult> MyProjects(string _actionMessage)
         {
             int userId = _context.User.Where(k => k.Email == User.Identity.Name).FirstOrDefault().UserId;
             List<int> projectIds = await _context.ProjectUser.Where(x => (x.UserId == userId && (x.RoleId == 4 || x.RoleId == 5))).Select(k => k.ProjectId).ToListAsync();
@@ -129,17 +133,18 @@ namespace XRealityLab.Controllers
                     UserDTOs = userDTOs
                 });
             }
+            ViewBag.actionMessage = _actionMessage;
             return View(projectDTOs);
         }
 
-        public IActionResult AddProject() { return View(); }
+        public IActionResult AddProject(string _actionMessage) { ViewBag.actionMessage = _actionMessage; return View(); }
         [HttpPost]
         public async Task<IActionResult> AddProject(ProjectDTO projectDTO)
         {
             //Data validation
             if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(AddProject), new { _actionMessage = "Δεν προσθέσατε τα πεδία σωστά. Παρακαλώ προσπαθήστε ξανά." });
+                return RedirectToAction(nameof(AddProject), new { _actionMessage = "Invalid Data" });
             }
             //User that call AddProject
             User user = _context.User.Where(k => k.Email == User.Identity.Name).FirstOrDefault();
@@ -151,13 +156,65 @@ namespace XRealityLab.Controllers
             {
                 FullName = projectDTO.FullName,
                 Description = projectDTO.Description,
-                Color = "#6a5738",
-                PhotoUrl = PhotoUrl.PROJECT_ICON_PNG,
+                Color = projectDTO.Color,
                 Registered = DateTime.Now
             };
+
+            //Upload icon
+            if (!string.IsNullOrWhiteSpace(projectDTO.PhotoBase64))
+            {
+                //Check if the file is jpg or png
+                if (!(projectDTO.PhotoBase64.StartsWith("data:image/png;base64,") || projectDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,")))
+                {
+                    return RedirectToAction(nameof(AddProject), new { _actionMessage = "Invalid Data" });
+                }
+                //CONVERT base64 to Image <-Library
+                string base64 = projectDTO.PhotoBase64.Substring(projectDTO.PhotoBase64.IndexOf(',') + 1);
+                base64 = base64.Trim('\0');
+                byte[] chartData = Convert.FromBase64String(base64);
+                System.Drawing.Image image;
+                using (var ms = new MemoryStream(chartData, 0, chartData.Length))
+                {
+                    image = System.Drawing.Image.FromStream(ms);
+                }
+                image = new Bitmap(image, new Size(150, 150));
+                string myUniqueFileName = Convert.ToString(Guid.NewGuid());
+                string fileExtension = "";
+                if (projectDTO.PhotoBase64.StartsWith("data:image/png;base64,"))
+                {
+                    fileExtension = ".png";
+                }
+                else if (projectDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,"))
+                {
+                    fileExtension = ".jpeg";
+                }
+                string newFileName = myUniqueFileName + fileExtension;
+                var fileName = string.Empty;
+                fileName = Path.Combine(_environment.WebRootPath, "_images", "project-photos") + $@"\{newFileName}";
+                image.Save(fileName);
+
+                bool isUploaded = await ContainerService.UploadOperationAsync(Path.Combine(_environment.WebRootPath, "_images", "project-photos"),
+                    newFileName, AzureGPV2Credentials.CONTAINER_PROJECT_ICONS);
+
+                if (isUploaded)
+                {
+                    project.PhotoUrl = Path.Combine(BaseLink.AZURE_BLOB_URL, AzureGPV2Credentials.CONTAINER_PROJECT_ICONS, newFileName);
+                }
+
+                //DELETE from root
+                if (System.IO.File.Exists(Path.Combine(_environment.WebRootPath, "_images", "project-photos") + $@"\{newFileName}"))
+                {
+                    System.IO.File.Delete(Path.Combine(_environment.WebRootPath, "_images", "project-photos") + $@"\{newFileName}");
+                }
+            }
+            else
+            {
+                project.PhotoUrl = PhotoUrl.PROJECT_ICON_PNG;
+            }
+
             ResponseDTO responseDTO = await DataValidation.ProjectValidation(_context, project);
             if (responseDTO.Result == "Failed")
-                return Json(responseDTO);
+                return RedirectToAction(nameof(AddProject), new { _actionMessage = responseDTO.Message });
 
             await _context.Project.AddAsync(project);
             //Get ProjectId
@@ -184,9 +241,9 @@ namespace XRealityLab.Controllers
             await _context.SaveChangesAsync();
 
 
-            return RedirectToAction("AllProjects","Project");
+            return RedirectToAction("MyProjects","Project");
         }
-        public IActionResult EditProject(string passToken)
+        public IActionResult EditProject(string passToken, string _actionMessage)
         {
             ProjectDTO projectDTO = _context.Project
                 .Where(k => k.ProjectId == int.Parse(_protector.Encode(passToken))).Select(k => new ProjectDTO
@@ -197,8 +254,9 @@ namespace XRealityLab.Controllers
                     Color = k.Color,
                     PhotoUrl = k.PhotoUrl,
                     Registered = DateTime.Now,
-                }).FirstOrDefault();           
+                }).FirstOrDefault();
 
+            ViewBag.actionMessage = _actionMessage;
             return View(projectDTO);
         }
         [HttpPost]
@@ -207,15 +265,64 @@ namespace XRealityLab.Controllers
             //Data validation
             if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(AllProjects), new { _actionMessage = "Δεν προσθέσατε τα πεδία σωστά. Παρακαλώ προσπαθήστε ξανά." });
+                return RedirectToAction(nameof(EditProject), new {passToken = projectDTO.PassToken , _actionMessage = "Invalid Data" });
             }
             //Save data
             Project project = _context.Project.Where(k => k.ProjectId == int.Parse(_protector.Encode(projectDTO.PassToken))).FirstOrDefault();
+
+            //Upload icon
+            if (!string.IsNullOrWhiteSpace(projectDTO.PhotoBase64))
+            {
+                //Check if the file is jpg or png
+                if (!(projectDTO.PhotoBase64.StartsWith("data:image/png;base64,") || projectDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,")))
+                {
+                    return RedirectToAction(nameof(EditProject), new { passToken = projectDTO.PassToken, _actionMessage = "Invalid Data" });
+                }
+                //CONVERT base64 to Image <-Library
+                string base64 = projectDTO.PhotoBase64.Substring(projectDTO.PhotoBase64.IndexOf(',') + 1);
+                base64 = base64.Trim('\0');
+                byte[] chartData = Convert.FromBase64String(base64);
+                System.Drawing.Image image;
+                using (var ms = new MemoryStream(chartData, 0, chartData.Length))
+                {
+                    image = System.Drawing.Image.FromStream(ms);
+                }
+                image = new Bitmap(image, new Size(150, 150));
+                string myUniqueFileName = Convert.ToString(Guid.NewGuid());
+                string fileExtension = "";
+                if (projectDTO.PhotoBase64.StartsWith("data:image/png;base64,"))
+                {
+                    fileExtension = ".png";
+                }
+                else if (projectDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,"))
+                {
+                    fileExtension = ".jpeg";
+                }
+                string newFileName = myUniqueFileName + fileExtension;
+                var fileName = string.Empty;
+                fileName = Path.Combine(_environment.WebRootPath, "_images", "project-photos") + $@"\{newFileName}";
+                image.Save(fileName);
+
+                bool isUploaded = await ContainerService.UploadOperationAsync(Path.Combine(_environment.WebRootPath, "_images", "project-photos"),
+                    newFileName, AzureGPV2Credentials.CONTAINER_PROJECT_ICONS);
+
+                if (isUploaded)
+                {
+                    project.PhotoUrl = Path.Combine(BaseLink.AZURE_BLOB_URL, AzureGPV2Credentials.CONTAINER_PROJECT_ICONS, newFileName);
+                }
+
+                //DELETE from root
+                if (System.IO.File.Exists(Path.Combine(_environment.WebRootPath, "_images", "project-photos") + $@"\{newFileName}"))
+                {
+                    System.IO.File.Delete(Path.Combine(_environment.WebRootPath, "_images", "project-photos") + $@"\{newFileName}");
+                }
+            }
+
+
             project.ProjectId = int.Parse(_protector.Encode(projectDTO.PassToken));
             project.FullName = projectDTO.FullName;
             project.Description = projectDTO.Description;
             project.Color = projectDTO.Color;
-            project.PhotoUrl = PhotoUrl.LAB_ICON_PNG;
             project.Registered = DateTime.Now;
 
             ResponseDTO responseDTO = await DataValidation.ProjectValidation(_context, project);
@@ -256,7 +363,7 @@ namespace XRealityLab.Controllers
                     ResearchId = researchId,
                     Title = research.Title,
                     TypeId = typeId,
-                    Resgistered = research.Registered
+                    Registered = research.Registered
                 });
             }
             projectDTO.ResearchDTOs = researchDTOs;
@@ -304,7 +411,7 @@ namespace XRealityLab.Controllers
             _context.SaveChanges();
             return RedirectToAction("EditResearchMethods", "Project", new { passToken = projectDTO.PassToken });
         }
-        public async Task<IActionResult> DeleteResearchMethod(string passToken, string researchId)
+        /*public async Task<IActionResult> DeleteResearchMethod(string passToken, string researchId)
         {
             ProjectResearch projectResearch = _context.ProjectResearch.Where(k => k.ResearchId == int.Parse(researchId)).FirstOrDefault();
             Research research = _context.Research.Where(k => k.ResearchId == int.Parse(researchId)).FirstOrDefault();
@@ -312,7 +419,7 @@ namespace XRealityLab.Controllers
             _context.Research.Remove(research);
             await _context.SaveChangesAsync();
             return RedirectToAction("EditResearchMethods", "Project", new { passToken = passToken });
-        }
+        }*/
         public async Task<IActionResult> DataCollections(string passToken)
         {
             ProjectDTO projectDTO = _context.Project
@@ -392,11 +499,54 @@ namespace XRealityLab.Controllers
                     Description = k.Description,
                     Registered = k.Registered
                 }).FirstOrDefault();
+            List<int> researchIds = await _context.ProjectResearch.Where(k => k.ProjectId == _context.ProjectSession.Where(x => x.SessionId == int.Parse(_protector.Encode(passToken))).FirstOrDefault().ProjectId).Select(k => k.ResearchId).ToListAsync();
+            List<ResearchDTO> researchDTOs = new List<ResearchDTO>();
+            foreach (var researchId in researchIds)
+            {
+                Research research = _context.Research.Where(k => k.ResearchId == researchId).FirstOrDefault();
+                string typeId = _context.ResearchMethod.Where(k => k.ResearchMethodId == research.ResearchMethodId).FirstOrDefault().TypeId;
+                researchDTOs.Add(new ResearchDTO
+                {
+                    ResearchId = research.ResearchId,
+                    Title = research.Title,
+                    TypeId = typeId,
+                    Registered = research.Registered,
+                    ResearchMethodId = research.ResearchMethodId
+                });
+            }
+            sessionDTO.researchDTOs = researchDTOs;
             List<int> participantsIds = await _context.SessionParticipant.Where(k => k.SessionId == int.Parse(_protector.Encode(passToken))).Select(k => k.ParticipantId).ToListAsync();
             List<ParticipantDTO> participantDTOs = new List<ParticipantDTO>();
             foreach (var participantId in participantsIds)
             {
                 Participant participant = _context.Participant.Where(k => k.ParticipantId == participantId).FirstOrDefault();
+                List<ResearchCompletionDTO> researchCompletionDTOs = new List<ResearchCompletionDTO>(researchDTOs.Count());
+                foreach (var researchDTO in researchDTOs)
+                {
+                    bool completed = false;
+                    if (researchDTO.ResearchMethodId == (int)ResearchType.VirtualAugmentedReality)
+                    {
+                        //VAR can have more than one entry
+                        completed = _context.ParticipantResult.Where(k => k.ParticipantId == participant.ParticipantId && k.SessionId == int.Parse(_protector.Encode(passToken)) && k.ResearchId == researchDTO.ResearchId).Any();
+                    }
+                    else if (researchDTO.ResearchMethodId == (int)ResearchType.QualtricsQuestionnaire)
+                    {
+                        completed = _context.QualtricsResult.Where(k => k.ParticipantId == participant.ParticipantId && k.SessionId == int.Parse(_protector.Encode(passToken)) && k.ResearchId == researchDTO.ResearchId).Any();
+                    }
+                    else if (researchDTO.ResearchMethodId == (int)ResearchType.OfflineMethod)
+                    {
+                        completed = _context.OfflineResult.Where(k => k.ParticipantId == participant.ParticipantId && k.SessionId == int.Parse(_protector.Encode(passToken)) && k.ResearchId == researchDTO.ResearchId).Any();
+                    }
+                    researchCompletionDTOs.Add(new ResearchCompletionDTO
+                    {
+                        ResearchId = researchDTO.ResearchId,
+                        Title = researchDTO.Title,
+                        TypeId = researchDTO.TypeId,
+                        Resgistered = researchDTO.Registered,
+                        //Need info for Completed on how to handle
+                        Completed = completed
+                    });
+                }
                 participantDTOs.Add(new ParticipantDTO
                 {
                     ParticipantId = participant.ParticipantId,
@@ -404,10 +554,12 @@ namespace XRealityLab.Controllers
                     FirstName = participant.FirstName,
                     LastName = participant.LastName,
                     Email = participant.Email,
-                    Registered = participant.Registered                    
+                    Registered = participant.Registered,
+                    researchCompletionDTOs = researchCompletionDTOs
                 });
             }
             sessionDTO.participantDTOs = participantDTOs;
+            
             return View(sessionDTO);
         }
         public IActionResult NewParticipant(string passToken)
@@ -463,6 +615,208 @@ namespace XRealityLab.Controllers
             _context.Participant.Remove(participant);
             await _context.SaveChangesAsync();
             return RedirectToAction("Participants", "Project", new { passToken = passToken });
+        }
+        //Init Data
+        [HttpGet]
+        public JsonResult GetPhotoUrl()
+        {
+            return new JsonResult(_context.User.Where(k => k.Email == User.Identity.Name).FirstOrDefault().PhotoUrl);
+        }
+        public async Task<IActionResult> Results(string passToken/*participant*/, string sessionPassToken)
+        {
+            ResultDTO resultDTO = new ResultDTO
+            {
+                SessionPassToken = sessionPassToken,
+                ParticipantPassToken = passToken,
+                Title = _context.Session.Where(k => k.SessionId == int.Parse(_protector.Encode(sessionPassToken))).FirstOrDefault().Title,
+                ParticipantDTO = _context.Participant.Where(k => k.ParticipantId == int.Parse(_protector.Encode(passToken)))
+                .Select(x => new ParticipantDTO {
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
+                    Email = x.Email
+                }).FirstOrDefault()
+            };
+            //ResearchMethods Lists
+
+            List<int> researchIds = await _context.ProjectResearch.Where(k => k.ProjectId == _context.ProjectSession.Where(x => x.SessionId == int.Parse(_protector.Encode(sessionPassToken))).FirstOrDefault().ProjectId).Select(k => k.ResearchId).ToListAsync();
+            List<ResearchDTO> researchDTOs = new List<ResearchDTO>();
+            
+            foreach (var researchId in researchIds)
+            {
+                Research research = _context.Research.Where(k => k.ResearchId == researchId).FirstOrDefault();
+                string typeId = _context.ResearchMethod.Where(k => k.ResearchMethodId == research.ResearchMethodId).FirstOrDefault().TypeId;
+                List<VAResultDTO> vAResultDTOs = new List<VAResultDTO>();
+                QualtricsResultDTO qualtricsResultDTO = new QualtricsResultDTO();
+                OfflineResultDTO offlineResultDTO = new OfflineResultDTO();
+                if (research.ResearchMethodId == (int)ResearchType.VirtualAugmentedReality)
+                {
+                    //VAR can have more than one entry
+                    vAResultDTOs.AddRange(
+                        await _context.ParticipantResult.Where(k => k.ResearchId == research.ResearchId && k.ParticipantId == int.Parse(_protector.Encode(passToken)) && k.SessionId == int.Parse(_protector.Encode(sessionPassToken)))
+                        .Select(x => new VAResultDTO
+                        {
+                            Title = research.Title,
+                            ResearchPassToken = _protector.Decode(research.ResearchId.ToString()),
+                            ParticipantResultId = x.ParticipantResultId,
+                            ParticipantId = x.ParticipantId,
+                            SessionId = x.SessionId,
+                            ResearchId = (int)x.ResearchId,
+                            Time = x.Time,
+                            Registered = x.Registered,
+                            NoOfMistakes = x.NoOfMistakes,
+                            Notes = x.Notes
+                        }).ToListAsync());
+                }
+                else if (research.ResearchMethodId == (int)ResearchType.QualtricsQuestionnaire)
+                {
+                    qualtricsResultDTO = (
+                        _context.QualtricsResult.Where(k => k.ResearchId == research.ResearchId && k.ParticipantId == int.Parse(_protector.Encode(passToken)) && k.SessionId == int.Parse(_protector.Encode(sessionPassToken)))
+                        .Select(x => new QualtricsResultDTO
+                        {
+                            Title = research.Title,
+                            ResearchPassToken = _protector.Decode(research.ResearchId.ToString()),
+                            ParticipantId = x.ParticipantId,
+                            SessionId = x.SessionId,
+                            ResearchId = (int)x.ResearchId,
+                            DocumentUrl = x.DocumentUrl,
+                            Notes = x.Notes
+                        }).FirstOrDefault());                        
+                }
+                else if (research.ResearchMethodId == (int)ResearchType.OfflineMethod)
+                {
+                    offlineResultDTO = (
+                        _context.OfflineResult.Where(k => k.ResearchId == research.ResearchId && k.ParticipantId == int.Parse(_protector.Encode(passToken)) && k.SessionId == int.Parse(_protector.Encode(sessionPassToken)))
+                        .Select(x => new OfflineResultDTO
+                        {
+                            Title = research.Title,
+                            ResearchPassToken = _protector.Decode(research.ResearchId.ToString()),
+                            ParticipantId = x.ParticipantId,
+                            SessionId = x.SessionId,
+                            ResearchId = (int)x.ResearchId,
+                            DocumentUrl = x.DocumentUrl,
+                            Notes = x.Notes
+                        }).FirstOrDefault());
+                }
+                researchDTOs.Add(new ResearchDTO
+                {
+                    ResearchId = research.ResearchId,
+                    ResearchPassToken = _protector.Decode(research.ResearchId.ToString()),
+                    Title = research.Title,
+                    TypeId = typeId,
+                    Registered = research.Registered,
+                    VAResultDTOs = vAResultDTOs,
+                    QualtricsResultDTO = qualtricsResultDTO,
+                    OfflineResultDTO = offlineResultDTO
+                });
+            }
+
+            resultDTO.ResearchDTOs = researchDTOs;
+            //resultDTO.VAResultDTOs = vAResultDTOs;
+            //resultDTO.QualtricsResultDTOs = qualtricsResultDTOs;
+            //resultDTO.OfflineResultDTOs = offlineResultDTOs;
+
+            return View(resultDTO);
+        }
+
+        //needs work rework controller for view first
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadFile(string participantPassToken, string sessionPassToken, string researchPassToken)
+        {
+            if (false) return RedirectToAction("Results", "Project", new { passToken = participantPassToken, sessionPassToken = sessionPassToken });
+
+            var newFileName = string.Empty;
+            if (HttpContext.Request.Form.Files != null)
+            {
+                var fileName = string.Empty;
+                string PathDB = string.Empty;
+                var files = HttpContext.Request.Form.Files;
+
+                foreach (var file in files)
+                {
+                    if (file.Length > 0)
+                    {
+                        fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
+                        var myUniqueFileName = Convert.ToString(Guid.NewGuid());
+                        var FileExtension = Path.GetExtension(fileName);
+                        //if (!(FileExtension == ".jpg" || FileExtension == ".png") && file.Length > 220000)
+                        //    return RedirectToAction("Results", "Project", new { passToken = participantPassToken, sessionPassToken = sessionPassToken });
+
+
+
+                        
+                        newFileName = myUniqueFileName + FileExtension;
+                        fileName = Path.Combine(_environment.WebRootPath, "research-files", "for-upload") + $@"\{newFileName}";
+                        using (var stream = new FileStream(fileName, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+
+                        bool isUploaded = await ContainerService.UploadOperationAsync(Path.Combine(_environment.WebRootPath, "research-files", "for-upload"),
+                            newFileName, AzureGPV2Credentials.CONTAINER_RESEARCH_FILES);
+
+                        if (isUploaded)
+                        {
+                            OfflineResult offlineResult = _context.OfflineResult.Where(k => k.ParticipantId == int.Parse(_protector.Encode(participantPassToken)) && k.SessionId == int.Parse(_protector.Encode(sessionPassToken)) && k.ResearchId == int.Parse(_protector.Encode(researchPassToken))).FirstOrDefault();
+                            if (offlineResult != null)
+                            {
+                                offlineResult.DocumentUrl = Path.Combine(BaseLink.AZURE_BLOB_URL, AzureGPV2Credentials.CONTAINER_RESEARCH_FILES, newFileName);
+                                _context.OfflineResult.Update(offlineResult);
+                                _context.SaveChanges();
+                            }
+                            else
+                            {
+                                offlineResult = new OfflineResult
+                                {
+                                    ParticipantId = int.Parse(_protector.Encode(participantPassToken)),
+                                    SessionId = int.Parse(_protector.Encode(sessionPassToken)),
+                                    ResearchId = int.Parse(_protector.Encode(researchPassToken)),
+                                    DocumentUrl = Path.Combine(BaseLink.AZURE_BLOB_URL, AzureGPV2Credentials.CONTAINER_RESEARCH_FILES, newFileName),
+                                    Notes = string.Empty
+                                };
+                                _context.OfflineResult.Add(offlineResult);
+                                _context.SaveChanges();
+                            }
+                        }
+                        //DELETE from root
+                        if (System.IO.File.Exists(Path.Combine(_environment.WebRootPath, "research-files", "for-upload") + $@"\{newFileName}"))
+                            System.IO.File.Delete(Path.Combine(_environment.WebRootPath, "research-files", "for-upload") + $@"\{newFileName}");
+                    }
+                }
+            }
+            return RedirectToAction("Results", "Project", new { passToken = participantPassToken, sessionPassToken = sessionPassToken });
+        }
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> TakeNote(string participantPassToken, string sessionPassToken, string researchPassToken, string notes)
+        {
+            if (false) return RedirectToAction("Results", "Project", new { passToken = participantPassToken, sessionPassToken = sessionPassToken });
+
+            if (notes.Length > 0)
+            {
+                OfflineResult offlineResult = _context.OfflineResult.Where(k => k.ParticipantId == int.Parse(_protector.Encode(participantPassToken)) && k.SessionId == int.Parse(_protector.Encode(sessionPassToken)) && k.ResearchId == int.Parse(_protector.Encode(researchPassToken))).FirstOrDefault();
+                if (offlineResult != null)
+                {
+                    offlineResult.Notes = notes;
+                    _context.OfflineResult.Update(offlineResult);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    offlineResult = new OfflineResult
+                    {
+                        ParticipantId = int.Parse(_protector.Encode(participantPassToken)),
+                        SessionId = int.Parse(_protector.Encode(sessionPassToken)),
+                        ResearchId = int.Parse(_protector.Encode(researchPassToken)),
+                        Notes = notes,
+                        DocumentUrl = string.Empty
+                    };
+                    _context.OfflineResult.Add(offlineResult);
+                    _context.SaveChanges();
+                }
+
+            }
+
+
+            return RedirectToAction("Results", "Project", new { passToken = participantPassToken, sessionPassToken = sessionPassToken });
         }
     }    
 }

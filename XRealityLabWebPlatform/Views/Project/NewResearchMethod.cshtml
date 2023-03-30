@@ -43,7 +43,7 @@
                         <label class="col-md-2 col-form-label">Select</label>
                         <div class="col-md-10">
                             <select asp-for="ResearchMethodId" class="custom-select custom-select-lg mb-3">
-                                <option selected="">Open this select menu</option>
+                                <option selected="">Choose Research Method</option>
                                 @foreach (var item in Model.ResearchDTOs)
                                 {
                                     <option value=@item.ResearchMethodId>@item.TypeId</option>

@@ -17,6 +17,7 @@ namespace Infrastructure.Entities
 
         public virtual DbSet<Lab> Lab { get; set; }
         public virtual DbSet<LabUser> LabUser { get; set; }
+        public virtual DbSet<OfflineResult> OfflineResult { get; set; }
         public virtual DbSet<Organization> Organization { get; set; }
         public virtual DbSet<OrganizationLab> OrganizationLab { get; set; }
         public virtual DbSet<Participant> Participant { get; set; }
@@ -25,6 +26,7 @@ namespace Infrastructure.Entities
         public virtual DbSet<ProjectResearch> ProjectResearch { get; set; }
         public virtual DbSet<ProjectSession> ProjectSession { get; set; }
         public virtual DbSet<ProjectUser> ProjectUser { get; set; }
+        public virtual DbSet<QualtricsResult> QualtricsResult { get; set; }
         public virtual DbSet<Research> Research { get; set; }
         public virtual DbSet<ResearchMethod> ResearchMethod { get; set; }
         public virtual DbSet<Role> Role { get; set; }
@@ -102,6 +104,39 @@ namespace Infrastructure.Entities
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_LabUser_User");
+            });
+
+            modelBuilder.Entity<OfflineResult>(entity =>
+            {
+                entity.Property(e => e.OfflineResultId).HasColumnName("OfflineResultID");
+
+                entity.Property(e => e.DocumentUrl).HasMaxLength(200);
+
+                entity.Property(e => e.Notes).HasMaxLength(250);
+
+                entity.Property(e => e.ParticipantId).HasColumnName("ParticipantID");
+
+                entity.Property(e => e.ResearchId).HasColumnName("ResearchID");
+
+                entity.Property(e => e.SessionId).HasColumnName("SessionID");
+
+                entity.HasOne(d => d.Participant)
+                    .WithMany(p => p.OfflineResult)
+                    .HasForeignKey(d => d.ParticipantId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_OfflineResult_Participant");
+
+                entity.HasOne(d => d.Research)
+                    .WithMany(p => p.OfflineResult)
+                    .HasForeignKey(d => d.ResearchId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_OfflineResult_Research");
+
+                entity.HasOne(d => d.Session)
+                    .WithMany(p => p.OfflineResult)
+                    .HasForeignKey(d => d.SessionId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_OfflineResult_Session");
             });
 
             modelBuilder.Entity<Organization>(entity =>
@@ -200,6 +235,8 @@ namespace Infrastructure.Entities
 
                 entity.Property(e => e.Registered).HasColumnType("datetime");
 
+                entity.Property(e => e.ResearchId).HasColumnName("ResearchID");
+
                 entity.Property(e => e.SessionId).HasColumnName("SessionID");
 
                 entity.HasOne(d => d.Participant)
@@ -207,6 +244,11 @@ namespace Infrastructure.Entities
                     .HasForeignKey(d => d.ParticipantId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ParticipantResult_Participant");
+
+                entity.HasOne(d => d.Research)
+                    .WithMany(p => p.ParticipantResult)
+                    .HasForeignKey(d => d.ResearchId)
+                    .HasConstraintName("FK_ParticipantResult_Research");
 
                 entity.HasOne(d => d.Session)
                     .WithMany(p => p.ParticipantResult)
@@ -309,6 +351,39 @@ namespace Infrastructure.Entities
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ProjectUser_User");
+            });
+
+            modelBuilder.Entity<QualtricsResult>(entity =>
+            {
+                entity.Property(e => e.QualtricsResultId).HasColumnName("QualtricsResultID");
+
+                entity.Property(e => e.DocumentUrl).HasMaxLength(200);
+
+                entity.Property(e => e.Notes).HasMaxLength(250);
+
+                entity.Property(e => e.ParticipantId).HasColumnName("ParticipantID");
+
+                entity.Property(e => e.ResearchId).HasColumnName("ResearchID");
+
+                entity.Property(e => e.SessionId).HasColumnName("SessionID");
+
+                entity.HasOne(d => d.Participant)
+                    .WithMany(p => p.QualtricsResult)
+                    .HasForeignKey(d => d.ParticipantId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_QualtricsResult_Participant");
+
+                entity.HasOne(d => d.Research)
+                    .WithMany(p => p.QualtricsResult)
+                    .HasForeignKey(d => d.ResearchId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_QualtricsResult_Research");
+
+                entity.HasOne(d => d.Session)
+                    .WithMany(p => p.QualtricsResult)
+                    .HasForeignKey(d => d.SessionId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_QualtricsResult_Session");
             });
 
             modelBuilder.Entity<Research>(entity =>

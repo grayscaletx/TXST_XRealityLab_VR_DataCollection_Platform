@@ -36,16 +36,20 @@
                     <h2>Organization Details</h2>
                     <div class="form-group" align="center">
                         <div align="center" style="padding :10px 0 0 0">
-                            <img src="~/_images/group_icons/organization_blank_icon.png" alt="Avatar" width="90" height="90" class="rounded-circle" />
+                            <img id="imgIcon" src="~/_images/group_icons/organization_blank_icon.png" alt="Avatar" width="90" height="90" class="rounded-circle" />
+                            <input id="inputBase64" type="hidden" asp-for="PhotoBase64" />
                         </div>
                         <label class="col-md-6 col-form-label">Organization Icon</label>
+                        <div>
+                            <input id="inputFileToLoad" class="form-control filestyle" type="file" data-classbutton="btn btn-secondary" data-classinput="form-control inline" onchange="encodeImageFileAsURL()" data-icon="&lt;span class='fa fa-upload mr'&gt;&lt;/span&gt;" />
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>Color</label>
                         <div class="example full">
                             <div id="colorDiv" class="clr-field" style="color: rgb(255, 204, 0);">
-                                <button  type="button" aria-labelledby="clr-open-label"></button>
-                                <input  type="text" class="coloris instance3" value="#ffcc00" onchange="changeColor()">
+                                <button type="button" aria-labelledby="clr-open-label"></button>
+                                <input type="text" class="coloris instance3" value="#ffcc00" onchange="changeColor()">
                                 <input id="colorValue" type="hidden" asp-for="Color" />
                             </div>
                         </div>
@@ -108,6 +112,18 @@
                     <div class="form-group">
                         <label>Email address</label>
                         <input asp-for="Email" class="form-control" type="email" placeholder="Enter email" />
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <button onclick="generatePassword()" class="btn btn-outline-secondary" type="button">Generate</button>
+                            </div>
+                            <input style="pointer-events: none" id="password-generation" asp-for="Password" class="form-control" type="text" />
+                            <div class="input-group-append">
+                                <button onclick="copyToClipboard()" class="btn btn-outline-secondary" type="button">Copy</button>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>Phone Number</label>
@@ -196,11 +212,29 @@
 }
 
 @section Scripts {
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="~/js/popper.min.js"></script>
+    <script src="~/js/moment.js"></script>
     <script src="~/vendor/bootstrap/dist/js/bootstrap.js"></script>
     <script src="~/vendor/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.js"></script>
     <script src="~/master/js/modules/extras/calendar.js"></script>
     <script src="~/master/js/modules/forms/color-picker.js"></script>
     <script src="/js/coloris.js"></script>
+    <script type='text/javascript'>
+        function encodeImageFileAsURL() {
+            var filesSelected = document.getElementById("inputFileToLoad").files;
+            if (filesSelected.length > 0) {
+                var fileToLoad = filesSelected[0];
+                var fileReader = new FileReader();
+                fileReader.onload = function (fileLoadedEvent) {
+                    var srcData = fileLoadedEvent.target.result; // <--- data: base64
+                    document.getElementById("imgIcon").src = srcData;
+                    document.getElementById("inputBase64").value = srcData;
+                }
+                fileReader.readAsDataURL(fileToLoad);
+            }
+        }
+    </script>
     <script type='text/javascript'>
         Coloris({
             el: '.coloris',
@@ -222,8 +256,7 @@
             swatchesOnly: true
         });
 
-        function changeColor()
-        {
+        function changeColor() {
             var colorDiv = document.getElementById("colorDiv").style.color;
             var colorHex = RGBToHex(colorDiv);
             document.getElementById("colorValue").value = colorHex;
@@ -246,6 +279,32 @@
                 b = "0" + b;
 
             return "#" + r + g + b;
+        }
+    </script>
+    <script type='text/javascript'>
+        function generatePassword() {
+            var length = 8,
+                charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+                retVal = "";
+            for (var i = 0, n = charset.length; i < length; ++i) {
+                retVal += charset.charAt(Math.floor(Math.random() * n));
+            }
+            document.getElementById("password-generation").value = retVal;
+        }
+    </script>
+    <script type='text/javascript'>
+        function copyToClipboard() {
+            // Get the text field
+            var copyText = document.getElementById("password-generation");
+
+            // Select the text field
+            copyText.select();
+
+            // Copy the text inside the text field
+            navigator.clipboard.writeText(copyText.value);
+
+            // Alert the copied text
+            //alert("Copied the text: " + copyText.value);
         }
     </script>
 }

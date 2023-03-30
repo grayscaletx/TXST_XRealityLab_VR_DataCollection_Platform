@@ -52,6 +52,15 @@ namespace XRealityLab.Common
         [Description("#53A564")]
         C10
     }
+    public enum ResearchType
+    {
+        [Description("Virtual or Augmented Reality")]
+        VirtualAugmentedReality = 1,
+        [Description("Qualtrics Questionnaire")]
+        QualtricsQuestionnaire,
+        [Description("Offline Method")]
+        OfflineMethod,
+    }
 
     //TODO
     public enum OrderStatus

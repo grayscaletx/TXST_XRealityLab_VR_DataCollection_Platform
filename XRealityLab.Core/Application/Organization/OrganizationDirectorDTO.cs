@@ -37,6 +37,8 @@ namespace XRealityLab.Models
         public string Lastname { get; set; }
         [Display(Name = "Email address")]
         public string Email { get; set; }
+        [Display(Name = "Password")]
+        public string Password { get; set; }
         [Display(Name = "Telephone")]
         [MinLength(6, ErrorMessage = "Value is too short"), MaxLength(14, ErrorMessage = "Value is too long")]
         [RegularExpression("^[0-9+ ]+$", ErrorMessage = "Value is not acceptable.")]

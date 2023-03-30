@@ -30,7 +30,7 @@
         <table class="table table-bordered table-hover" style="width:100%" id="table-ext-1">
             <thead>
                 <tr>
-                    <th></th>
+                    @*<th></th>*@
                     <th style="width:40%">Research Title</th>
                     <th>Type</th>
                 </tr>
@@ -43,9 +43,9 @@
                 @foreach (var item in Model.ResearchDTOs)
                 {
                     <tr>
-                        <td align="right">
+                        @*<td align="right">
                             <a class="btn btn-primary" asp-action="DeleteResearchMethod" asp-route-passToken="@Model.PassToken" asp-route-researchId="@item.ResearchId">Remove</a>
-                        </td>
+                        </td>*@
                         <td class="text-primary" onclick="location.href='#'">@item.Title</td>
                         <td>@item.TypeId</td>
                     </tr>

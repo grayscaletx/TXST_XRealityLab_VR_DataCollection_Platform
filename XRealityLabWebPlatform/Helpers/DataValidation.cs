@@ -20,13 +20,16 @@ namespace XRealityLab
 /*                if (user.Rank != "Dr." && user.Rank != "Mr." && user.Rank != "Ms." && user.Rank != "Mx.")
                     return MessageConverter.GetResponse("User validation failed", MethodResult.Failed);
 */
-                if (user.Firstname.Length < 2 || user.Firstname.Length > 26)
+                if(user == null)
                     return MessageConverter.GetResponse("User validation failed", MethodResult.Failed);
 
-                if (user.Lastname.Length < 2 || user.Lastname.Length > 26)
+                if (user.Firstname == null || user.Firstname.Length < 2 || user.Firstname.Length > 26)
                     return MessageConverter.GetResponse("User validation failed", MethodResult.Failed);
 
-                if (user.Email.Length < 2 || user.Email.Length > 64)
+                if (user.Lastname == null || user.Lastname.Length < 2 || user.Lastname.Length > 26)
+                    return MessageConverter.GetResponse("User validation failed", MethodResult.Failed);
+
+                if (user.Email == null || user.Email.Length < 2 || user.Email.Length > 64)
                     return MessageConverter.GetResponse("User validation failed", MethodResult.Failed);
 
                 //MailAddress m = new MailAddress(_data["email"]);

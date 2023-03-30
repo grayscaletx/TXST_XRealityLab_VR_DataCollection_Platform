@@ -29,10 +29,11 @@ using Common.Helpers;
 using Microsoft.AspNetCore.Identity;
 using Common;
 using System.Security.Claims;
+using System.Drawing;
 
 namespace XRealityLab.Controllers
 {
-    [Authorize(Roles = "LabDirector,PrincipleInvestigator")]
+    //[Authorize(Roles = "LabDirector,PrincipleInvestigator")]
     public class UserController : Controller
     {
         private readonly XRealityLabdbContext _context;
@@ -50,7 +51,115 @@ namespace XRealityLab.Controllers
             _userManager = userManager;
             _protector = customIDataProtection;
         }
-        public async Task<IActionResult> PrincipleInvestigators(string actionMessage)
+        public IActionResult EditProfile(string _actionMessage) 
+        {
+            User user = _context.User.Where(k => k.Email == User.Identity.Name).FirstOrDefault();
+            UserDTO userDTO = new UserDTO
+            {
+                Rank = user.Rank,
+                Firstname = user.Firstname,
+                Lastname = user.Lastname,
+                PassToken = _protector.Decode(user.UserId.ToString()),
+                Telephone = user.Telephone,
+                PhotoUrl = user.PhotoUrl
+            };
+            ViewBag.actionMessage = _actionMessage;
+            return View(userDTO);
+        }
+        [HttpPost]
+        public async Task<IActionResult> EditProfile(UserDTO _userDTO)
+        {
+            //Data validation
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(AddPrincipleInvestigator), new { _actionMessage = "Invalid Data" });
+            }
+            User user = _context.User.Where(k => k.UserId == int.Parse(_protector.Encode(_userDTO.PassToken))).FirstOrDefault();
+            _userDTO.Email = user.Email;
+            ResponseDTO responseDTO = await DataValidation.UserValidation(_context, _userDTO);
+            if (responseDTO.Result == "Failed")
+                return RedirectToAction(nameof(EditProfile), new { _actionMessage = "Invalid Data" });
+
+
+            //Upload icon
+            if (!string.IsNullOrWhiteSpace(_userDTO.PhotoBase64))
+            {
+                //Check if the file is jpg or png
+                if (!(_userDTO.PhotoBase64.StartsWith("data:image/png;base64,") || _userDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,")))
+                {
+                    return RedirectToAction(nameof(EditProfile), new { _actionMessage = "Invalid Data" });
+                }
+                //CONVERT base64 to Image <-Library
+                string base64 = _userDTO.PhotoBase64.Substring(_userDTO.PhotoBase64.IndexOf(',') + 1);
+                base64 = base64.Trim('\0');
+                byte[] chartData = Convert.FromBase64String(base64);
+                System.Drawing.Image image;
+                using (var ms = new MemoryStream(chartData, 0, chartData.Length))
+                {
+                    image = System.Drawing.Image.FromStream(ms);
+                }
+                image = new Bitmap(image, new Size(150, 150));
+                string myUniqueFileName = Convert.ToString(Guid.NewGuid());
+                string fileExtension = "";
+                if (_userDTO.PhotoBase64.StartsWith("data:image/png;base64,"))
+                {
+                    fileExtension = ".png";
+                }
+                else if (_userDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,"))
+                {
+                    fileExtension = ".jpeg";
+                }
+                string newFileName = myUniqueFileName + fileExtension;
+                var fileName = string.Empty;
+                fileName = Path.Combine(_environment.WebRootPath, "_images", "user-photos") + $@"\{newFileName}";
+                image.Save(fileName);
+
+                bool isUploaded = await ContainerService.UploadOperationAsync(Path.Combine(_environment.WebRootPath, "_images", "user-photos"),
+                    newFileName, AzureGPV2Credentials.CONTAINER_USER_ICONS);
+
+                if (isUploaded)
+                {
+                    user.PhotoUrl = Path.Combine(BaseLink.AZURE_BLOB_URL, AzureGPV2Credentials.CONTAINER_USER_ICONS, newFileName);
+                }
+
+                //DELETE from root
+                if (System.IO.File.Exists(Path.Combine(_environment.WebRootPath, "_images", "user-photos") + $@"\{newFileName}"))
+                {
+                    System.IO.File.Delete(Path.Combine(_environment.WebRootPath, "_images", "user-photos") + $@"\{newFileName}");
+                }
+            }
+            user.Rank = _userDTO.Rank;
+            user.Firstname = _userDTO.Firstname;
+            user.Lastname = _userDTO.Lastname;
+            user.Telephone = _userDTO.Telephone;
+            //user.PasswordHash = IdentityConversions.MD5Hash(_userDTO.Password);
+            _context.User.Update(user);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(EditProfile), new { _actionMessage = "Success" });
+        }
+        public IActionResult ChangePassword(string _actionMessage)
+        {
+            ViewBag.actionMessage = _actionMessage;
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(PasswordDTO passwordDTO)
+        {
+            User user = _context.User.Where(k => k.Email == User.Identity.Name).FirstOrDefault();
+            //Check Old Password if correct            
+            if(user.PasswordHash != IdentityConversions.MD5Hash(passwordDTO.OldPassword))
+                return RedirectToAction(nameof(ChangePassword), new { _actionMessage = "Old Password incorect" });
+            //Check if new passwords match
+            if(passwordDTO.NewPassword != passwordDTO.NewPasswordConfirm)
+                return RedirectToAction(nameof(ChangePassword), new { _actionMessage = "New Passwords dont match" });
+            //Update passwords
+            user.PasswordHash = IdentityConversions.MD5Hash(passwordDTO.NewPassword);
+            _context.User.Update(user);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(EditProfile), new { _actionMessage = "Success" });
+        }
+        public async Task<IActionResult> PrincipleInvestigators(string _actionMessage)
         {
             User user = _context.User.Where(k => k.Email == User.Identity.Name).FirstOrDefault();
             int labId = _context.LabUser.Where(k => k.UserId == user.UserId).FirstOrDefault().LabId;
@@ -64,15 +173,17 @@ namespace XRealityLab.Controllers
                     Firstname = principleInvestigator.Firstname,
                     Lastname = principleInvestigator.Lastname,
                     PassToken = _protector.Decode(principleInvestigator.UserId.ToString()),
+                    PhotoUrl = principleInvestigator.PhotoUrl,
                     Email = principleInvestigator.Email,
                     Telephone = principleInvestigator.Telephone,
                     RegistrationDateTime = principleInvestigator.RegistrationDateTime
                 });
             }
-            
+
+            ViewBag.actionMessage = _actionMessage;
             return View(userDTOs);
         }
-        public IActionResult AddPrincipleInvestigator() { return View(); }
+        public IActionResult AddPrincipleInvestigator(string _actionMessage) { ViewBag.actionMessage = _actionMessage; return View(); }
         [HttpPost]
         public async Task<IActionResult> AddPrincipleInvestigator(UserDTO _userDTO)
         {
@@ -80,14 +191,14 @@ namespace XRealityLab.Controllers
             //Data validation
             if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(AddPrincipleInvestigator), new { _actionMessage = "Δεν προσθέσατε τα πεδία σωστά. Παρακαλώ προσπαθήστε ξανά." });
+                return RedirectToAction(nameof(AddPrincipleInvestigator), new { _actionMessage = "Invalid Data" });
             }
             UserDTO userDTO = new UserDTO
             {
                 Firstname = _userDTO.Firstname,
                 Lastname = _userDTO.Lastname,
                 Email = _userDTO.Email,
-                Password = "test123",
+                Password = _userDTO.Password,
                 RoleId = (int)RoleType.PrincipleInvestigator,
                 PhotoUrl = PhotoUrl.DIRECTOR_OF_IT_ICON_PNG,
                 Telephone = _userDTO.Telephone,
@@ -96,23 +207,21 @@ namespace XRealityLab.Controllers
             };
             ResponseDTO responseDTO = await DataValidation.UserValidation(_context, userDTO);
             if (responseDTO.Result == "Failed")
-                return Json(responseDTO);
+                return RedirectToAction(nameof(AddPrincipleInvestigator), new { _actionMessage = responseDTO.Message });
 
             if (await _context.User.AnyAsync(k => k.Email == userDTO.Email.Trim()))
-                return Json(MessageConverter.GetResponse("Failed to create the user", MethodResult.Failed));
+                return RedirectToAction(nameof(AddPrincipleInvestigator), new { _actionMessage = "Failed to create the user" });
 
             var hasCreated = await IdentityMigration.CreateIdentityUserAsync(_userManager, userDTO.Email.Trim(), userDTO.Password);
             if (!hasCreated.Succeeded)
-                return Json(MessageConverter.GetResponse("Couldn't create the user identity", MethodResult.Failed));
+                return RedirectToAction(nameof(AddPrincipleInvestigator), new { _actionMessage = "Couldn't create the user identity" });
 
             User user = await Migration.ToUser(_context, userDTO);
 
             if (user == null)
-                return Json(MessageConverter.GetResponse("Failed to create the user", MethodResult.Failed));
+                return RedirectToAction(nameof(AddPrincipleInvestigator), new { _actionMessage = "Failed to create the user" });
 
             await Migration.InsertUserAsync(_context, user);
-            if (_context.Lab.Where(k => k.Registered.AddDays(1) > DateTime.Now).Count() >= 10)
-                return Json(MessageConverter.GetResponse("No new labs can be added today", MethodResult.Failed));
 
             LabUser labUser = new LabUser
             {
@@ -185,7 +294,7 @@ namespace XRealityLab.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction("AddPrincipleInvestigatorsToProject", "User", new { passToken = passToken });
         }
-        public async Task<IActionResult> ResearchAssistants(string actionMessage)
+        public async Task<IActionResult> ResearchAssistants(string _actionMessage)
         {
             User user = _context.User.Where(k => k.Email == User.Identity.Name).FirstOrDefault();
             int labId = _context.LabUser.Where(k => k.UserId == user.UserId).FirstOrDefault().LabId;
@@ -200,12 +309,14 @@ namespace XRealityLab.Controllers
                     Firstname = principleInvestigator.Firstname,
                     Lastname = principleInvestigator.Lastname,
                     PassToken = _protector.Decode(principleInvestigator.UserId.ToString()),
+                    PhotoUrl = principleInvestigator.PhotoUrl,
                     Email = principleInvestigator.Email,
                     Telephone = principleInvestigator.Telephone,
                     RegistrationDateTime = principleInvestigator.RegistrationDateTime
                 });
             }
 
+            ViewBag.actionMessage = _actionMessage;
             return View(userDTOs);
         }
         public IActionResult AddResearchAssistant() { return View(); }
@@ -216,14 +327,14 @@ namespace XRealityLab.Controllers
             //Data validation
             if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(AddPrincipleInvestigator), new { _actionMessage = "Δεν προσθέσατε τα πεδία σωστά. Παρακαλώ προσπαθήστε ξανά." });
+                return RedirectToAction(nameof(AddResearchAssistant), new { _actionMessage = "Invalid Data" });
             }
             UserDTO userDTO = new UserDTO
             {
                 Firstname = _userDTO.Firstname,
                 Lastname = _userDTO.Lastname,
                 Email = _userDTO.Email,
-                Password = "test123",
+                Password = _userDTO.Password,
                 RoleId = (int)RoleType.ResearchAssistant,
                 PhotoUrl = PhotoUrl.DIRECTOR_OF_IT_ICON_PNG,
                 Telephone = _userDTO.Telephone,
@@ -232,19 +343,19 @@ namespace XRealityLab.Controllers
             };
             ResponseDTO responseDTO = await DataValidation.UserValidation(_context, userDTO);
             if (responseDTO.Result == "Failed")
-                return Json(responseDTO);
+                return RedirectToAction(nameof(AddResearchAssistant), new { _actionMessage = responseDTO.Message });
 
             if (await _context.User.AnyAsync(k => k.Email == userDTO.Email.Trim()))
-                return Json(MessageConverter.GetResponse("Failed to create the user", MethodResult.Failed));
+                return RedirectToAction(nameof(AddResearchAssistant), new { _actionMessage = "Failed to create the user" });
 
             var hasCreated = await IdentityMigration.CreateIdentityUserAsync(_userManager, userDTO.Email.Trim(), userDTO.Password);
             if (!hasCreated.Succeeded)
-                return Json(MessageConverter.GetResponse("Couldn't create the user identity", MethodResult.Failed));
+                return RedirectToAction(nameof(AddResearchAssistant), new { _actionMessage = "Couldn't create the user identity" });
 
             User user = await Migration.ToUser(_context, userDTO);
 
             if (user == null)
-                return Json(MessageConverter.GetResponse("Failed to create the user", MethodResult.Failed));
+                return RedirectToAction(nameof(AddResearchAssistant), new { _actionMessage = "Failed to create the user" });
 
             await Migration.InsertUserAsync(_context, user);
             if (_context.Lab.Where(k => k.Registered.AddDays(1) > DateTime.Now).Count() >= 10)
@@ -320,6 +431,13 @@ namespace XRealityLab.Controllers
             _context.ProjectUser.Remove(projectUser);
             await _context.SaveChangesAsync();
             return RedirectToAction("AddResearchAssistantsToProject", "User", new { passToken = passToken });
+        }
+
+        //Init Data
+        [HttpGet]
+        public JsonResult GetPhotoUrl()
+        {
+            return new JsonResult(_context.User.Where(k => k.Email == User.Identity.Name).FirstOrDefault().PhotoUrl);
         }
     }
 }

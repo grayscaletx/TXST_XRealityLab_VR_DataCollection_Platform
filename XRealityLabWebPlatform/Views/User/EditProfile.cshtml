@@ -1,0 +1,127 @@
+﻿@model XRealityLab.Models.UserDTO
+@using System.Security.Claims;
+@using XRealityLab.Common;
+
+@{
+    ViewBag.Title = "EditProfile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!--Header-->
+<div class="content-heading">
+    <div>
+        <strong>Edit Profile</strong>
+    </div>
+</div>
+
+<!--Alert dialog-->
+@if (ViewBag.actionMessage != null)
+{
+    if (ViewBag.actionMessage == "Success")
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            @ViewBag.actionMessage
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        @ViewBag.actionMessage
+    </div>    
+    }
+    
+}
+
+<!--Projects Cards-->
+<form asp-action="EditProfile">
+    <div class="row">
+        <div class="col-xl-4">
+            <div class="card card-default">
+                <div class="card-body">
+                    <h2>Edit Profile</h2>
+                    <div class="form-group" style="display: none;">
+                        <label>passToken</label>
+                        <input asp-for="PassToken" class="form-control" type="text" placeholder="Enter Title" />
+                    </div>
+                    <div class="form-group" align="center">
+                        <div align="center" style="padding :10px 0 0 0">
+                            <img id="imgIcon" src="~/_images/group_icons/organization_blank_icon.png" alt="Avatar" width="90" height="90" class="rounded-circle" />
+                            <input id="inputBase64" type="hidden" asp-for="PhotoBase64" />
+                            <img id="photo-url" src="@Model.PhotoUrl" hidden />
+                        </div>
+                        <label class="col-md-6 col-form-label">Organization Icon</label>
+                        <div>
+                            <input id="inputFileToLoad" class="form-control filestyle" type="file" data-classbutton="btn btn-secondary" data-classinput="form-control inline" onchange="encodeImageFileAsURL()" data-icon="&lt;span class='fa fa-upload mr'&gt;&lt;/span&gt;" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Rank</label>
+                        <select id="rank" asp-for="Rank" class="form-control form-control-lg">
+                            @foreach (var item in Enum.GetValues(typeof(Rank)))
+                            {
+                                <option value=@((int)item)>@((Rank)item).</option>
+                            }
+                        </select>
+                        @*<input asp-for="Rank" class="form-control" type="text" placeholder="Enter Rank" />*@
+                    </div>
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input asp-for="Firstname" class="form-control" type="text" placeholder="Enter First Name" />
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input asp-for="Lastname" class="form-control" type="text" placeholder="Enter Last Name" />
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input asp-for="Telephone" class="form-control" type="text" placeholder="Enter Phone Number" />
+                    </div>
+                    <div align="right">
+                        <button onclick="location.href='@Url.Action("ChangePassword", "User")'" class="btn btn-outline-secondary" type="button">Change Password</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button class="btn btn-sm btn-primary" type="submit">Submit</button>
+
+</form>
+
+@section Styles {
+    <link href="~/vendor/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.css" rel="stylesheet" />
+
+}
+
+@section Scripts {
+    <script src="~/vendor/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="~/vendor/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.js"></script>
+    <script src="~/master/js/modules/extras/calendar.js"></script>
+    <script src="~/master/js/modules/forms/color-picker.js"></script>
+    <script type='text/javascript'>
+        function encodeImageFileAsURL() {
+            var filesSelected = document.getElementById("inputFileToLoad").files;
+            if (filesSelected.length > 0) {
+                var fileToLoad = filesSelected[0];
+                var fileReader = new FileReader();
+                fileReader.onload = function (fileLoadedEvent) {
+                    var srcData = fileLoadedEvent.target.result; // <--- data: base64
+                    document.getElementById("imgIcon").src = srcData;
+                    document.getElementById("inputBase64").value = srcData;
+                }
+                fileReader.readAsDataURL(fileToLoad);
+            }
+        }
+    </script>
+    <script>
+        $(document).ready(function () {
+            document.getElementById("imgIcon").src = document.getElementById("photo-url").src;
+        });
+    </script>
+
+}

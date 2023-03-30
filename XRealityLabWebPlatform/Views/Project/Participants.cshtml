@@ -29,13 +29,14 @@
         <table class="table table-bordered table-hover" id="table-ext-1">
             <thead>
                 <tr>
-                    <th style="width:10%">ID</th>
-                    <th style="width:25%">Name</th>
+                    <th style="width:5%">ID</th>
+                    <th style="width:20%">Name</th>
                     <th style="width:20%">Email</th>
                     <th>Created</th>
-                    <th>Intake Qs</th>
-                    <th>Protocol</th>
-                    <th>Exit Qs</th>
+                    @foreach (var item in Model.researchDTOs)
+                    {
+                        <th>@item.Title (@item.TypeId)</th>
+                    }
                     <th></th>
                 </tr>
             </thead>
@@ -48,12 +49,22 @@
                 {
                     <tr>
                         <td>@item.ParticipantId</td>
-                        <td class="text-primary" onclick="location.href='#'">@item.FirstName @item.LastName</td>
+                        @{string resultsTokens = "passToken=" + item.PassToken + "&sessionPassToken=" + Model.PassToken;}
+                        <td class="text-primary" onclick="location.href='/Project/Results?@resultsTokens'">@item.FirstName @item.LastName</td>
                         <td>@item.Email</td>
                         <td>@item.Registered</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        @foreach (var researchCompletion in item.researchCompletionDTOs)
+                        {
+                            if(researchCompletion.Completed)
+                            {
+                                <td align="center"><em class="fa-2x mr-2 fas fa-check-circle" style="color:green"></em></td>
+                            }
+                            else
+                            {
+                                <td align="center"><em class="fa-2x mr-2 fas fa-times-circle" style="color:yellow"></em></td>
+                            }
+
+                        }
                         <td align="right">
                             <a class="fa-2x mr-2 fas fa-ellipsis-h text-dark" data-toggle="dropdown"></a>
                             <div class="dropdown-menu" role="menu">

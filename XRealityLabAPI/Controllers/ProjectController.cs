@@ -1,4 +1,5 @@
-﻿using Common;
+﻿using Application.Security;
+using Common;
 using Common.Helpers;
 using Infrastructure.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -20,11 +21,14 @@ namespace XRealityLabAPI.Controllers
     {
         private readonly XRealityLabdbContext _context;
         private readonly IConfiguration _configuration;
+        private readonly CustomIDataProtection _protector;
 
-        public ProjectController(XRealityLabdbContext context, IConfiguration configuration)
+        public ProjectController(XRealityLabdbContext context, IConfiguration configuration, CustomIDataProtection customIDataProtection)
         {
             _context = context;
             _configuration = configuration;
+            _protector = customIDataProtection;
+
         }
 
         // GET: api/Project/MyProjects
@@ -108,19 +112,47 @@ namespace XRealityLabAPI.Controllers
         {
             try
             {
+                
                 if (!await _context.UserAuthToken.AnyAsync(k => k.AuthToken == _authToken))
                     return NotFound(MessageConverter.GetResponse("AuthToken is incorrect", MethodResult.Failed));
 
-                if (!await _context.SessionParticipant.Where(k => k.ParticipantId == _participantResultAPI.ParticipantId && k.SessionId == _participantResultAPI.SessionId).AnyAsync())
+                /*if (_participantResultAPI.ParticipantId == null || _participantResultAPI.SessionId == null || _participantResultAPI.ResearchId == null || _participantResultAPI.NoOfMistakes == null || _participantResultAPI.Time == null)
+                    return NotFound(MessageConverter.GetResponse("Invalid Data", MethodResult.Failed));*/
+
+                if (!await _context.SessionParticipant.Where(k => k.ParticipantId == int.Parse(_protector.Encode(_participantResultAPI.ParticipantPassToken))  &&
+                k.SessionId == int.Parse(_protector.Encode(_participantResultAPI.SessionPassToken))).AnyAsync())
                     return NotFound(MessageConverter.GetResponse("Participant session combination incorrect", MethodResult.Failed));
+
+                //check if i am allowed to write in this session project and if research is of this project {maybe check type}
+                //Get userId PI or RA
+                int userId = _context.UserAuthToken.Where(k => k.AuthToken == _authToken).FirstOrDefault().UserId;
+                //Get projectId
+                int projectId = _context.ProjectSession.Where(k => k.SessionId == int.Parse(_protector.Encode(_participantResultAPI.SessionPassToken))).FirstOrDefault().ProjectId;
+                if (!await _context.ProjectUser.Where(k => k.ProjectId == projectId && k.UserId == userId && ( k.RoleId == (int)RoleType.PrincipleInvestigator || k.RoleId == (int)RoleType.ResearchAssistant)).AnyAsync())
+                    return NotFound(MessageConverter.GetResponse("No access to this session", MethodResult.Failed));
+
+                //check researchId
+                if (!await _context.ProjectResearch.Where(k => k.ProjectId == projectId && k.ResearchId == int.Parse(_protector.Encode(_participantResultAPI.ResearchPassToken))).AnyAsync())
+                    return NotFound(MessageConverter.GetResponse("No access to this research", MethodResult.Failed));
+
+                //check research type
+                if (!await _context.Research.Where(k => k.ResearchId == int.Parse(_protector.Encode(_participantResultAPI.ResearchPassToken)) && k.ResearchMethodId == (int)ResearchType.VirtualAugmentedReality).AnyAsync())
+                    return NotFound(MessageConverter.GetResponse("No Virtual or Augmented reality research with this pass token", MethodResult.Failed));
+
+
+                //check if today have sent more than 50 results
+                if (_context.ParticipantResult.Where(k => k.SessionId == int.Parse(_protector.Encode(_participantResultAPI.SessionPassToken)) && k.Registered > DateTime.Today).Count() >= 50)
+                    return NotFound(MessageConverter.GetResponse("Too many post request for this session today", MethodResult.Failed));
+
 
                 ParticipantResult participantResult = new ParticipantResult
                 {
-                    ParticipantId = _participantResultAPI.ParticipantId,
-                    SessionId = _participantResultAPI.SessionId,
+                    ParticipantId = int.Parse(_protector.Encode(_participantResultAPI.ParticipantPassToken)),
+                    SessionId = int.Parse(_protector.Encode(_participantResultAPI.SessionPassToken)),
+                    ResearchId = int.Parse(_protector.Encode(_participantResultAPI.ResearchPassToken)),
                     Time = _participantResultAPI.Time,
                     NoOfMistakes = _participantResultAPI.NoOfMistakes,
-                    Registered = _participantResultAPI.Registered,
+                    Registered = DateTime.Now,
                     Notes = _participantResultAPI.Notes
                 };
 

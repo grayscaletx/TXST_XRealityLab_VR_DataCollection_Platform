@@ -138,148 +138,151 @@
     <script src="~/master/js/modules/maps/vector.map.js"></script>
     <script src="~/master/js/modules/pages/pages.js"></script>
     <script src="~/master/js/modules/tables/bootgrid.js"></script>
-    <script src="~/master/js/modules/tables/datatable.js"></script>
+    <script src="~/master/js/modules/tables/datatable.js"></script>    
     <!-- Custom -->
     <script src="~/master/js/custom/custom.js"></script>
     <script>
         $(document).ready(function () {
-            if ($('#packagingLineDataTable').DataTable)
-            $('#packagingLineDataTable').DataTable({
-                'paging': true,
-                // Table pagination
-                'ordering': true,
-                // Column ordering
-                'info': true,
-                // Bottom left status text
-                responsive: true,
-                //'order': [[0, 'desc']],
-                // Text translation options
-                // Note the required keywords between underscores (e.g _MENU_)
-                oLanguage: {
-                    sSearch: '<em class="fas fa-search"></em>',
-                    sLengthMenu: '_MENU_ records per page',
-                    info: 'Σελίδα _PAGE_ από _PAGES_',
-                    zeroRecords: 'Nothing found - sorry',
-                    infoEmpty: 'No records available',
-                    infoFiltered: '(filtered from _MAX_ total records)',
-                    oPaginate: {
-                        sNext: '<em class="fa fa-caret-right"></em>',
-                        sPrevious: '<em class="fa fa-caret-left"></em>'
-                    }
-                }
+            $.get("GetPhotoUrl", function (data) {
+                document.getElementById("user-photo").src = data;
             });
+            if ($('#packagingLineDataTable').DataTable)
+                $('#packagingLineDataTable').DataTable({
+                    'paging': true,
+                    // Table pagination
+                    'ordering': true,
+                    // Column ordering
+                    'info': true,
+                    // Bottom left status text
+                    responsive: true,
+                    //'order': [[0, 'desc']],
+                    // Text translation options
+                    // Note the required keywords between underscores (e.g _MENU_)
+                    oLanguage: {
+                        sSearch: '<em class="fas fa-search"></em>',
+                        sLengthMenu: '_MENU_ records per page',
+                        info: 'Σελίδα _PAGE_ από _PAGES_',
+                        zeroRecords: 'Nothing found - sorry',
+                        infoEmpty: 'No records available',
+                        infoFiltered: '(filtered from _MAX_ total records)',
+                        oPaginate: {
+                            sNext: '<em class="fa fa-caret-right"></em>',
+                            sPrevious: '<em class="fa fa-caret-left"></em>'
+                        }
+                    }
+                });
 
             if ($('#TrucksDataTbl').DataTable)
-            $('#TrucksDataTbl').DataTable({
-                "processing": true,
-                "serverSide": true,
-                "ajax": {
-                    "url": "https://localhost:44362/ACFacilities/TruckListPagination",
-                    "type": "POST"
-                },
-                'paging': true,
-                // Table pagination
-                'ordering': true,
-                // Column ordering
-                'info': true,
-                // Bottom left status text
-                responsive: true,
-                'order': [[6, 'desc']],
-                // Text translation options
-                // Note the required keywords between underscores (e.g _MENU_)
-                oLanguage: {
-                    sSearch: '<em class="fas fa-search"></em>',
-                    sLengthMenu: '_MENU_ records per page',
-                    info: 'Σελίδα _PAGE_ από _PAGES_',
-                    zeroRecords: 'Nothing found - sorry',
-                    infoEmpty: 'No records available',
-                    infoFiltered: '(filtered from _MAX_ total records)',
-                    oPaginate: {
-                        sNext: '<em class="fa fa-caret-right"></em>',
-                        sPrevious: '<em class="fa fa-caret-left"></em>'
+                $('#TrucksDataTbl').DataTable({
+                    "processing": true,
+                    "serverSide": true,
+                    "ajax": {
+                        "url": "https://localhost:44362/ACFacilities/TruckListPagination",
+                        "type": "POST"
+                    },
+                    'paging': true,
+                    // Table pagination
+                    'ordering': true,
+                    // Column ordering
+                    'info': true,
+                    // Bottom left status text
+                    responsive: true,
+                    'order': [[6, 'desc']],
+                    // Text translation options
+                    // Note the required keywords between underscores (e.g _MENU_)
+                    oLanguage: {
+                        sSearch: '<em class="fas fa-search"></em>',
+                        sLengthMenu: '_MENU_ records per page',
+                        info: 'Σελίδα _PAGE_ από _PAGES_',
+                        zeroRecords: 'Nothing found - sorry',
+                        infoEmpty: 'No records available',
+                        infoFiltered: '(filtered from _MAX_ total records)',
+                        oPaginate: {
+                            sNext: '<em class="fa fa-caret-right"></em>',
+                            sPrevious: '<em class="fa fa-caret-left"></em>'
+                        }
                     }
-                }
-            }); // Filter
+                }); // Filter
 
             if ($('#TrucksDataTable').DataTable)
-            $('#TrucksDataTable').DataTable({
-                'paging': true,
-                // Table pagination
-                'ordering': true,
-                // Column ordering
-                'info': true,
-                // Bottom left status text
-                responsive: true,
-                'order': [[6, 'desc']],
-                // Text translation options
-                // Note the required keywords between underscores (e.g _MENU_)
-                oLanguage: {
-                    sSearch: '<em class="fas fa-search"></em>',
-                    sLengthMenu: '_MENU_ records per page',
-                    info: 'Σελίδα _PAGE_ από _PAGES_',
-                    zeroRecords: 'Nothing found - sorry',
-                    infoEmpty: 'No records available',
-                    infoFiltered: '(filtered from _MAX_ total records)',
-                    oPaginate: {
-                        sNext: '<em class="fa fa-caret-right"></em>',
-                        sPrevious: '<em class="fa fa-caret-left"></em>'
+                $('#TrucksDataTable').DataTable({
+                    'paging': true,
+                    // Table pagination
+                    'ordering': true,
+                    // Column ordering
+                    'info': true,
+                    // Bottom left status text
+                    responsive: true,
+                    'order': [[6, 'desc']],
+                    // Text translation options
+                    // Note the required keywords between underscores (e.g _MENU_)
+                    oLanguage: {
+                        sSearch: '<em class="fas fa-search"></em>',
+                        sLengthMenu: '_MENU_ records per page',
+                        info: 'Σελίδα _PAGE_ από _PAGES_',
+                        zeroRecords: 'Nothing found - sorry',
+                        infoEmpty: 'No records available',
+                        infoFiltered: '(filtered from _MAX_ total records)',
+                        oPaginate: {
+                            sNext: '<em class="fa fa-caret-right"></em>',
+                            sPrevious: '<em class="fa fa-caret-left"></em>'
+                        }
                     }
-                }
-            }); // Filter
+                }); // Filter
 
             if ($('#VisitorsDataTable').DataTable)
-            $('#VisitorsDataTable').DataTable({
-                'paging': true,
-                // Table pagination
-                'ordering': true,
-                // Column ordering
-                'info': true,
-                // Bottom left status text
-                responsive: true,
-                'order': [[5, 'desc']],
-                // Text translation options
-                // Note the required keywords between underscores (e.g _MENU_)
-                oLanguage: {
-                    sSearch: '<em class="fas fa-search"></em>',
-                    sLengthMenu: '_MENU_ records per page',
-                    info: 'Σελίδα _PAGE_ από _PAGES_',
-                    zeroRecords: 'Nothing found - sorry',
-                    infoEmpty: 'No records available',
-                    infoFiltered: '(filtered from _MAX_ total records)',
-                    oPaginate: {
-                        sNext: '<em class="fa fa-caret-right"></em>',
-                        sPrevious: '<em class="fa fa-caret-left"></em>'
+                $('#VisitorsDataTable').DataTable({
+                    'paging': true,
+                    // Table pagination
+                    'ordering': true,
+                    // Column ordering
+                    'info': true,
+                    // Bottom left status text
+                    responsive: true,
+                    'order': [[5, 'desc']],
+                    // Text translation options
+                    // Note the required keywords between underscores (e.g _MENU_)
+                    oLanguage: {
+                        sSearch: '<em class="fas fa-search"></em>',
+                        sLengthMenu: '_MENU_ records per page',
+                        info: 'Σελίδα _PAGE_ από _PAGES_',
+                        zeroRecords: 'Nothing found - sorry',
+                        infoEmpty: 'No records available',
+                        infoFiltered: '(filtered from _MAX_ total records)',
+                        oPaginate: {
+                            sNext: '<em class="fa fa-caret-right"></em>',
+                            sPrevious: '<em class="fa fa-caret-left"></em>'
+                        }
                     }
-                }
-            }); // Filter
+                }); // Filter
 
             if ($('#CompaniesTrucksDataTable').DataTable)
-            $('#CompaniesTrucksDataTable').DataTable({
-                'paging': true,
-                // Table pagination
-                'ordering': true,
-                // Column ordering
-                'info': true,
-                // Bottom left status text
-                responsive: true,
-                'order': [[0, 'desc']],
-                // Text translation options
-                // Note the required keywords between underscores (e.g _MENU_)
-                oLanguage: {
-                    sSearch: '<em class="fas fa-search"></em>',
-                    sLengthMenu: '_MENU_ records per page',
-                    info: 'Σελίδα _PAGE_ από _PAGES_',
-                    zeroRecords: 'Nothing found - sorry',
-                    infoEmpty: 'No records available',
-                    infoFiltered: '(filtered from _MAX_ total records)',
-                    oPaginate: {
-                        sNext: '<em class="fa fa-caret-right"></em>',
-                        sPrevious: '<em class="fa fa-caret-left"></em>'
+                $('#CompaniesTrucksDataTable').DataTable({
+                    'paging': true,
+                    // Table pagination
+                    'ordering': true,
+                    // Column ordering
+                    'info': true,
+                    // Bottom left status text
+                    responsive: true,
+                    'order': [[0, 'desc']],
+                    // Text translation options
+                    // Note the required keywords between underscores (e.g _MENU_)
+                    oLanguage: {
+                        sSearch: '<em class="fas fa-search"></em>',
+                        sLengthMenu: '_MENU_ records per page',
+                        info: 'Σελίδα _PAGE_ από _PAGES_',
+                        zeroRecords: 'Nothing found - sorry',
+                        infoEmpty: 'No records available',
+                        infoFiltered: '(filtered from _MAX_ total records)',
+                        oPaginate: {
+                            sNext: '<em class="fa fa-caret-right"></em>',
+                            sPrevious: '<em class="fa fa-caret-left"></em>'
+                        }
                     }
-                }
-            });
+                });
 
-           
+
         });
     </script>
 
