@@ -1,4 +1,6 @@
+using Application.Security;
 using Infrastructure.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -13,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using XRealityLab.AuthorizationRequirements;
 
 namespace XRealityLabAPI
 {
@@ -41,6 +44,13 @@ namespace XRealityLabAPI
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Version = "0.9", Description = "XRealityLabAPI" });
             });
+
+            services.AddMvc(options =>
+             options.EnableEndpointRouting = false)
+             .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+
+            services.AddSingleton<UniqueCode>();
+            services.AddSingleton<CustomIDataProtection>();
 
             services.AddControllers().AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
