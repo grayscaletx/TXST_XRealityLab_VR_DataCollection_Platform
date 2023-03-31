@@ -118,7 +118,7 @@ namespace XRealityLabAPI.Controllers
 
                 /*if (_participantResultAPI.ParticipantId == null || _participantResultAPI.SessionId == null || _participantResultAPI.ResearchId == null || _participantResultAPI.NoOfMistakes == null || _participantResultAPI.Time == null)
                     return NotFound(MessageConverter.GetResponse("Invalid Data", MethodResult.Failed));*/
-
+                int participantId = int.Parse(_protector.Encode(_participantResultAPI.ParticipantPassToken));
                 if (!await _context.SessionParticipant.Where(k => k.ParticipantId == int.Parse(_protector.Encode(_participantResultAPI.ParticipantPassToken))  &&
                 k.SessionId == int.Parse(_protector.Encode(_participantResultAPI.SessionPassToken))).AnyAsync())
                     return NotFound(MessageConverter.GetResponse("Participant session combination incorrect", MethodResult.Failed));
