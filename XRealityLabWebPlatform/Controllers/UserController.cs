@@ -195,6 +195,7 @@ namespace XRealityLab.Controllers
             }
             UserDTO userDTO = new UserDTO
             {
+                Rank = _userDTO.Rank,
                 Firstname = _userDTO.Firstname,
                 Lastname = _userDTO.Lastname,
                 Email = _userDTO.Email,
@@ -331,6 +332,7 @@ namespace XRealityLab.Controllers
             }
             UserDTO userDTO = new UserDTO
             {
+                Rank = _userDTO.Rank,
                 Firstname = _userDTO.Firstname,
                 Lastname = _userDTO.Lastname,
                 Email = _userDTO.Email,

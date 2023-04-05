@@ -112,44 +112,47 @@ namespace XRealityLabAPI.Controllers
         {
             try
             {
-                
+
+                //FIND the IDs from the hashes
+                int participantId = _context.Participant.ToList().Where(k => IdentityConversions.MD5Hash(k.ParticipantId.ToString()) == _participantResultAPI.ParticipantMD5).FirstOrDefault().ParticipantId;
+                int sessionId = _context.Session.ToList().Where(k => IdentityConversions.MD5Hash(k.SessionId.ToString()) == _participantResultAPI.SessionMD5).FirstOrDefault().SessionId;
+                int researchId = _context.Research.ToList().Where(k => IdentityConversions.MD5Hash(k.ResearchId.ToString()) == _participantResultAPI.ResearchMD5).FirstOrDefault().ResearchId;
+
                 if (!await _context.UserAuthToken.AnyAsync(k => k.AuthToken == _authToken))
                     return NotFound(MessageConverter.GetResponse("AuthToken is incorrect", MethodResult.Failed));
 
                 /*if (_participantResultAPI.ParticipantId == null || _participantResultAPI.SessionId == null || _participantResultAPI.ResearchId == null || _participantResultAPI.NoOfMistakes == null || _participantResultAPI.Time == null)
                     return NotFound(MessageConverter.GetResponse("Invalid Data", MethodResult.Failed));*/
-                int participantId = int.Parse(_protector.Encode(_participantResultAPI.ParticipantPassToken));
-                if (!await _context.SessionParticipant.Where(k => k.ParticipantId == int.Parse(_protector.Encode(_participantResultAPI.ParticipantPassToken))  &&
-                k.SessionId == int.Parse(_protector.Encode(_participantResultAPI.SessionPassToken))).AnyAsync())
+                if (!await _context.SessionParticipant.Where(k => k.ParticipantId == participantId  &&
+                k.SessionId == sessionId).AnyAsync())
                     return NotFound(MessageConverter.GetResponse("Participant session combination incorrect", MethodResult.Failed));
 
                 //check if i am allowed to write in this session project and if research is of this project {maybe check type}
                 //Get userId PI or RA
                 int userId = _context.UserAuthToken.Where(k => k.AuthToken == _authToken).FirstOrDefault().UserId;
                 //Get projectId
-                int projectId = _context.ProjectSession.Where(k => k.SessionId == int.Parse(_protector.Encode(_participantResultAPI.SessionPassToken))).FirstOrDefault().ProjectId;
+                int projectId = _context.ProjectSession.Where(k => k.SessionId == sessionId).FirstOrDefault().ProjectId;
                 if (!await _context.ProjectUser.Where(k => k.ProjectId == projectId && k.UserId == userId && ( k.RoleId == (int)RoleType.PrincipleInvestigator || k.RoleId == (int)RoleType.ResearchAssistant)).AnyAsync())
                     return NotFound(MessageConverter.GetResponse("No access to this session", MethodResult.Failed));
 
                 //check researchId
-                if (!await _context.ProjectResearch.Where(k => k.ProjectId == projectId && k.ResearchId == int.Parse(_protector.Encode(_participantResultAPI.ResearchPassToken))).AnyAsync())
+                if (!await _context.ProjectResearch.Where(k => k.ProjectId == projectId && k.ResearchId == researchId).AnyAsync())
                     return NotFound(MessageConverter.GetResponse("No access to this research", MethodResult.Failed));
 
                 //check research type
-                if (!await _context.Research.Where(k => k.ResearchId == int.Parse(_protector.Encode(_participantResultAPI.ResearchPassToken)) && k.ResearchMethodId == (int)ResearchType.VirtualAugmentedReality).AnyAsync())
+                if (!await _context.Research.Where(k => k.ResearchId == researchId && k.ResearchMethodId == (int)ResearchType.VirtualAugmentedReality).AnyAsync())
                     return NotFound(MessageConverter.GetResponse("No Virtual or Augmented reality research with this pass token", MethodResult.Failed));
 
 
                 //check if today have sent more than 50 results
-                if (_context.ParticipantResult.Where(k => k.SessionId == int.Parse(_protector.Encode(_participantResultAPI.SessionPassToken)) && k.Registered > DateTime.Today).Count() >= 50)
+                if (_context.ParticipantResult.Where(k => k.SessionId == sessionId && k.Registered > DateTime.Today).Count() >= 50)
                     return NotFound(MessageConverter.GetResponse("Too many post request for this session today", MethodResult.Failed));
-
 
                 ParticipantResult participantResult = new ParticipantResult
                 {
-                    ParticipantId = int.Parse(_protector.Encode(_participantResultAPI.ParticipantPassToken)),
-                    SessionId = int.Parse(_protector.Encode(_participantResultAPI.SessionPassToken)),
-                    ResearchId = int.Parse(_protector.Encode(_participantResultAPI.ResearchPassToken)),
+                    ParticipantId = participantId,
+                    SessionId = sessionId,
+                    ResearchId = researchId,
                     Time = _participantResultAPI.Time,
                     NoOfMistakes = _participantResultAPI.NoOfMistakes,
                     Registered = DateTime.Now,

@@ -1,5 +1,7 @@
 ﻿@model XRealityLab.Models.SessionDTO
 
+@using XRealityLab.Common;
+
 @{
     ViewBag.Title = "Participants";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -41,33 +43,101 @@
                 </tr>
             </thead>
             <tbody>
+                @{int count = 0; }
                 <tr>
                     @{string passToken = Model.PassToken;}
-                    <td class="text-primary" colspan="40" align="left" onclick="location.href='/Project/NewParticipant?passToken=@passToken'">New Participant +</td>
+                    <td class="text-primary" colspan="40" align="left"><a href="/Project/NewParticipant?passToken=@passToken">New Participant +</a></td>
                 </tr>
                 @foreach (var item in Model.participantDTOs)
                 {
+                    count = count + 1;
+                    string completeid = string.Empty;
                     <tr>
-                        <td>@item.ParticipantId</td>
+                        <td>P#@item.ParticipantId</td>
                         @{string resultsTokens = "passToken=" + item.PassToken + "&sessionPassToken=" + Model.PassToken;}
-                        <td class="text-primary" onclick="location.href='/Project/Results?@resultsTokens'">@item.FirstName @item.LastName</td>
+                        <td class="text-primary"> <a href="/Project/Results?@resultsTokens">@item.FirstName @item.LastName</a></td>
                         <td>@item.Email</td>
                         <td>@item.Registered</td>
                         @foreach (var researchCompletion in item.researchCompletionDTOs)
                         {
-                            if(researchCompletion.Completed)
+                            if (researchCompletion.Completed)
                             {
-                                <td align="center"><em class="fa-2x mr-2 fas fa-check-circle" style="color:green"></em></td>
+                                if (researchCompletion.ResearchMethodId == (int)ResearchType.OfflineMethod)
+                                {
+                                    completeid = "offline-complete" + count.ToString();
+                                    <td align="center">
+                                        <div class="form-group row">
+                                            <form id=@completeid method="post" enctype="multipart/form-data" asp-action="OfflineComplete" asp-route-participantPassToken=@item.PassToken asp-route-sessionPassToken=@Model.PassToken asp-route-researchPassToken=@researchCompletion.PassToken>
+                                                <div class="col-xl-10">
+                                                    <div class="checkbox c-checkbox">
+                                                        <label>
+                                                            <input type="checkbox" checked=""  onchange="document.getElementById('@completeid').submit()"/>
+                                                            <span class="fa fa-check"></span>
+                                                        </label>
+                                                    </div>
+                                                </div>                                                                                                
+                                            </form>                                            
+                                        </div>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td align="center">
+                                        <div class="form-group row" style="pointer-events: none">
+                                            <div class="col-xl-10">
+                                                <div class="checkbox c-checkbox">
+                                                    <label>
+                                                        <input type="checkbox" checked="" />
+                                                        <span class="fa fa-check"></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                }
                             }
                             else
                             {
-                                <td align="center"><em class="fa-2x mr-2 fas fa-times-circle" style="color:yellow"></em></td>
+                                if (researchCompletion.ResearchMethodId == (int)ResearchType.OfflineMethod)
+                                {
+                                    completeid = "offline-complete" + count.ToString();
+                                    <td align="center">
+                                        <div class="form-group row">
+                                            <form id=@completeid method="post" enctype="multipart/form-data" asp-action="OfflineComplete" asp-route-participantPassToken=@item.PassToken asp-route-sessionPassToken=@Model.PassToken asp-route-researchPassToken=@researchCompletion.PassToken>
+                                                <div class="col-xl-10">
+                                                    <div class="checkbox c-checkbox">
+                                                        <label>
+                                                            <input type="checkbox"  onchange="document.getElementById('@completeid').submit()"/>
+                                                            <span class="fa fa-check"></span>
+                                                        </label>
+                                                    </div>
+                                                </div>                                                                                                
+                                            </form>                                            
+                                        </div>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td align="center">
+                                        <div class="form-group row" style="pointer-events: none">
+                                            <div class="col-xl-10">
+                                                <div class="checkbox c-checkbox">
+                                                    <label>
+                                                        <input type="checkbox"/>
+                                                        <span class="fa fa-check"></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                }
                             }
 
                         }
                         <td align="right">
                             <a class="fa-2x mr-2 fas fa-ellipsis-h text-dark" data-toggle="dropdown"></a>
                             <div class="dropdown-menu" role="menu">
+                                <a class="dropdown-item" asp-action="DownloadParticipantData" asp-route-participantPassToken=@item.PassToken asp-route-sessionPassToken=@Model.PassToken>Export Data</a>
                                 <a class="dropdown-item" href="#">Edit</a>
                                 <a class="dropdown-item" asp-action="DeleteParticipant" asp-route-passToken="@Model.PassToken" asp-route-participantId="@item.ParticipantId">Remove</a>
                             </div>

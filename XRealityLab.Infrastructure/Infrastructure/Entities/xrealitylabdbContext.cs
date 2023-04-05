@@ -437,6 +437,8 @@ namespace Infrastructure.Entities
             {
                 entity.Property(e => e.SessionParticipantId).HasColumnName("SessionParticipantID");
 
+                entity.Property(e => e.Notes).HasMaxLength(250);
+
                 entity.Property(e => e.ParticipantId).HasColumnName("ParticipantID");
 
                 entity.Property(e => e.SessionId).HasColumnName("SessionID");

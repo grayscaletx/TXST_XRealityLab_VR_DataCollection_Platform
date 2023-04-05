@@ -8,11 +8,13 @@ namespace XRealityLab.Models
     {
         public string Title { get; set; }
         public string ResearchPassToken { get; set; }
+        public string ResearchMD5 { get; set; }
         public int QualtricsResultId { get; set; }
         public int ParticipantId { get; set; }
         public int SessionId { get; set; }
         public int ResearchId { get; set; }
         public string DocumentUrl { get; set; }
+        public string Completed { get; set; }
         public string Notes { get; set; }
     }
 }

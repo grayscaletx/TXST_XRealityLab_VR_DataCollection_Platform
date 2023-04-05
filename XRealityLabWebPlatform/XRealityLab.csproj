@@ -71,6 +71,7 @@
     <Folder Include="wwwroot\pdf-requests\" />
     <Folder Include="wwwroot\pdf-files\" />
     <Folder Include="wwwroot\research-files\for-upload\" />
+    <Folder Include="wwwroot\research-files\for-download\" />
     <Folder Include="wwwroot\_images\lab-photos\" />
     <Folder Include="wwwroot\_images\project-photos\" />
     <Folder Include="wwwroot\_images\user-photos\" />

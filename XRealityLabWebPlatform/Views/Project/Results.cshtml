@@ -14,7 +14,7 @@
         <div class="col-xl-3 col-md-6">
             <div class="form-group">
                 <div class="input-group mb-3">
-                    <input type="hidden" style="pointer-events: none" id="participant-pass-token" value=@Model.ParticipantPassToken />
+                    <input type="hidden" style="pointer-events: none" id="participant-pass-token" value=@Model.ParticipantMD5 />
                     <div class="input-group-append">
                         <button onclick="copyParticipantPassTokenToClipboard()" class="btn btn-info" type="button">Copy Participant Pass Token</button>
                     </div>
@@ -24,7 +24,7 @@
         <div class="col-xl-3 col-md-6">
             <div class="form-group">
                 <div class="input-group mb-3">
-                    <input type="hidden" style="pointer-events: none" id="session-pass-token" value=@Model.SessionPassToken />
+                    <input type="hidden" style="pointer-events: none" id="session-pass-token" value=@Model.SessionMD5 />
                     <div class="input-group-append">
                         <button onclick="copySessionPassTokenToClipboard()" class="btn btn-info" type="button">Copy Session Pass Token</button>
                     </div>
@@ -48,7 +48,22 @@
 <div class="container" style="float: left;">      
     @{int i = 0; }
     <div class="card">
-
+        <div class="col-xl-3 col-md-6">
+            <div class="form-group">
+                <form id="modal-update-photo-form" method="post" enctype="multipart/form-data" asp-action="TakeSessionNote" asp-route-participantPassToken=@Model.ParticipantPassToken asp-route-sessionPassToken=@Model.SessionPassToken>
+                    <div class="form-group">
+                        <div class="col-md-10">
+                            <textarea id="participant-note" name="notes" rows="8" cols="70">@Model.Notes</textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-10">
+                            <input type="submit" value="Take Note" class="btn btn-primary" style="width:200px;color:white" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
         @foreach (var research in Model.ResearchDTOs)
         {
             <div class="card">
@@ -64,7 +79,7 @@
                     <div class="col-xl-3 col-md-6">
                         <div class="form-group">
                             <div class="input-group mb-3">
-                                <input type="hidden" style="pointer-events: none" id="@researchId" value=@research.ResearchPassToken />
+                                <input type="hidden" style="pointer-events: none" id="@researchId" value=@research.ResearchMD5 />
                                 <div class="input-group-append">
                                     <button onclick="copyResearchPassTokenToClipboard('@researchId')" class="btn btn-info" type="button">Copy Research Pass Token</button>
                                 </div>
@@ -155,29 +170,13 @@
                                         </div>
                                     </form>
                                 </div>
-                            </div>
-                            <div class="col-xl-3 col-md-6">
-                                <div class="form-group">
-                                    <form id="modal-update-photo-form" method="post" enctype="multipart/form-data" asp-action="TakeNote" asp-route-participantPassToken=@Model.ParticipantPassToken asp-route-sessionPassToken=@Model.SessionPassToken asp-route-researchPassToken=@research.ResearchPassToken>
-                                        <div class="form-group">
-                                            <div class="col-md-10">
-                                                <textarea id="@noteId" name="notes" rows="8" cols="70">@research.OfflineResultDTO.Notes</textarea>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <div class="col-md-10">
-                                                <input type="submit" value="Take Note" class="btn btn-primary" style="width:200px;color:white" />
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
+                            </div>                            
                         </div>
                     }
                     else
                     {
                         <h4>No results yet. Upload file</h4>
-                        <div class="row">                            
+                        <div class="row">
                             <div class="col-xl-3 col-md-6">
                                 <div class="form-group">
                                     <form id="modal-update-photo-form" method="post" enctype="multipart/form-data" asp-action="UploadFile" asp-route-participantPassToken=@Model.ParticipantPassToken asp-route-sessionPassToken=@Model.SessionPassToken asp-route-researchPassToken=@research.ResearchPassToken>
@@ -193,24 +192,8 @@
                                         </div>
                                     </form>
                                 </div>
-                            </div>
-                            <div class="col-xl-3 col-md-6">
-                                <div class="form-group">
-                                    <form id="modal-update-photo-form" method="post" enctype="multipart/form-data" asp-action="TakeNote" asp-route-participantPassToken=@Model.ParticipantPassToken asp-route-sessionPassToken=@Model.SessionPassToken asp-route-researchPassToken=@research.ResearchPassToken>
-                                        <div class="form-group">
-                                            <div class="col-md-10">
-                                                <textarea id="@noteId" name="notes" rows="8" cols="70"></textarea>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <div class="col-md-10">
-                                                <input type="submit" value="Take Note" class="btn btn-primary" style="width:200px;color:white" />
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>                        
+                            </div>                            
+                        </div>
                     }
                 }
             </div>

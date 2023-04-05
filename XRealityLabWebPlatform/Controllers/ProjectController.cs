@@ -30,8 +30,8 @@ using Microsoft.AspNetCore.Identity;
 using Common;
 using System.Security.Claims;
 using System.Drawing;
-
-
+using System.Text;
+using System.IO.Compression;
 
 namespace XRealityLab.Controllers
 {
@@ -535,11 +535,14 @@ namespace XRealityLab.Controllers
                     }
                     else if (researchDTO.ResearchMethodId == (int)ResearchType.OfflineMethod)
                     {
-                        completed = _context.OfflineResult.Where(k => k.ParticipantId == participant.ParticipantId && k.SessionId == int.Parse(_protector.Encode(passToken)) && k.ResearchId == researchDTO.ResearchId).Any();
+                        OfflineResult offlineResult = _context.OfflineResult.Where(k => k.ParticipantId == participant.ParticipantId && k.SessionId == int.Parse(_protector.Encode(passToken)) && k.ResearchId == researchDTO.ResearchId).FirstOrDefault();
+                        completed = offlineResult != null ? offlineResult.Completed == 1 ? true : false : false ;
                     }
                     researchCompletionDTOs.Add(new ResearchCompletionDTO
                     {
                         ResearchId = researchDTO.ResearchId,
+                        PassToken = _protector.Decode(researchDTO.ResearchId.ToString()),
+                        ResearchMethodId = researchDTO.ResearchMethodId,
                         Title = researchDTO.Title,
                         TypeId = researchDTO.TypeId,
                         Resgistered = researchDTO.Registered,
@@ -627,8 +630,11 @@ namespace XRealityLab.Controllers
             ResultDTO resultDTO = new ResultDTO
             {
                 SessionPassToken = sessionPassToken,
+                SessionMD5 = IdentityConversions.MD5Hash(_protector.Encode(sessionPassToken)),
                 ParticipantPassToken = passToken,
+                ParticipantMD5 = IdentityConversions.MD5Hash(_protector.Encode(passToken)),
                 Title = _context.Session.Where(k => k.SessionId == int.Parse(_protector.Encode(sessionPassToken))).FirstOrDefault().Title,
+                Notes = _context.SessionParticipant.Where(k => k.ParticipantId == int.Parse(_protector.Encode(passToken)) && k.SessionId == int.Parse(_protector.Encode(sessionPassToken))).FirstOrDefault().Notes,
                 ParticipantDTO = _context.Participant.Where(k => k.ParticipantId == int.Parse(_protector.Encode(passToken)))
                 .Select(x => new ParticipantDTO {
                     FirstName = x.FirstName,
@@ -657,6 +663,7 @@ namespace XRealityLab.Controllers
                         {
                             Title = research.Title,
                             ResearchPassToken = _protector.Decode(research.ResearchId.ToString()),
+                            ResearchMD5 = IdentityConversions.MD5Hash(research.ResearchId.ToString()),
                             ParticipantResultId = x.ParticipantResultId,
                             ParticipantId = x.ParticipantId,
                             SessionId = x.SessionId,
@@ -675,11 +682,12 @@ namespace XRealityLab.Controllers
                         {
                             Title = research.Title,
                             ResearchPassToken = _protector.Decode(research.ResearchId.ToString()),
+                            ResearchMD5 = IdentityConversions.MD5Hash(research.ResearchId.ToString()),
                             ParticipantId = x.ParticipantId,
                             SessionId = x.SessionId,
                             ResearchId = (int)x.ResearchId,
                             DocumentUrl = x.DocumentUrl,
-                            Notes = x.Notes
+                            //Notes = x.Notes
                         }).FirstOrDefault());                        
                 }
                 else if (research.ResearchMethodId == (int)ResearchType.OfflineMethod)
@@ -690,17 +698,19 @@ namespace XRealityLab.Controllers
                         {
                             Title = research.Title,
                             ResearchPassToken = _protector.Decode(research.ResearchId.ToString()),
+                            ResearchMD5 = IdentityConversions.MD5Hash(research.ResearchId.ToString()),
                             ParticipantId = x.ParticipantId,
                             SessionId = x.SessionId,
                             ResearchId = (int)x.ResearchId,
                             DocumentUrl = x.DocumentUrl,
-                            Notes = x.Notes
+                            //Notes = x.Notes
                         }).FirstOrDefault());
                 }
                 researchDTOs.Add(new ResearchDTO
                 {
                     ResearchId = research.ResearchId,
                     ResearchPassToken = _protector.Decode(research.ResearchId.ToString()),
+                    ResearchMD5 = IdentityConversions.MD5Hash(research.ResearchId.ToString()),
                     Title = research.Title,
                     TypeId = typeId,
                     Registered = research.Registered,
@@ -817,6 +827,355 @@ namespace XRealityLab.Controllers
 
 
             return RedirectToAction("Results", "Project", new { passToken = participantPassToken, sessionPassToken = sessionPassToken });
+        }
+        public async Task<IActionResult> TakeSessionNote(string participantPassToken, string sessionPassToken, string notes)
+        {
+            if (false) return RedirectToAction("Results", "Project", new { passToken = participantPassToken, sessionPassToken = sessionPassToken });
+
+            if (notes.Length > 0)
+            {
+                SessionParticipant sessionParticipant = _context.SessionParticipant.Where(k => k.ParticipantId == int.Parse(_protector.Encode(participantPassToken)) && k.SessionId == int.Parse(_protector.Encode(sessionPassToken))).FirstOrDefault();
+                sessionParticipant.Notes = notes;
+                _context.SessionParticipant.Update(sessionParticipant);
+                _context.SaveChanges();
+            }
+
+            return RedirectToAction("Results", "Project", new { passToken = participantPassToken, sessionPassToken = sessionPassToken });
+        }
+        public async Task<IActionResult> OfflineComplete(string participantPassToken, string sessionPassToken, string researchPassToken)
+        {
+            //if (false) return RedirectToAction("Results", "Project", new { passToken = participantPassToken, sessionPassToken = sessionPassToken });
+
+            int test = int.Parse(_protector.Encode(participantPassToken));
+            OfflineResult offlineResult = _context.OfflineResult.Where(k => k.ParticipantId == int.Parse(_protector.Encode(participantPassToken)) && k.SessionId == int.Parse(_protector.Encode(sessionPassToken)) && k.ResearchId == int.Parse(_protector.Encode(researchPassToken))).FirstOrDefault();
+                if (offlineResult != null)
+                {
+                    offlineResult.Completed = offlineResult.Completed == 1? (byte)0 : (byte)1;
+                    _context.OfflineResult.Update(offlineResult);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    offlineResult = new OfflineResult
+                    {
+                        ParticipantId = int.Parse(_protector.Encode(participantPassToken)),
+                        SessionId = int.Parse(_protector.Encode(sessionPassToken)),
+                        ResearchId = int.Parse(_protector.Encode(researchPassToken)),
+                        Completed = 1,
+                        DocumentUrl = string.Empty,
+                        Notes = string.Empty
+                    };
+                    _context.OfflineResult.Add(offlineResult);
+                    _context.SaveChanges();
+                }
+
+
+            return RedirectToAction("Participants", "Project", new { passToken = sessionPassToken });
+        }
+        public async Task<IActionResult> DownloadParticipantData(string participantPassToken, string sessionPassToken)
+        {
+            try
+            {
+                ResultDTO resultDTO = new ResultDTO
+                {
+                    SessionPassToken = sessionPassToken,
+                    SessionMD5 = IdentityConversions.MD5Hash(_protector.Encode(sessionPassToken)),
+                    ParticipantPassToken = participantPassToken,
+                    ParticipantMD5 = IdentityConversions.MD5Hash(_protector.Encode(participantPassToken)),
+                    Title = _context.Session.Where(k => k.SessionId == int.Parse(_protector.Encode(sessionPassToken))).FirstOrDefault().Title,
+                    Notes = _context.SessionParticipant.Where(k => k.ParticipantId == int.Parse(_protector.Encode(participantPassToken)) && k.SessionId == int.Parse(_protector.Encode(sessionPassToken))).FirstOrDefault().Notes,
+                    ParticipantDTO = _context.Participant.Where(k => k.ParticipantId == int.Parse(_protector.Encode(participantPassToken)))
+                .Select(x => new ParticipantDTO
+                {
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
+                    Email = x.Email
+                }).FirstOrDefault()
+                };
+                //ResearchMethods Lists
+
+                List<int> researchIds = await _context.ProjectResearch.Where(k => k.ProjectId == _context.ProjectSession.Where(x => x.SessionId == int.Parse(_protector.Encode(sessionPassToken))).FirstOrDefault().ProjectId).Select(k => k.ResearchId).ToListAsync();
+                
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.AppendLine(string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}",
+                        "Session:",
+                        resultDTO.Title,
+                        "Participant:",
+                        resultDTO.ParticipantDTO.FirstName,
+                        resultDTO.ParticipantDTO.LastName,
+                        "EMAIL:",
+                        resultDTO.ParticipantDTO.Email,
+                        "SessionPassToken",
+                        resultDTO.SessionMD5,
+                        "ParticipantPassToken",
+                        resultDTO.ParticipantMD5));
+                foreach (var researchId in researchIds)
+                {
+                    stringBuilder.AppendLine(string.Empty);
+                    Research research = _context.Research.Where(k => k.ResearchId == researchId).FirstOrDefault();                    
+                    if (research.ResearchMethodId == (int)ResearchType.VirtualAugmentedReality)
+                    {
+                        List<VAResultDTO> vAResultDTOs = new List<VAResultDTO>();
+                        stringBuilder.AppendLine(string.Format("{0},{1}",                        
+                        "ResearchPassToken:",
+                        IdentityConversions.MD5Hash(research.ResearchId.ToString())));
+                        stringBuilder.AppendLine(string.Format("{0},{1}",
+                        research.Title,
+                        ResearchType.VirtualAugmentedReality.GetEnumDescription()));
+                        //VAR can have more than one entry
+                        vAResultDTOs.AddRange(
+                            await _context.ParticipantResult.Where(k => k.ResearchId == research.ResearchId && k.ParticipantId == int.Parse(_protector.Encode(participantPassToken)) && k.SessionId == int.Parse(_protector.Encode(sessionPassToken)))
+                            .Select(x => new VAResultDTO
+                            {                                
+                                Time = x.Time,
+                                Registered = x.Registered,
+                                NoOfMistakes = x.NoOfMistakes,
+                                Notes = x.Notes
+                            }).ToListAsync());
+                        stringBuilder.AppendLine(string.Format("{0},{1},{2},{3}",
+                        "Time",
+                        "No of Mistakes",
+                        "Registered",
+                        "Notes"));
+                        foreach (var vAResultDTO in vAResultDTOs)
+                        {
+                            stringBuilder.AppendLine(string.Format("{0},{1},{2},{3}",
+                            vAResultDTO.Time,
+                            vAResultDTO.NoOfMistakes,
+                            vAResultDTO.Registered,
+                            vAResultDTO.Notes));
+                        }
+                    }
+                    else if (research.ResearchMethodId == (int)ResearchType.QualtricsQuestionnaire)
+                    {
+                        QualtricsResultDTO qualtricsResultDTO = new QualtricsResultDTO();
+                        stringBuilder.AppendLine(string.Format("{0},{1}",
+                       "ResearchPassToken:",
+                       IdentityConversions.MD5Hash(research.ResearchId.ToString())));
+                        stringBuilder.AppendLine(string.Format("{0},{1}",
+                        research.Title,
+                        ResearchType.QualtricsQuestionnaire.GetEnumDescription()));
+                        qualtricsResultDTO =_context.QualtricsResult.Where(k => k.ResearchId == research.ResearchId && k.ParticipantId == int.Parse(_protector.Encode(participantPassToken)) && k.SessionId == int.Parse(_protector.Encode(sessionPassToken)))
+                            .Select(x => new QualtricsResultDTO
+                            {
+                                Title = research.Title,
+                                ResearchPassToken = _protector.Decode(research.ResearchId.ToString()),
+                                ResearchMD5 = IdentityConversions.MD5Hash(research.ResearchId.ToString()),
+                                ParticipantId = x.ParticipantId,
+                                SessionId = x.SessionId,
+                                ResearchId = (int)x.ResearchId,
+                                DocumentUrl = x.DocumentUrl,
+                                //Notes = x.Notes
+                            }).FirstOrDefault();
+                        stringBuilder.AppendLine(string.Format("{0},{1},{2},{3}",
+                        "No",
+                        "Available",
+                        "Data",
+                        "Yet"));
+                    }
+                    else if (research.ResearchMethodId == (int)ResearchType.OfflineMethod)
+                    {
+                        OfflineResultDTO offlineResultDTO = new OfflineResultDTO();
+                        stringBuilder.AppendLine(string.Format("{0},{1}",
+                       "ResearchPassToken:",
+                       IdentityConversions.MD5Hash(research.ResearchId.ToString())));
+                        stringBuilder.AppendLine(string.Format("{0},{1}",
+                        research.Title,
+                        ResearchType.OfflineMethod.GetEnumDescription()));
+                        offlineResultDTO = _context.OfflineResult.Where(k => k.ResearchId == research.ResearchId && k.ParticipantId == int.Parse(_protector.Encode(participantPassToken)) && k.SessionId == int.Parse(_protector.Encode(sessionPassToken)))
+                            .Select(x => new OfflineResultDTO
+                            {                                
+                                DocumentUrl = x.DocumentUrl,
+                                Completed = x.Completed == 1 ? "Yes" : "No"
+                                //Notes = x.Notes
+                            }).FirstOrDefault();
+                        stringBuilder.AppendLine(string.Format("{0},{1}",
+                        "Completed",
+                        "Document"));
+                        stringBuilder.AppendLine(string.Format("{0},{1}",
+                        offlineResultDTO.Completed,
+                        offlineResultDTO.DocumentUrl));
+                    }
+                }         
+                return File(Encoding.UTF8.GetBytes(stringBuilder.ToString()), "text/csv", string.Format("{0}_{1}_{2}_{3}.csv", resultDTO.ParticipantDTO.FirstName, resultDTO.ParticipantDTO.LastName, resultDTO.Title, DateTimeOffset.Now.ToUnixTimeSeconds()));
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Participants", "Project", new { passToken = sessionPassToken });
+            }
+        }
+        public async Task<IActionResult> DownloadDataCollectiontData(string sessionPassToken)
+        {
+            try
+            {
+                List<int> participantids = _context.SessionParticipant.Where(k => k.SessionId == int.Parse(_protector.Encode(sessionPassToken))).Select(x => x.ParticipantId).ToList();
+                List<string> fileNames = new List<string>();
+                foreach (var participantid in participantids)
+                {
+
+                    ResultDTO resultDTO = new ResultDTO
+                    {
+                        SessionPassToken = sessionPassToken,
+                        SessionMD5 = IdentityConversions.MD5Hash(_protector.Encode(sessionPassToken)),
+                        ParticipantMD5 = IdentityConversions.MD5Hash(participantid.ToString()),
+                        Title = _context.Session.Where(k => k.SessionId == int.Parse(_protector.Encode(sessionPassToken))).FirstOrDefault().Title,
+                        Notes = _context.SessionParticipant.Where(k => k.ParticipantId == participantid && k.SessionId == int.Parse(_protector.Encode(sessionPassToken))).FirstOrDefault().Notes,
+                        ParticipantDTO = _context.Participant.Where(k => k.ParticipantId == participantid)
+                .Select(x => new ParticipantDTO
+                {
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
+                    Email = x.Email
+                }).FirstOrDefault()
+                    };
+                    //ResearchMethods Lists
+
+                    List<int> researchIds = await _context.ProjectResearch.Where(k => k.ProjectId == _context.ProjectSession.Where(x => x.SessionId == int.Parse(_protector.Encode(sessionPassToken))).FirstOrDefault().ProjectId).Select(k => k.ResearchId).ToListAsync();
+
+                    StringBuilder stringBuilder = new StringBuilder();
+                    stringBuilder.AppendLine(string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}",
+                            "Session:",
+                            resultDTO.Title,
+                            "Participant:",
+                            resultDTO.ParticipantDTO.FirstName,
+                            resultDTO.ParticipantDTO.LastName,
+                            "EMAIL:",
+                            resultDTO.ParticipantDTO.Email,
+                            "SessionPassToken",
+                            resultDTO.SessionMD5,
+                            "ParticipantPassToken",
+                            resultDTO.ParticipantMD5));
+                    
+                    foreach (var researchId in researchIds)
+                    {
+                        stringBuilder.AppendLine(string.Empty);
+                        Research research = _context.Research.Where(k => k.ResearchId == researchId).FirstOrDefault();
+                        if (research.ResearchMethodId == (int)ResearchType.VirtualAugmentedReality)
+                        {
+                            List<VAResultDTO> vAResultDTOs = new List<VAResultDTO>();
+                            stringBuilder.AppendLine(string.Format("{0},{1}",
+                            "ResearchPassToken:",
+                            IdentityConversions.MD5Hash(research.ResearchId.ToString())));
+                            stringBuilder.AppendLine(string.Format("{0},{1}",
+                            research.Title,
+                            ResearchType.VirtualAugmentedReality.GetEnumDescription()));
+                            //VAR can have more than one entry
+                            vAResultDTOs.AddRange(
+                                await _context.ParticipantResult.Where(k => k.ResearchId == research.ResearchId && k.ParticipantId == participantid && k.SessionId == int.Parse(_protector.Encode(sessionPassToken)))
+                                .Select(x => new VAResultDTO
+                                {
+                                    Time = x.Time,
+                                    Registered = x.Registered,
+                                    NoOfMistakes = x.NoOfMistakes,
+                                    Notes = x.Notes
+                                }).ToListAsync());
+                            stringBuilder.AppendLine(string.Format("{0},{1},{2},{3}",
+                            "Time",
+                            "No of Mistakes",
+                            "Registered",
+                            "Notes"));
+                            foreach (var vAResultDTO in vAResultDTOs)
+                            {
+                                stringBuilder.AppendLine(string.Format("{0},{1},{2},{3}",
+                                vAResultDTO.Time,
+                                vAResultDTO.NoOfMistakes,
+                                vAResultDTO.Registered,
+                                vAResultDTO.Notes));
+                            }
+                        }
+                        else if (research.ResearchMethodId == (int)ResearchType.QualtricsQuestionnaire)
+                        {
+                            QualtricsResultDTO qualtricsResultDTO = new QualtricsResultDTO();
+                            stringBuilder.AppendLine(string.Format("{0},{1}",
+                           "ResearchPassToken:",
+                           IdentityConversions.MD5Hash(research.ResearchId.ToString())));
+                            stringBuilder.AppendLine(string.Format("{0},{1}",
+                            research.Title,
+                            ResearchType.QualtricsQuestionnaire.GetEnumDescription()));
+                            qualtricsResultDTO = _context.QualtricsResult.Where(k => k.ResearchId == research.ResearchId && k.ParticipantId == participantid && k.SessionId == int.Parse(_protector.Encode(sessionPassToken)))
+                                .Select(x => new QualtricsResultDTO
+                                {
+                                    Title = research.Title,
+                                    ResearchPassToken = _protector.Decode(research.ResearchId.ToString()),
+                                    ResearchMD5 = IdentityConversions.MD5Hash(research.ResearchId.ToString()),
+                                    ParticipantId = x.ParticipantId,
+                                    SessionId = x.SessionId,
+                                    ResearchId = (int)x.ResearchId,
+                                    DocumentUrl = x.DocumentUrl,
+                                //Notes = x.Notes
+                            }).FirstOrDefault();
+                            stringBuilder.AppendLine(string.Format("{0},{1},{2},{3}",
+                            "No",
+                            "Available",
+                            "Data",
+                            "Yet"));
+                        }
+                        else if (research.ResearchMethodId == (int)ResearchType.OfflineMethod)
+                        {
+                            OfflineResultDTO offlineResultDTO = new OfflineResultDTO();
+                            stringBuilder.AppendLine(string.Format("{0},{1}",
+                           "ResearchPassToken:",
+                           IdentityConversions.MD5Hash(research.ResearchId.ToString())));
+                            stringBuilder.AppendLine(string.Format("{0},{1}",
+                            research.Title,
+                            ResearchType.OfflineMethod.GetEnumDescription()));
+                            offlineResultDTO = _context.OfflineResult.Where(k => k.ResearchId == research.ResearchId && k.ParticipantId == participantid && k.SessionId == int.Parse(_protector.Encode(sessionPassToken)))
+                                .Select(x => new OfflineResultDTO
+                                {
+                                    DocumentUrl = x.DocumentUrl,
+                                    Completed = x.Completed == 1 ? "Yes" : "No"
+                                //Notes = x.Notes
+                            }).FirstOrDefault();
+                            stringBuilder.AppendLine(string.Format("{0},{1}",
+                            "Completed",
+                            "Document"));
+                            stringBuilder.AppendLine(string.Format("{0},{1}",
+                            offlineResultDTO.Completed,
+                            offlineResultDTO.DocumentUrl));
+                        }
+                    }
+
+                    var bytes = Encoding.UTF8.GetBytes(stringBuilder.ToString());                    
+                    var newFileName = string.Format("{0}_{1}_{2}_{3}.csv", resultDTO.ParticipantDTO.FirstName, resultDTO.ParticipantDTO.LastName, resultDTO.Title, DateTimeOffset.Now.ToUnixTimeSeconds());
+                    var fileName = string.Empty;
+                    fileName = Path.Combine(_environment.WebRootPath, "research-files", "for-download") + $@"\{newFileName}";
+                    System.IO.File.WriteAllBytes(fileName, bytes);
+                    fileNames.Add(fileName);
+                }
+
+                var zipFileName = string.Format("{0}_{1}.zip", _context.Session.Where(k => k.SessionId == int.Parse(_protector.Encode(sessionPassToken))).FirstOrDefault().Title , DateTimeOffset.Now.ToUnixTimeSeconds());
+                var zipFilePath = string.Empty;
+                zipFilePath = Path.Combine(_environment.WebRootPath, "research-files", "for-download") + $@"\{zipFileName}";
+
+                using (ZipArchive zipFile = ZipFile.Open(zipFilePath, ZipArchiveMode.Create))
+                {
+                    foreach (string file in fileNames)
+                    {
+                        zipFile.CreateEntryFromFile(file,Path.GetFileName(file));
+                    }                    
+                }
+                byte[] zipBytes; //= new byte[filestream.Length];
+                using (FileStream filestream = new FileStream(zipFilePath, FileMode.Open))
+                {
+                    zipBytes = new byte[filestream.Length];
+                    filestream.Read(zipBytes, 0, zipBytes.Length);
+
+                    //DELETE from root
+                    foreach (string file in fileNames)
+                    {
+                        if (System.IO.File.Exists(file))
+                            System.IO.File.Delete(file);
+                    }                    
+                }
+                if (System.IO.File.Exists(zipFilePath))
+                    System.IO.File.Delete(zipFilePath);
+
+                return File(zipBytes, "application/zip", zipFileName);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Participants", "Project", new { passToken = sessionPassToken });
+            }
         }
     }    
 }

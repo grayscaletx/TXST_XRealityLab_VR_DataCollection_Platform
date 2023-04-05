@@ -39,19 +39,20 @@
             <tbody>
                 <tr>
                     @{string passToken = Model.PassToken;}
-                    <td class="text-primary" colspan="40" align="left" onclick="location.href='/Project/NewSession?passToken=@passToken'">New Session +</td>
+                    <td class="text-primary" colspan="40" align="left"><a href="/Project/NewSession?passToken=@passToken">New Session +</a></td>
                 </tr>
                 @foreach (var item in Model.SessionDTOs)
                 {
                     string sessionPassToken = item.PassToken;
                     <tr>
-                        <td class="text-primary" onclick="location.href='/Project/Participants?passToken=@sessionPassToken'">@item.Title</td>
+                        <td class="text-primary"><a href="/Project/Participants?passToken=@sessionPassToken">@item.Title</a></td>
                         <td>@item.Description</td>
                         <td>@item.Registered</td>
                         <td>@item.ParticipantsCount</td>
                         <td align="right">
                             <a class="fa-2x mr-2 fas fa-ellipsis-h text-dark" data-toggle="dropdown"></a>
                             <div class="dropdown-menu" role="menu">
+                                <a class="dropdown-item" asp-action="DownloadDataCollectiontData" asp-route-sessionPassToken=@sessionPassToken>Export Data</a>
                                 <a class="dropdown-item" href="#">Edit</a>
                                 <a class="dropdown-item" asp-action="DeleteSession" asp-route-passToken="@Model.PassToken" asp-route-sessionId="@item.SessionId">Remove</a>
                             </div>

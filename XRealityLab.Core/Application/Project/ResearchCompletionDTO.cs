@@ -9,6 +9,7 @@ namespace XRealityLab.Models
     public class ResearchCompletionDTO
     {
         public int ResearchId { get; set; }
+        public string PassToken { get; set; }
         public string Title { get; set; }
         public int ResearchMethodId { get; set; }
         public string TypeId { get; set; }

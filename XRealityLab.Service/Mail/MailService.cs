@@ -39,7 +39,7 @@ namespace Mail
             msg.AddTo(new EmailAddress(email, SendGridCredentials.SET_FROM_NAME));
             msg.AddSubstitution("-resetLink-", resetLink);
             msg.SetTemplateId(SendGridCredentials.TEMPLATE_FORGOT_PASSWORD_ID);
-            msg.Subject = "Reset your ARI S.A. password";
+            msg.Subject = "Reset your XRealityLab password";
 
             var response = await client.SendEmailAsync(msg);
             Console.WriteLine(response.Headers.ToString());

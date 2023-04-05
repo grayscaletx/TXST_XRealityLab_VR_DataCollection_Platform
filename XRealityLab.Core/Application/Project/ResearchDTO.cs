@@ -10,6 +10,7 @@ namespace XRealityLab.Models
     {
         public int ResearchId { get; set; }
         public string ResearchPassToken { get; set; }
+        public string ResearchMD5 { get; set; }
         public string Title { get; set; }
         public int ResearchMethodId { get; set; }
         public string TypeId { get; set; }

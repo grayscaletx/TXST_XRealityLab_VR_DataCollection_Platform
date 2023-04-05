@@ -8,6 +8,7 @@ namespace Infrastructure.Entities
         public int SessionParticipantId { get; set; }
         public int SessionId { get; set; }
         public int ParticipantId { get; set; }
+        public string Notes { get; set; }
 
         public virtual Participant Participant { get; set; }
         public virtual Session Session { get; set; }
