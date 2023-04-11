@@ -985,16 +985,18 @@ namespace XRealityLab.Controllers
                         offlineResultDTO = _context.OfflineResult.Where(k => k.ResearchId == research.ResearchId && k.ParticipantId == int.Parse(_protector.Encode(participantPassToken)) && k.SessionId == int.Parse(_protector.Encode(sessionPassToken)))
                             .Select(x => new OfflineResultDTO
                             {                                
-                                DocumentUrl = x.DocumentUrl,
+                                DocumentUrl = x.DocumentUrl != null ? x.DocumentUrl : "",
                                 Completed = x.Completed == 1 ? "Yes" : "No"
                                 //Notes = x.Notes
                             }).FirstOrDefault();
                         stringBuilder.AppendLine(string.Format("{0},{1}",
                         "Completed",
                         "Document"));
-                        stringBuilder.AppendLine(string.Format("{0},{1}",
-                        offlineResultDTO.Completed,
-                        offlineResultDTO.DocumentUrl));
+                        if(offlineResultDTO != null)
+                            stringBuilder.AppendLine(string.Format("{0},{1}",
+                            offlineResultDTO.Completed,
+                            offlineResultDTO.DocumentUrl));
+
                     }
                 }         
                 return File(Encoding.UTF8.GetBytes(stringBuilder.ToString()), "text/csv", string.Format("{0}_{1}_{2}_{3}.csv", resultDTO.ParticipantDTO.FirstName, resultDTO.ParticipantDTO.LastName, resultDTO.Title, DateTimeOffset.Now.ToUnixTimeSeconds()));
@@ -1122,16 +1124,17 @@ namespace XRealityLab.Controllers
                             offlineResultDTO = _context.OfflineResult.Where(k => k.ResearchId == research.ResearchId && k.ParticipantId == participantid && k.SessionId == int.Parse(_protector.Encode(sessionPassToken)))
                                 .Select(x => new OfflineResultDTO
                                 {
-                                    DocumentUrl = x.DocumentUrl,
+                                    DocumentUrl = x.DocumentUrl != null ? x.DocumentUrl : "",
                                     Completed = x.Completed == 1 ? "Yes" : "No"
                                 //Notes = x.Notes
                             }).FirstOrDefault();
                             stringBuilder.AppendLine(string.Format("{0},{1}",
                             "Completed",
                             "Document"));
-                            stringBuilder.AppendLine(string.Format("{0},{1}",
-                            offlineResultDTO.Completed,
-                            offlineResultDTO.DocumentUrl));
+                            if (offlineResultDTO != null)
+                                stringBuilder.AppendLine(string.Format("{0},{1}",
+                                offlineResultDTO.Completed,
+                                offlineResultDTO.DocumentUrl));
                         }
                     }
 
