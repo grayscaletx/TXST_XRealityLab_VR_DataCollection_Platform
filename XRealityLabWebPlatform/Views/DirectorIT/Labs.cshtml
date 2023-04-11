@@ -24,8 +24,18 @@
     </div>
 }
 
-<div class="container" style="float: left;">
+<div class="container">
     <div class="card-columns">
+        @if (Model.LabDTOs.Count < Model.NoAllowedLabs)
+        {
+            <div class="card mb-4" style="height:360px;background-color:transparent" onclick="location.href='/DirectorIT/AddLab'">
+                <div align="center" style="padding :60px 0 0 0">
+                    <h4 style="color: #4bc4e9;font-size:100px">+</h4>
+                    <h4 style="color: #4bc4e9">New Lab</h4>
+                </div>
+                <img style="margin:-215px 0px 0 0" width="370" height="360" src="/_images/group_icons/new_organization.png" />
+            </div>
+        }
         @foreach (var item in Model.LabDTOs)
         {
             <div class="card mb-4" style="background-color : @item.Color;padding:10px 0;height:360px" onclick="location.href='/DirectorIT/Lab?passToken='+ @item.PassToken">
@@ -52,17 +62,5 @@
                 </div>
             </div>
         }
-        @if (Model.LabDTOs.Count < Model.NoAllowedLabs)
-        {
-            <div class="card mb-4" style="height:360px;background-color:transparent" onclick="location.href='/DirectorIT/AddLab'">
-                <div align="center" style="padding :60px 0 0 0">
-                    <h4 style="color: #4bc4e9;font-size:100px">+</h4>
-                    <h4 style="color: #4bc4e9">New Lab</h4>
-                </div>
-                <img style="margin:-215px 0px 0 0" width="370" height="360" src="/_images/group_icons/new_organization.png" />
-            </div>
-        }
-
-
     </div>
 </div>

@@ -25,16 +25,23 @@
     </div>
 }
 
-<div class="container" style="float: left; display: block; " >
+<div class="container">
     <div class="card-columns">
+        <div class="card row mb-4" style="height:360px;background-color:transparent" onclick="location.href='/Administrator/AddOrganization'">
+            <div align="center" style="padding :60px 0 0 0">
+                <h4 style="color: #4bc4e9;font-size:100px">+</h4>
+                <h4 style="color: #4bc4e9">New Organization</h4>
+            </div>
+            <img style="margin:-215px 0px 0 0" width="370" height="360" src="/_images/group_icons/new_organization.png" />
+        </div>
         @foreach (var item in Model)
         {
             <div class="card row mb-4" style="background-color : @item.Color;padding:10px 0;height:360px" onclick="location.href='/Administrator/Organization?passToken='+ @item.PassToken">
-                @if(item.Expired)
+                @if (item.Expired)
                 {
                     <div class="px-2 float-left badge badge-danger" style="margin:6px 10px">Expired: @item.SubscriptionExpiration.ToString("MM/dd/yyyy")</div>
                 }
-                else if(item.NotStarted)
+                else if (item.NotStarted)
                 {
                     <div class="px-2 float-left badge badge-success" style="margin:6px 10px">Starting: @item.SubscriptionStarted.ToString("MM/dd/yyyy")</div>
                 }
@@ -61,13 +68,5 @@
                 </div>
             </div>
         }
-        <div class="card row mb-4" style="height:360px;background-color:transparent" onclick="location.href='/Administrator/AddOrganization'">
-            <div align="center" style="padding :60px 0 0 0">
-                <h4 style="color: #4bc4e9;font-size:100px">+</h4>
-                <h4 style="color: #4bc4e9">New Organization</h4>
-            </div>
-            <img style="margin:-215px 0px 0 0" width="370" height="360" src="/_images/group_icons/new_organization.png" />
-        </div>
-
     </div>
 </div>

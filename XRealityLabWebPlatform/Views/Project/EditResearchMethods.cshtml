@@ -38,7 +38,7 @@
             <tbody>
                 <tr>
                     @{string passToken = Model.PassToken;}  
-                    <td class="text-primary" colspan="40" align="left" onclick="location.href='/Project/NewResearchMethod?passToken=@passToken'">New Research Method +</td>
+                    <td class="text-primary" colspan="40" align="left"><a href="/Project/NewResearchMethod?passToken=@passToken">New Research Method +</a></td>
                 </tr>
                 @foreach (var item in Model.ResearchDTOs)
                 {

@@ -23,46 +23,12 @@
                         <!-- User picture-->
                         <div class="user-block-picture">
                             <div class="user-block-status">
-                                <img id="user-photo" src="" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
-                                @*@if (role == RoleType.Administrator.GetEnumDescription())
-                                    {
-                                        <img src="@PhotoUrl.ADMINISTRATOR_ICON_PNG" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
-                                    }
-                                    else if (role == RoleType.DirectorOfIT.GetEnumDescription())
-                                    {
-                                        <img src="@PhotoUrl.DIRECTOR_OF_IT_ICON_PNG" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
-                                    }
-                                    else if (role == RoleType.LabDirector.GetEnumDescription())
-                                    {
-                                        <img src="@PhotoUrl.LAB_DIRECTOR_ICON_PNG" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
-                                    }
-                                    else if (role == RoleType.PrincipleInvestigator.GetEnumDescription())
-                                    {
-                                        <img src="@PhotoUrl.PRINCIPLE_INVESTIGATOR_ICON_PNG" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
-                                    }
-                                    else if (role == RoleType.ResearchAssistant.GetEnumDescription())
-                                    {
-                                        <img src="@PhotoUrl.RESEARCH_ASSISTANT_ICON_PNG" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />
-                                    }*@
-
+                                <img id="user-photo" src="" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />                                
                                 <div class="circle bg-success circle-lg"></div>
                             </div>
                         </div>
                         <!-- Name and Job-->
-                        <div class="user-block-info">
-                            @*<div class="btn-group">
-                                     <button class="btn btn-link" data-toggle="dropdown">
-                                         <em class="fa fa-caret-down fa-lg"></em>
-                                    </button>
-                                    <div class="dropdown-menu dropdown-menu-left-forced animated fadeInLeft" role="menu">
-                                        <a class="dropdown-item" href="/Profile/EditProfile">
-                                            <span>Επεξεργασία</span>
-                                           </a>
-                                        <a class="dropdown-item" href="/Home/LogOutAndChangePassword">
-                                             <span>Αλλ. κωδικού</span>
-                                         </a>
-                                    </div>
-                                </div>*@
+                        <div class="user-block-info">                            
                             <span class="user-block-name"><strong>@User.Identity.Name</strong></span>
                             <span class="user-block-role">@role</span>
                             <a href="@Url.Action("EditProfile", "User")"><em class="fas fa-edit" style="color:gray"></em></a>
@@ -70,7 +36,6 @@
                     </div>
                 </div>
             </li>
-
             <li class="nav-heading">
                 <span>Main Navigation</span>
             </li>

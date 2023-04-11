@@ -35,8 +35,18 @@
     </div>
 }
 
-<div class="container" style="float: left;">
+<div class="container">
     <div class="card-columns">
+        @if (role == RoleType.LabDirector.GetEnumDescription() || role == RoleType.PrincipleInvestigator.GetEnumDescription())
+        {
+            <div class="card mb-4" style="height:360px;background-color:transparent" onclick="location.href='/Project/AddProject'">
+                <div align="center" style="padding :60px 0 0 0">
+                    <h4 style="color: #4bc4e9;font-size:100px">+</h4>
+                    <h4 style="color: #4bc4e9">New Project</h4>
+                </div>
+                <img style="margin:-215px 0px 0 0" width="370" height="360" src="/_images/group_icons/new_organization.png" />
+            </div>
+        }
         @foreach (var item in Model)
         {
             string passToken = item.PassToken;
@@ -63,22 +73,12 @@
                     <div style="background-color:white;margin:0px -16px; height:103px">
                         @foreach (var PI in item.UserDTOs)
                         {
-                        <span class="fa fa-envelope" style="padding:15px 10px">
-                            @((Rank)PI.Rank  + ". " + PI.Firstname + " " + PI.Lastname)
-                        </span>
+                            <span class="fa fa-envelope" style="padding:15px 10px">
+                                @((Rank)PI.Rank  + ". " + PI.Firstname + " " + PI.Lastname)
+                            </span>
                         }
                     </div>
                 </div>
-            </div>
-        }
-        @if (role == RoleType.LabDirector.GetEnumDescription() || role == RoleType.PrincipleInvestigator.GetEnumDescription())
-        {
-            <div class="card mb-4" style="height:360px;background-color:transparent" onclick="location.href='/Project/AddProject'">
-                <div align="center" style="padding :60px 0 0 0">
-                    <h4 style="color: #4bc4e9;font-size:100px">+</h4>
-                    <h4 style="color: #4bc4e9">New Project</h4>
-                </div>
-                <img style="margin:-215px 0px 0 0" width="370" height="360" src="/_images/group_icons/new_organization.png" />
             </div>
         }
     </div>

@@ -30,6 +30,7 @@ using Microsoft.AspNetCore.Identity;
 using Common;
 using System.Security.Claims;
 using System.Drawing;
+using System.Text.RegularExpressions;
 
 namespace XRealityLab.Controllers
 {
@@ -128,6 +129,10 @@ namespace XRealityLab.Controllers
                     System.IO.File.Delete(Path.Combine(_environment.WebRootPath, "_images", "user-photos") + $@"\{newFileName}");
                 }
             }
+
+            if (!Regex.IsMatch(_userDTO.Firstname, @"^[a-zA-Z]+$") || !Regex.IsMatch(_userDTO.Lastname, @"^[a-zA-Z]+$"))
+                return RedirectToAction(nameof(EditProfile), new { _actionMessage = "Invalid Data" });
+
             user.Rank = _userDTO.Rank;
             user.Firstname = _userDTO.Firstname;
             user.Lastname = _userDTO.Lastname;

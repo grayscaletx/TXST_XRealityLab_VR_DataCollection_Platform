@@ -41,7 +41,7 @@
                         </div>
                         <label class="col-md-6 col-form-label">Organization Icon</label>
                         <div>
-                            <input id="inputFileToLoad" class="form-control filestyle" type="file" data-classbutton="btn btn-secondary" data-classinput="form-control inline" onchange="encodeImageFileAsURL()" data-icon="&lt;span class='fa fa-upload mr'&gt;&lt;/span&gt;" />
+                            <input id="inputFileToLoad" class="form-control filestyle" type="file"  accept="image/png, image/jpeg" data-classbutton="btn btn-secondary" data-classinput="form-control inline" onchange="encodeImageFileAsURL()" data-icon="&lt;span class='fa fa-upload mr'&gt;&lt;/span&gt;" />
                         </div>
                     </div>
                     <div class="form-group">
@@ -68,7 +68,7 @@
                         <input asp-for="City" class="form-control" type="text" placeholder="" />
                     </div>
                     <div class="form-group">
-                        <label>City</label>
+                        <label>Country</label>
                         <input asp-for="Country" class="form-control" type="text" placeholder="" />
                     </div>
                     <div class="form-row align-items-center">
@@ -106,7 +106,7 @@
             </div>
             <div class="card card-default">
                 <div class="card-body">
-                    <h2>Research Director and Contact</h2>
+                    <h2>IT Director and Contact</h2>
                     <div class="form-group">
                         <label>Rank</label>
                         <select id="rank" asp-for="Rank" class="form-control form-control-lg">
@@ -217,7 +217,11 @@
     <script type='text/javascript'>
         function encodeImageFileAsURL() {
             var filesSelected = document.getElementById("inputFileToLoad").files;
-            if (filesSelected.length > 0) {
+            if (filesSelected[0].size > 2097152) {
+                alert("File is too big!");
+                this.value = "";
+            }
+            else if (filesSelected.length > 0) {
                 var fileToLoad = filesSelected[0];
                 var fileReader = new FileReader();
                 fileReader.onload = function (fileLoadedEvent) {
@@ -226,7 +230,7 @@
                     document.getElementById("inputBase64").value = srcData;
                 }
                 fileReader.readAsDataURL(fileToLoad);
-            }
+            }            
         }
     </script>
     <script>
