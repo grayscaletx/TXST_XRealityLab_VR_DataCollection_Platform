@@ -54,7 +54,7 @@
                             <div class="dropdown-menu" role="menu">
                                 <a class="dropdown-item" asp-action="DownloadDataCollectiontData" asp-route-sessionPassToken=@sessionPassToken>Export Data</a>
                                 <a class="dropdown-item" href="#">Edit</a>
-                                <a class="dropdown-item" asp-action="DeleteSession" asp-route-passToken="@Model.PassToken" asp-route-sessionId="@item.SessionId">Remove</a>
+                                <a class="dropdown-item" asp-action="DeleteSession" asp-route-passToken="@Model.PassToken" asp-route-sessionId="@item.SessionId" onclick="return confirm('Are you sure you want to delete this item?');">Remove</a>
                             </div>
                         </td>
                     </tr>

@@ -37,11 +37,11 @@
                         <div align="center" style="padding :10px 0 0 0">
                             <img id="imgIcon" src="~/_images/group_icons/organization_blank_icon.png" alt="Avatar" width="90" height="90" class="rounded-circle" />
                             <input id="inputBase64" type="hidden" asp-for="PhotoBase64" />
-                            <img id="photo-url" src="@Model.PhotoUrl" hidden/>
+                            <img id="photo-url" src="@Model.PhotoUrl" hidden />
                         </div>
                         <label class="col-md-6 col-form-label">Organization Icon</label>
                         <div>
-                            <input id="inputFileToLoad" class="form-control filestyle" type="file"  accept="image/png, image/jpeg" data-classbutton="btn btn-secondary" data-classinput="form-control inline" onchange="encodeImageFileAsURL()" data-icon="&lt;span class='fa fa-upload mr'&gt;&lt;/span&gt;" />
+                            <input id="inputFileToLoad" class="form-control filestyle" type="file" accept="image/png, image/jpeg" data-classbutton="btn btn-secondary" data-classinput="form-control inline" onchange="encodeImageFileAsURL()" data-icon="&lt;span class='fa fa-upload mr'&gt;&lt;/span&gt;" />
                         </div>
                     </div>
                     <div class="form-group">
@@ -156,6 +156,7 @@
             </div>
         </div>
     </div>
+    <button class="btn btn-sm btn-outline-primary" href="/Administrator/Organizations">Cancel</button>
     <button class="btn btn-sm btn-primary" type="submit">Update</button>
 </form>
 

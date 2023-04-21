@@ -40,7 +40,7 @@
                     <a class="fa-2x mr-2 fas fa-ellipsis-h text-white" data-toggle="dropdown"></a>
                     <div class="dropdown-menu" role="menu">
                         <a class="dropdown-item" href="/Project/EditProject?passToken=@item.PassToken">Edit Project</a>
-                        <a class="dropdown-item" href="/Project/RemoveProject?passToken=@item.PassToken">Remove Project</a>
+                        <a class="dropdown-item" href="/Project/RemoveProject?passToken=@item.PassToken" onclick="return confirm('Are you sure you want to delete this item?');" >Remove Project</a>
                         <a class="dropdown-item" href="/User/AddPrincipleInvestigatorsToProject?passToken=@item.PassToken">Add Principle Investigators</a>
                         <a class="dropdown-item" href="/User/AddResearchAssistantsToProject?passToken=@item.PassToken">Add Research Assistants</a>
                         <a class="dropdown-item" href="/Project/EditResearchMethods?passToken=@item.PassToken">Add Research Method</a>

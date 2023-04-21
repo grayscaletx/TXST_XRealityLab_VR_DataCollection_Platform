@@ -49,10 +49,10 @@
                     <a class="fa-2x mr-2 fas fa-ellipsis-h text-white" data-toggle="dropdown"></a>
                     <div class="dropdown-menu" role="menu">
                         <a class="dropdown-item" href="/Administrator/EditOrganization?passToken=@item.PassToken">Edit Organization</a>
-                        <a class="dropdown-item" href="/Administrator/RemoveOrganization?passToken=@item.PassToken">Remove Organization</a>
+                        <a class="dropdown-item" href="/Administrator/RemoveOrganization?passToken=@item.PassToken" onclick="return confirm('Are you sure you want to delete this item?');" >Remove Organization</a>
                     </div>
                 </div>
-                <div align="center" style="padding :10px 0 0 0">
+                <div align="center" style="padding :10px 0 0 0" onclick="location.href='/Administrator/EditOrganization?passToken=@item.PassToken'">
                     <img src="@item.PhotoUrl" alt="Avatar" width="90" height="90" class="rounded-circle" />
                 </div>
                 <h3 class="text-white" style="margin:10px">@item.FullName</h3>
@@ -70,3 +70,4 @@
         }
     </div>
 </div>
+
