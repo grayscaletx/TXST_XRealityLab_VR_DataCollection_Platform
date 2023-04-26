@@ -7,7 +7,7 @@ namespace Common.Constants
     public static class SendGridCredentials
     {
         public static string API_KEY = "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"; //old-> "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" changed
-        public static string SET_FROM_EMAIL = "mikekoudoum@gmail.com";
+        public static string SET_FROM_EMAIL = "gntakakis@outlook.com";
         public static string SET_FROM_NAME = "XRealityLab team";
         public static string SET_FROM_CLIENT = "XRealityLab client";
         public static string SET_TO_NAME = "User";
