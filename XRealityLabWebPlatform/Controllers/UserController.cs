@@ -31,6 +31,8 @@ using Common;
 using System.Security.Claims;
 using System.Drawing;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Text;
 
 namespace XRealityLab.Controllers
 {
@@ -157,12 +159,36 @@ namespace XRealityLab.Controllers
             //Check if new passwords match
             if(passwordDTO.NewPassword != passwordDTO.NewPasswordConfirm)
                 return RedirectToAction(nameof(ChangePassword), new { _actionMessage = "New Passwords dont match" });
-            //Update passwords
-            user.PasswordHash = IdentityConversions.MD5Hash(passwordDTO.NewPassword);
-            _context.User.Update(user);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(EditProfile), new { _actionMessage = "Success" });
+            var identityUser = await _userManager.FindByNameAsync(user.Email);
+            if (identityUser == null)
+            {
+                var userManagerResult = await _userManager.CreateAsync(new IdentityUser
+                {
+                    Id = user.IdentityId,
+                    Email = user.Email,
+                    UserName = user.Email,
+                    EmailConfirmed = user.IsActive == 1 ? true : false
+                });
+                //Couldn't create user manager
+                if (!userManagerResult.Succeeded)
+                    return RedirectToAction(nameof(ChangePassword), new { _actionMessage = "Something Went Wrong Try Again Later" });
+                identityUser = await _userManager.FindByNameAsync(user.Email);
+                if (identityUser == null)
+                    return RedirectToAction(nameof(ChangePassword), new { _actionMessage = "Something Went Wrong Try Again Later" });
+            }
+            var code = await _userManager.GeneratePasswordResetTokenAsync(identityUser);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
+            var result = await _userManager.ResetPasswordAsync(identityUser, code, passwordDTO.NewPassword);
+            if (result.Succeeded)
+            {
+                string hash = IdentityConversions.MD5Hash(passwordDTO.NewPassword);
+                user.PasswordHash = hash;
+                _context.Update(user);
+                _context.SaveChanges();
+                return RedirectToAction(nameof(EditProfile), new { _actionMessage = "Success" });
+            }
+            return RedirectToAction(nameof(ChangePassword), new { _actionMessage = "Something Went Wrong Try Again Later" });
         }
         public async Task<IActionResult> PrincipleInvestigators(string _actionMessage)
         {
