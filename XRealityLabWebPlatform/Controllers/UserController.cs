@@ -168,7 +168,7 @@ namespace XRealityLab.Controllers
                     Id = user.IdentityId,
                     Email = user.Email,
                     UserName = user.Email,
-                    EmailConfirmed = user.IsActive == 1 ? true : false
+                    EmailConfirmed = user.HasChangedPassword == 1 ? true : true
                 });
                 //Couldn't create user manager
                 if (!userManagerResult.Succeeded)
@@ -185,6 +185,7 @@ namespace XRealityLab.Controllers
             {
                 string hash = IdentityConversions.MD5Hash(passwordDTO.NewPassword);
                 user.PasswordHash = hash;
+                user.HasChangedPassword = 1;
                 _context.Update(user);
                 _context.SaveChanges();
                 return RedirectToAction(nameof(EditProfile), new { _actionMessage = "Success" });
@@ -236,7 +237,7 @@ namespace XRealityLab.Controllers
                 PhotoUrl = PhotoUrl.DIRECTOR_OF_IT_ICON_PNG,
                 Telephone = _userDTO.Telephone,
                 RegistrationDateTime = DateTime.Now,
-                IsActive = true
+                IsActive = false
             };
             ResponseDTO responseDTO = await DataValidation.UserValidation(_context, userDTO);
             if (responseDTO.Result == "Failed")
@@ -268,13 +269,14 @@ namespace XRealityLab.Controllers
 
             //AUTOMATED EMAIL FOR USER
             //generation of the email tokens
+            string role = "Principle Investigator";
             string password = _userDTO.Password;
             string organizationName = _context.Organization.Where(k => k.OrganizationId == _context.OrganizationLab.Where(k => k.LabId == labId).FirstOrDefault().OrganizationId).FirstOrDefault().FullName;
+            string type = "Lab";
 
             //Send email
             MailService mailService = new MailService();
-            bool check = await mailService.SendAccountCreationAsync(_userDTO.Firstname, password, organizationName, _userDTO.Email);
-
+            bool check = await mailService.SendAccountCreationAsync(_userDTO.Firstname, role, password, organizationName, type, _userDTO.Email);
 
             return RedirectToAction("PrincipleInvestigators", "User");
         }
@@ -384,7 +386,7 @@ namespace XRealityLab.Controllers
                 PhotoUrl = PhotoUrl.DIRECTOR_OF_IT_ICON_PNG,
                 Telephone = _userDTO.Telephone,
                 RegistrationDateTime = DateTime.Now,
-                IsActive = true
+                IsActive = false
             };
             ResponseDTO responseDTO = await DataValidation.UserValidation(_context, userDTO);
             if (responseDTO.Result == "Failed")
@@ -418,12 +420,14 @@ namespace XRealityLab.Controllers
 
             //AUTOMATED EMAIL FOR USER
             //generation of the email tokens
+            string role = "Research Assistant";
             string password = _userDTO.Password;
             string organizationName = _context.Organization.Where(k => k.OrganizationId == _context.OrganizationLab.Where(k => k.LabId == labId).FirstOrDefault().OrganizationId).FirstOrDefault().FullName;
+            string type = "Lab";
 
             //Send email
             MailService mailService = new MailService();
-            bool check = await mailService.SendAccountCreationAsync(_userDTO.Firstname, password, organizationName, _userDTO.Email);
+            bool check = await mailService.SendAccountCreationAsync(_userDTO.Firstname, role, password, organizationName, type, _userDTO.Email);
 
             return RedirectToAction("ResearchAssistants", "User");
         }
