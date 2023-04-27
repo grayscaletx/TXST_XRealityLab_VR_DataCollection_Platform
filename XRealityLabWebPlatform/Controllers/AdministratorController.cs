@@ -29,6 +29,7 @@ using Common.Helpers;
 using Microsoft.AspNetCore.Identity;
 using Common;
 using System.Drawing;
+using Mail;
 
 namespace XRealityLab.Controllers
 {
@@ -203,6 +204,15 @@ namespace XRealityLab.Controllers
 
             await _context.Organization.AddAsync(organization);
             await _context.SaveChangesAsync();
+
+            //AUTOMATED EMAIL FOR USER
+            //generation of the email tokens
+            string password = organizationDirectorDTO.Password;
+            string organizationName = organizationDirectorDTO.FullName;
+
+            //Send email
+            MailService mailService = new MailService();
+            bool check = await mailService.SendAccountCreationAsync(directorIT.Firstname, password, organizationName, directorIT.Email);
 
             return RedirectToAction("Organizations", "Administrator");
         }

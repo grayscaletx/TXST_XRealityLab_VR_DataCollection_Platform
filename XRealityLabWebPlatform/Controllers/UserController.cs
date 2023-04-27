@@ -33,6 +33,7 @@ using System.Drawing;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
+using Mail;
 
 namespace XRealityLab.Controllers
 {
@@ -264,6 +265,17 @@ namespace XRealityLab.Controllers
             //Save data
             await _context.AddAsync(labUser);
             await _context.SaveChangesAsync();
+
+            //AUTOMATED EMAIL FOR USER
+            //generation of the email tokens
+            string password = _userDTO.Password;
+            string organizationName = _context.Organization.Where(k => k.OrganizationId == _context.OrganizationLab.Where(k => k.LabId == labId).FirstOrDefault().OrganizationId).FirstOrDefault().FullName;
+
+            //Send email
+            MailService mailService = new MailService();
+            bool check = await mailService.SendAccountCreationAsync(_userDTO.Firstname, password, organizationName, _userDTO.Email);
+
+
             return RedirectToAction("PrincipleInvestigators", "User");
         }
         public async Task<IActionResult> RemovePrincipleInvestigator(string passToken)
@@ -403,6 +415,16 @@ namespace XRealityLab.Controllers
             //Save data
             await _context.AddAsync(labUser);
             await _context.SaveChangesAsync();
+
+            //AUTOMATED EMAIL FOR USER
+            //generation of the email tokens
+            string password = _userDTO.Password;
+            string organizationName = _context.Organization.Where(k => k.OrganizationId == _context.OrganizationLab.Where(k => k.LabId == labId).FirstOrDefault().OrganizationId).FirstOrDefault().FullName;
+
+            //Send email
+            MailService mailService = new MailService();
+            bool check = await mailService.SendAccountCreationAsync(_userDTO.Firstname, password, organizationName, _userDTO.Email);
+
             return RedirectToAction("ResearchAssistants", "User");
         }
         public async Task<IActionResult> RemoveResearchAssistant(string passToken)

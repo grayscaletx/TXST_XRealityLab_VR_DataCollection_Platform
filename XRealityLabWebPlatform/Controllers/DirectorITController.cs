@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Authorization;
 using Common.Helpers;
 using Microsoft.AspNetCore.Identity;
 using System.Drawing;
+using Mail;
 
 namespace XRealityLab.Controllers
 {
@@ -211,6 +212,14 @@ namespace XRealityLab.Controllers
             await _context.OrganizationLab.AddAsync(organizationLab);
             await _context.SaveChangesAsync();
 
+            //AUTOMATED EMAIL FOR USER
+            //generation of the email tokens
+            string password = labDirectorDTO.Password;
+            string organizationName = _context.Organization.Where(k => k.OrganizationId == _context.OrganizationLab.Where(k => k.LabId == thisLab.LabId).FirstOrDefault().OrganizationId).FirstOrDefault().FullName;
+
+            //Send email
+            MailService mailService = new MailService();
+            bool check = await mailService.SendAccountCreationAsync(director.Firstname, password, organizationName, director.Email);
 
             return RedirectToAction(nameof(Labs));
         }
