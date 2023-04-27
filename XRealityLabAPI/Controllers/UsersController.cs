@@ -36,7 +36,7 @@ namespace XRealityLabAPI.Controllers
             var user = await _context.User.Where(k => k.Email == email && k.PasswordHash == hash).FirstOrDefaultAsync();
 
             if (user == null) return NotFound(MessageConverter.GetResponse("Email not found or password is incorrect.", MethodResult.Failed));
-            if (!(user.IsActive == 1 ? true : false)) return NotFound(MessageConverter.GetResponse("The user has not completed email verification for the " +
+            if (!(user.HasChangedPassword == 1 ? true : false)) return NotFound(MessageConverter.GetResponse("The user has not completed email verification for the " +
                 "platform or the user has been deactivated for another reason. If you have completed the verification process by email, contact the person " +
                 "in charge of your organization.", MethodResult.Failed));
 
@@ -62,7 +62,7 @@ namespace XRealityLabAPI.Controllers
                 LastName = user.Lastname,
                 Email = user.Email,
                 AuthToken = authTokenHash,
-                IsActive = user.IsActive,
+                IsActive = user.HasChangedPassword,
                 RoleId = user.RoleId,
                 RegistrationDateTime = user.RegistrationDateTime
             };
