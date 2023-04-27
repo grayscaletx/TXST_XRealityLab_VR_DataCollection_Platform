@@ -34,7 +34,7 @@ namespace XRealityLab
                     Email = _userDTO.Email.Trim(),
                     RoleId = _userDTO.RoleId,
                     Telephone = _userDTO.Telephone,
-                    IsActive = (byte)(_userDTO.IsActive ? 1 : 0),
+                    HasChangedPassword = (byte)(_userDTO.IsActive ? 1 : 0),
                     PhotoUrl = GetUserPhotoUrl((RoleType)_userDTO.RoleId),
                     RegistrationDateTime = DateTime.Now,
                 };

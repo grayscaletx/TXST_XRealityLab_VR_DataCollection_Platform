@@ -24,7 +24,7 @@ namespace Infrastructure.Entities
         public string Telephone { get; set; }
         public string PhotoUrl { get; set; }
         public int RoleId { get; set; }
-        public byte IsActive { get; set; }
+        public byte HasChangedPassword { get; set; }
         public DateTime RegistrationDateTime { get; set; }
 
         public virtual Role Role { get; set; }

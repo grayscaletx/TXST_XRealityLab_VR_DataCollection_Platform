@@ -103,7 +103,13 @@ namespace XRealityLab.Controllers
 
             // User doesn't exist or invalid model
             if (user == null || !ModelState.IsValid)
-                return AuthenticationError(View(), string.Empty, "We have just sent you a link to reset your password.");
+                return AuthenticationError(View(), string.Empty, "Email, Password combination wrong");
+
+            //Check if User has changed password for the first time 
+            if (user.HasChangedPassword == 0 && DateTime.Now > user.RegistrationDateTime.AddDays(10))
+                return AuthenticationError(View(), string.Empty, "Temporary password has expired please use forgot password to reactivate account");
+
+
 
             //Find if user already exist in the userManager
             var _identityUser = await _userManager.FindByEmailAsync(user.Email);
@@ -138,7 +144,7 @@ namespace XRealityLab.Controllers
             await _userManager.AddClaimAsync(__identityUser, new Claim(ClaimTypes.Role, roles.Result.Where(k => k.RoleId == user.RoleId).FirstOrDefault().Type));
 
             //The user has not activated their account via email
-            if (user.IsActive == 0)
+            /*if (user.IsActive == 0)
             {
                 //generation of the email token
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(__identityUser);
@@ -151,7 +157,7 @@ namespace XRealityLab.Controllers
                 await mailService.SendAccountVerificationAsync(user.Firstname, link, user.Email);
 
                 return RedirectToAction(nameof(EmailVerificationRequired));
-            }
+            }*/
 
             //if (user.Role.RoleId == (int)RoleType.NoRole)
             //{
@@ -230,7 +236,7 @@ namespace XRealityLab.Controllers
                 Telephone = identityUserDto.PhoneNumber,
                 RoleId = (int)RoleType.Administrator,
                 RegistrationDateTime = DateTime.Now,
-                IsActive = 0
+                HasChangedPassword = 0
             };
             await _context.AddAsync(user);
             var hasUserCreated = await _context.SaveChangesAsync();
@@ -269,7 +275,7 @@ namespace XRealityLab.Controllers
             if (result.Succeeded)
             {
                 var user = _context.User.Where(k => k.Email == identityUser.Email).FirstOrDefault();
-                user.IsActive = 1;
+                user.HasChangedPassword = 1;
                 _context.Update(user);
                 _context.SaveChanges();
                 return View();
@@ -321,7 +327,7 @@ namespace XRealityLab.Controllers
                         Id = user.IdentityId,
                         Email = identityForgotPasswordDto.Email.Trim(),
                         UserName = identityForgotPasswordDto.Email.Trim(),
-                        EmailConfirmed = user.IsActive == 1 ? true : false
+                        EmailConfirmed = user.HasChangedPassword == 1 ? true : true
                     });
 
                     //Couldn't create user manager
@@ -383,6 +389,7 @@ namespace XRealityLab.Controllers
             {
                 string hash = IdentityConversions.MD5Hash(identityChangePasswordDto.Password);
                 user.PasswordHash = hash;
+                user.HasChangedPassword = 1;
                 _context.Update(user);
                 _context.SaveChanges();
                 return RedirectToAction(nameof(Login));

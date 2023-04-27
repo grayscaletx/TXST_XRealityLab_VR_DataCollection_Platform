@@ -47,12 +47,14 @@ namespace Mail
             return (response.StatusCode == System.Net.HttpStatusCode.Accepted) ? true : false;
         }
 
-        public async Task<bool> SendAccountCreationAsync(string firstname, string password, string organizationName, string email)
+        public async Task<bool> SendAccountCreationAsync(string firstname, string role, string password, string organizationName, string type, string email)
         {
             msg.AddTo(new EmailAddress(email, SendGridCredentials.SET_FROM_NAME));
             msg.AddSubstitution("-name-", firstname);
+            msg.AddSubstitution("-role-", role);
             msg.AddSubstitution("-password-", password);
             msg.AddSubstitution("-organizationName-", organizationName);
+            msg.AddSubstitution("-type-", type);
             msg.SetTemplateId(SendGridCredentials.TEMPLATE_PLATFORM_INVITATION_ID);
             msg.Subject = "Log In To your XRealityLab Platform Account";
 

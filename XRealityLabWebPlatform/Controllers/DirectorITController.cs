@@ -63,7 +63,7 @@ namespace XRealityLab.Controllers
                     Telephone = k.LabDirector.Telephone,
                     PhotoUrl = k.LabDirector.PhotoUrl,
                     RoleId = k.LabDirector.RoleId,
-                    IsActive = k.LabDirector.IsActive == 1 ? true : false,
+                    IsActive = k.LabDirector.HasChangedPassword == 1 ? true : false,
                     RegistrationDateTime = k.LabDirector.RegistrationDateTime
                 }
             }).ToListAsync();
@@ -99,7 +99,7 @@ namespace XRealityLab.Controllers
                 PhotoUrl = PhotoUrl.DIRECTOR_OF_IT_ICON_PNG,
                 Telephone = labDirectorDTO.Telephone,
                 RegistrationDateTime = DateTime.Now,
-                IsActive = true
+                IsActive = false
             };
             ResponseDTO responseDTO = await DataValidation.UserValidation(_context, userDTO);
             if (responseDTO.Result == "Failed")
@@ -214,12 +214,14 @@ namespace XRealityLab.Controllers
 
             //AUTOMATED EMAIL FOR USER
             //generation of the email tokens
+            string role = "Lab Director";
             string password = labDirectorDTO.Password;
             string organizationName = _context.Organization.Where(k => k.OrganizationId == _context.OrganizationLab.Where(k => k.LabId == thisLab.LabId).FirstOrDefault().OrganizationId).FirstOrDefault().FullName;
+            string type = "Lab";
 
             //Send email
             MailService mailService = new MailService();
-            bool check = await mailService.SendAccountCreationAsync(director.Firstname, password, organizationName, director.Email);
+            bool check = await mailService.SendAccountCreationAsync(director.Firstname, role, password, organizationName, type, director.Email);
 
             return RedirectToAction(nameof(Labs));
         }
@@ -245,7 +247,7 @@ namespace XRealityLab.Controllers
             labDirectorDTO.Email = director.Email;
             labDirectorDTO.Telephone = director.Telephone;
             labDirectorDTO.UserPhotoUrl = director.PhotoUrl;
-            labDirectorDTO.IsActive = director.IsActive == 1 ? true : false;
+            labDirectorDTO.IsActive = director.HasChangedPassword == 1 ? true : false;
             labDirectorDTO.RegistrationDateTime = director.RegistrationDateTime;
 
             ViewBag.actionMessage = _actionMessage;
@@ -368,7 +370,7 @@ namespace XRealityLab.Controllers
             labDirectorDTO.Email = director.Email;
             labDirectorDTO.Telephone = director.Telephone;
             labDirectorDTO.UserPhotoUrl = director.PhotoUrl;
-            labDirectorDTO.IsActive = director.IsActive == 1 ? true : false;
+            labDirectorDTO.IsActive = director.HasChangedPassword == 1 ? true : false;
             labDirectorDTO.RegistrationDateTime = director.RegistrationDateTime;
 
             ViewBag.actionMessage = _actionMessage;
