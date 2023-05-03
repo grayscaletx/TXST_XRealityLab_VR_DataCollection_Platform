@@ -87,6 +87,8 @@ namespace XRealityLab
                 Organization organization = _context.Organization.Where(k => k.OrganizationId == _organization.OrganizationId).FirstOrDefault();
                 User user = _context.User.Where(k => k.UserId == _organization.ItdirectorId).FirstOrDefault();
 
+                //This is mandatory
+                //START
                 var identityUser = await _userManager.FindByEmailAsync(user.Email);
                 if (identityUser != null)
                 {
@@ -94,6 +96,7 @@ namespace XRealityLab
                     if (!userManagerResult.Succeeded)
                         return MessageConverter.GetResponse(string.Empty, MethodResult.Failed);
                 }
+                //END
 
                 List<int> labIds = new List<int>();
                 labIds = await _context.OrganizationLab.Where(k => k.OrganizationId == organization.OrganizationId).Select(k => k.LabId).ToListAsync();
@@ -144,11 +147,11 @@ namespace XRealityLab
                     User labPerson = _context.User.Where(k => k.UserId == labUserId).FirstOrDefault();
                     if (labPerson.RoleId == 4)
                     {
-                        await RemovePrincipleInvestigator(_context, labPerson);
+                        await RemovePrincipleInvestigator(_context, _userManager, labPerson);
                     }
                     else if (labPerson.RoleId == 5)
                     {
-                        await RemoveResearchAssistant(_context, labPerson);
+                        await RemoveResearchAssistant(_context, _userManager, labPerson);
                     }
                 }
                 _context.Remove(organizationLab);
@@ -185,7 +188,10 @@ namespace XRealityLab
                     sessions.Add(_context.Session.Where(k => k.SessionId == projectSession.SessionId).FirstOrDefault());
                 }
                 _context.ProjectSession.RemoveRange(projectSessions);
-                _context.Session.RemoveRange(sessions);
+                foreach (var session in sessions)
+                {
+                    ResponseDTO responseDTO = await RemoveSessionAsync(_context, session);
+                }
                 _context.ProjectResearch.RemoveRange(projectResearches);
                 _context.Research.RemoveRange(researches);
                 _context.ProjectUser.RemoveRange(projectUsers);
@@ -198,11 +204,23 @@ namespace XRealityLab
                 return MessageConverter.GetResponse(string.Empty, MethodResult.Failed);
             }
         }
-        public static async Task<ResponseDTO> RemovePrincipleInvestigator(XRealityLabdbContext _context, User _user)
+        public static async Task<ResponseDTO> RemovePrincipleInvestigator(XRealityLabdbContext _context, UserManager<IdentityUser> _userManager, User _user)
         {
             try
             {
                 User user = _context.User.Where(k => k.UserId == _user.UserId).FirstOrDefault();
+
+                //This is mandatory
+                //START
+                var identityUser = await _userManager.FindByEmailAsync(user.Email);
+                if (identityUser != null)
+                {
+                    var userManagerResult = await _userManager.DeleteAsync(identityUser);
+                    if (!userManagerResult.Succeeded)
+                        return MessageConverter.GetResponse(string.Empty, MethodResult.Failed);
+                }
+                //END
+
                 List<ProjectUser> projectUsers = new List<ProjectUser>();
                 projectUsers = await _context.ProjectUser.Where(k => k.UserId == user.UserId && k.RoleId == 4).ToListAsync();
                 LabUser labUser = _context.LabUser.Where(k => k.UserId == user.UserId && k.RoleId == 4).FirstOrDefault();
@@ -217,11 +235,23 @@ namespace XRealityLab
                 return MessageConverter.GetResponse(string.Empty, MethodResult.Failed);
             }
         }
-        public static async Task<ResponseDTO> RemoveResearchAssistant(XRealityLabdbContext _context, User _user)
+        public static async Task<ResponseDTO> RemoveResearchAssistant(XRealityLabdbContext _context, UserManager<IdentityUser> _userManager, User _user)
         {
             try
             {
                 User user = _context.User.Where(k => k.UserId == _user.UserId).FirstOrDefault();
+
+                //This is mandatory
+                //START
+                var identityUser = await _userManager.FindByEmailAsync(user.Email);
+                if (identityUser != null)
+                {
+                    var userManagerResult = await _userManager.DeleteAsync(identityUser);
+                    if (!userManagerResult.Succeeded)
+                        return MessageConverter.GetResponse(string.Empty, MethodResult.Failed);
+                }
+                //END
+
                 List<ProjectUser> projectUsers = new List<ProjectUser>();
                 projectUsers = await _context.ProjectUser.Where(k => k.UserId == user.UserId && k.RoleId == 5).ToListAsync();
                 LabUser labUser = _context.LabUser.Where(k => k.UserId == user.UserId && k.RoleId == 5).FirstOrDefault();
@@ -236,7 +266,63 @@ namespace XRealityLab
                 return MessageConverter.GetResponse(string.Empty, MethodResult.Failed);
             }
         }
+        public static async Task<ResponseDTO> RemoveSessionAsync(XRealityLabdbContext _context, Session _session)
+        {
+            try
+            {
+                Session session = _context.Session.Where(k => k.SessionId == _session.SessionId).FirstOrDefault();
+                //Remove all participants from this session
+                List<int> participantIds = _context.SessionParticipant.Where(k => k.SessionId == _session.SessionId).Select(k => k.SessionId).ToList();
+                foreach (int participantId in participantIds)
+                {
+                    Participant participant = _context.Participant.Where(k => k.ParticipantId == participantId).FirstOrDefault();
+                    ResponseDTO responseDTO = await RemoveParticipantAsync(_context, _session, participant);
+                }
+                ProjectSession projectSession = _context.ProjectSession.Where(k => k.SessionId == _session.SessionId).FirstOrDefault();
+                _context.ProjectSession.Remove(projectSession);
+                _context.Session.Remove(session);
+                await _context.SaveChangesAsync();
+                return MessageConverter.GetResponse(string.Empty, MethodResult.Succeeded);
+            }
+            catch (Exception ex)
+            {
+                return MessageConverter.GetResponse(string.Empty, MethodResult.Failed);
+            }
+        }
+        public static async Task<ResponseDTO> RemoveParticipantAsync(XRealityLabdbContext _context, Session _session, Participant _participant)
+        {
+            try
+            {
+                SessionParticipant sessionParticipant = _context.SessionParticipant.Where(k => k.ParticipantId == _participant.ParticipantId && k.SessionId == _session.SessionId).FirstOrDefault();
 
+                //DELETE participant results for this session.
+                // table ParticipantResult
+                List<ParticipantResult> participantResults = _context.ParticipantResult.Where(k => k.ParticipantId == _participant.ParticipantId && k.SessionId == _session.SessionId).ToList();
+                // table OfflineResult
+                List<OfflineResult> offlineResults = _context.OfflineResult.Where(k => k.ParticipantId == _participant.ParticipantId && k.SessionId == _session.SessionId).ToList();
+                //QualtricsResult
+                List<QualtricsResult> qualtricsResults = _context.QualtricsResult.Where(k => k.ParticipantId == _participant.ParticipantId && k.SessionId == _session.SessionId).ToList();
+
+                _context.ParticipantResult.RemoveRange(participantResults);
+                _context.OfflineResult.RemoveRange(offlineResults);
+                _context.QualtricsResult.RemoveRange(qualtricsResults);
+                _context.SessionParticipant.Remove(sessionParticipant);
+
+                //Check if Participant doesnt exist in other Data Collections and delete
+                if (!_context.SessionParticipant.Where(k => k.ParticipantId == _participant.ParticipantId && k.SessionId != _session.SessionId).Any())
+                {
+                    Participant participant = _context.Participant.Where(k => k.ParticipantId == _participant.ParticipantId).FirstOrDefault();
+                    _context.Participant.Remove(participant);
+                }
+
+                await _context.SaveChangesAsync();
+                return MessageConverter.GetResponse(string.Empty, MethodResult.Succeeded);
+            }
+            catch (Exception ex)
+            {
+                return MessageConverter.GetResponse(string.Empty, MethodResult.Failed);
+            }
+        }
     }
 
     public class IdentityMigration

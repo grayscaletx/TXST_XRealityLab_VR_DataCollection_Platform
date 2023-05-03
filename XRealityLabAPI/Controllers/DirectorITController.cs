@@ -26,7 +26,7 @@ namespace XRealityLabAPI.Controllers
             _configuration = configuration;
         }
 
-        // GET: api/DirectorIT/GetLab
+        // GET: /api/DirectorIT/GetLab?_authToken={authToken}
         [HttpGet("GetLab")]
         public async Task<ActionResult<LabAPI>> GetLab(string _authToken)
         {

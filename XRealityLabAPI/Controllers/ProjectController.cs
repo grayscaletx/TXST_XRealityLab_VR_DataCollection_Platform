@@ -31,7 +31,7 @@ namespace XRealityLabAPI.Controllers
 
         }
 
-        // GET: api/Project/MyProjects
+        // GET: /api/Project/GetMyProjects?_authToken={authToken}
         [HttpGet("GetMyProjects")]
         public async Task<ActionResult<IEnumerable<ProjectAPI>>> GetMyProjects(string _authToken)
         {
@@ -59,7 +59,7 @@ namespace XRealityLabAPI.Controllers
 
             return projects;
         }
-        // GET: api/Project/DataCollections
+        // GET: /api/Project/GetDataCollections?_authToken={authToken}&projectId={projectId}
         [HttpGet("GetDataCollections")]
         public async Task<ActionResult<IEnumerable<DataCollectionAPI>>> GetDataCollections(string _authToken, int projectId)
         {
@@ -83,7 +83,7 @@ namespace XRealityLabAPI.Controllers
 
             return dataCollections;
         }
-        // GET: api/Project/Participants
+        // GET: /api/Project/GetParticipants?_authToken={authToken}&sessionId={participantId}
         [HttpGet("GetParticipants")]
         public async Task<ActionResult<IEnumerable<ParticipantsAPI>>> GetParticipants(string _authToken, int sessionId)
         {

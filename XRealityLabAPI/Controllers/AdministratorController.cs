@@ -27,7 +27,7 @@ namespace XRealityLabAPI.Controllers
             _configuration = configuration;
         }
 
-        // GET: api/Administrator/GetOrganization
+        // GET: /api/Administrator/GetOrganization?_authToken={authToken}
         [HttpGet("GetOrganization")]
         public async Task<ActionResult<OrganizationAPI>> GetOrganization(string _authToken)
         {

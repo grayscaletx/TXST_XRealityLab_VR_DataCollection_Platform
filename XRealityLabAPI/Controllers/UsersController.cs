@@ -26,7 +26,7 @@ namespace XRealityLabAPI.Controllers
             _configuration = configuration;
         }
 
-        // GET: api/Users/email/password
+        // GET: /api/Users/email/{email}/{password}
         [HttpGet("email/{email}/{password}")]
         public async Task<ActionResult<UserAPI>> GetUser(string email, string password)
         {

@@ -485,6 +485,11 @@ namespace XRealityLab.Controllers
             ProjectSession projectSession = _context.ProjectSession.Where(k => k.SessionId == int.Parse(sessionId)).FirstOrDefault();
             Session session = _context.Session.Where(k => k.SessionId == int.Parse(sessionId)).FirstOrDefault();
             _context.ProjectSession.Remove(projectSession);
+
+            //Remove all participants from this session
+
+
+
             _context.Session.Remove(session);
             await _context.SaveChangesAsync();
             return RedirectToAction("DataCollections", "Project", new { passToken = passToken });
@@ -612,11 +617,9 @@ namespace XRealityLab.Controllers
         }
         public async Task<IActionResult> DeleteParticipant(string passToken, string participantId)
         {
-            SessionParticipant sessionParticipant = _context.SessionParticipant.Where(k => k.ParticipantId == int.Parse(participantId)).FirstOrDefault();
+            Session session = _context.Session.Where(k => k.SessionId == int.Parse(_protector.Encode(passToken))).FirstOrDefault();
             Participant participant = _context.Participant.Where(k => k.ParticipantId == int.Parse(participantId)).FirstOrDefault();
-            _context.SessionParticipant.Remove(sessionParticipant);
-            _context.Participant.Remove(participant);
-            await _context.SaveChangesAsync();
+            ResponseDTO responseDTO = await Migration.RemoveParticipantAsync(_context, session, participant);                        
             return RedirectToAction("Participants", "Project", new { passToken = passToken });
         }
         //Init Data
