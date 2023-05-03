@@ -283,7 +283,7 @@ namespace XRealityLab.Controllers
         public async Task<IActionResult> RemovePrincipleInvestigator(string passToken)
         {
             User user = await _context.User.Where(k => k.UserId == int.Parse(_protector.Encode(passToken))).FirstOrDefaultAsync();
-            await Migration.RemovePrincipleInvestigator(_context, user);
+            await Migration.RemovePrincipleInvestigator(_context, _userManager, user);
             return RedirectToAction(nameof(PrincipleInvestigators));
         }
         public async Task<IActionResult> AddPrincipleInvestigatorsToProject(string passToken) 
@@ -434,7 +434,7 @@ namespace XRealityLab.Controllers
         public async Task<IActionResult> RemoveResearchAssistant(string passToken)
         {
             User user = await _context.User.Where(k => k.UserId == int.Parse(_protector.Encode(passToken))).FirstOrDefaultAsync();
-            await Migration.RemoveResearchAssistant(_context, user);
+            await Migration.RemoveResearchAssistant(_context, _userManager, user);
             return RedirectToAction(nameof(ResearchAssistants));
         }
         public async Task<IActionResult> AddResearchAssistantsToProject(string passToken)
