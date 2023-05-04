@@ -16,26 +16,12 @@
     <nav class="sidebar" data-sidebar-anyclick-close="">
         <!-- START sidebar nav-->
         <ul class="sidebar-nav">
+            <li class="has-user-block"> @await Component.InvokeAsync("Profile") </li>
+
             <!-- START user info-->
-            <li class="has-user-block">
-                <div id="user-block">
-                    <div class="item user-block">
-                        <!-- User picture-->
-                        <div class="user-block-picture">
-                            <div class="user-block-status">
-                                <img id="user-photo" src="" alt="Avatar" width="60" height="60" class="img-thumbnail rounded-circle" />                                
-                                <div class="circle bg-success circle-lg"></div>
-                            </div>
-                        </div>
-                        <!-- Name and Job-->
-                        <div class="user-block-info">                            
-                            <span class="user-block-name"><strong>@User.Identity.Name</strong></span>
-                            <span class="user-block-role">@role</span>
-                            <a href="@Url.Action("EditProfile", "User")"><em class="fas fa-edit" style="color:gray"></em></a>
-                        </div>
-                    </div>
-                </div>
-            </li>
+            <!--<li class="has-user-block">
+               
+            </li>-->
             <li class="nav-heading">
                 <span>Main Navigation</span>
             </li>
@@ -187,5 +173,3 @@
     </nav>
 </div>
 <!-- END Sidebar (left)-->
-
-
