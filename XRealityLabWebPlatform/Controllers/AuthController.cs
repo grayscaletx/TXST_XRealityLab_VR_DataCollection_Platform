@@ -143,27 +143,6 @@ namespace XRealityLab.Controllers
             var __identityUser = await _userManager.FindByEmailAsync(user.Email);
             await _userManager.AddClaimAsync(__identityUser, new Claim(ClaimTypes.Role, roles.Result.Where(k => k.RoleId == user.RoleId).FirstOrDefault().Type));
 
-            //The user has not activated their account via email
-            /*if (user.IsActive == 0)
-            {
-                //generation of the email token
-                var code = await _userManager.GenerateEmailConfirmationTokenAsync(__identityUser);
-                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-
-                var link = Url.Action(nameof(VerifyEmail), "Auth", new { userId = __identityUser.Id, code }, Request.Scheme, Request.Host.ToString());
-
-                //Send email
-                MailService mailService = new MailService();
-                await mailService.SendAccountVerificationAsync(user.Firstname, link, user.Email);
-
-                return RedirectToAction(nameof(EmailVerificationRequired));
-            }*/
-
-            //if (user.Role.RoleId == (int)RoleType.NoRole)
-            //{
-            //    return AuthenticationError(View(), string.Empty, "Το τεχνικό τμήμα της εταιρίας δεν έχει εγκρίνει το λογαριασμό σας ακόμα. Παρακαλώ επικοινωνήστε με το τεχνικό τμήμα και δοκιμάστε ξανά.");
-            //}
-
             var signInResult = await _signInManager.PasswordSignInAsync(identityUserDto.Email.Trim(), identityUserDto.Password, false, false);
 
             //Couldn't sign to signin manager
@@ -185,82 +164,6 @@ namespace XRealityLab.Controllers
                 return RedirectToAction("MyProjects", "Project");
             else
                 return RedirectToAction("MyProjects", "Project");
-        }
-
-        [AllowAnonymous]
-        public IActionResult Register()
-        {
-            //if (User.Identity.IsAuthenticated)
-            return View();
-        }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register([Bind("Email,Firstname,Lastname,Password,ConfirmPassword,PhoneNumber,Token")]
-            IdentityUserDTO identityUserDto)
-        {
-            //Main validation
-            if (!ModelState.IsValid)
-                return AuthenticationError(View(), string.Empty, "Incorrect fields.");
-
-            //Google reCAPTCHA validation
-            var _GoogleReCAPTCHA = _googleReCAPTCHAService.VerifyReCAPTCHA(identityUserDto.Token);
-
-            if (!_GoogleReCAPTCHA.Result.success && _GoogleReCAPTCHA.Result.score <= 0.5)
-                return AuthenticationError(View(), string.Empty, "Please try again later.");
-
-            //Check if password input fields are the same
-            if (identityUserDto.Password != identityUserDto.ConfirmPassword)
-                return AuthenticationError(View(), string.Empty, "Please make sure your passwords match.");
-
-            //Check if this email already exist
-            var emailExist = await _context.User.AnyAsync(k => k.Email == identityUserDto.Email.Trim());
-            if (emailExist)
-                return AuthenticationError(View(), string.Empty, "That email is already in user, please use a different email address.");
-
-            var identityUser = new IdentityUser
-            {
-                Email = identityUserDto.Email.Trim(),
-                UserName = identityUserDto.Email.Trim()
-            };
-            var userManager = await _userManager.CreateAsync(identityUser, identityUserDto.Password);
-
-            //Create a new user
-            string hash = IdentityConversions.MD5Hash(identityUserDto.Password);
-            var user = new User
-            {
-                IdentityId = identityUser.Id,
-                Firstname = identityUserDto.Firstname.Trim(),
-                Lastname = identityUserDto.Lastname.Trim(),
-                Email = identityUserDto.Email.Trim(),
-                PasswordHash = hash,
-                Telephone = identityUserDto.PhoneNumber,
-                RoleId = (int)RoleType.Administrator,
-                RegistrationDateTime = DateTime.Now,
-                HasChangedPassword = 0
-            };
-            await _context.AddAsync(user);
-            var hasUserCreated = await _context.SaveChangesAsync();
-
-            //User couldn't be created to the database
-            if (hasUserCreated != 1)
-                return AuthenticationError(View(), string.Empty, "Something went wrong. Please try again.");
-
-            if (userManager.Succeeded)
-            {
-                //generation of the email token
-                var code = await _userManager.GenerateEmailConfirmationTokenAsync(identityUser);
-                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-
-                var link = Url.Action(nameof(VerifyEmail), "Auth", new { userId = identityUser.Id, code }, Request.Scheme, Request.Host.ToString());
-
-                //Send email
-                MailService mailService = new MailService();
-                await mailService.SendAccountVerificationAsync(user.Firstname, link, user.Email);
-
-                return RedirectToAction(nameof(EmailVerification));
-            }
-            else
-                return AuthenticationError(View(), string.Empty, "Something went wrong. Please try again.");
         }
 
         public async Task<IActionResult> VerifyEmail(string userId, string code)

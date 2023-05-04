@@ -6,13 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Research\" />
-    <Folder Include="_OLD_APPLICATION\Common\Alerts\" />
-    <Folder Include="_OLD_APPLICATION\Guests\Models\" />
-    <Folder Include="_OLD_APPLICATION\Notifications\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="FluentValidation" Version="8.5.1" />
     <PackageReference Include="MediatR" Version="7.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />

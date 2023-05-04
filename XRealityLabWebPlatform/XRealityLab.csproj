@@ -7,11 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="wwwroot\pdf-templates\CMR_LIDL.pdf" />
-    <Content Remove="wwwroot\pdf-templates\LFG.pdf" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Bootstrap.v3.Datetimepicker" Version="4.17.49" />
     <PackageReference Include="DocumentFormat.OpenXml" Version="2.14.0" />
     <PackageReference Include="EdiTools" Version="1.0.6" />
@@ -56,20 +51,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\pdf-templates\CMR_LIDL.pdf" />
-    <None Include="wwwroot\pdf-templates\LFG.pdf" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="Properties\PublishProfiles\" />
     <Folder Include="Properties\ServiceDependencies\" />
-    <Folder Include="wwwroot\barcode\gs1\" />
-    <Folder Include="wwwroot\barcode\gs1dlt\" />
     <Folder Include="wwwroot\images\temp-bar-codes\" />
     <Folder Include="wwwroot\images\temp-qr-codes\" />
-    <Folder Include="wwwroot\lidl-orders\" />
-    <Folder Include="wwwroot\pdf-requests\" />
-    <Folder Include="wwwroot\pdf-files\" />
     <Folder Include="wwwroot\research-files\for-upload\" />
     <Folder Include="wwwroot\research-files\for-download\" />
     <Folder Include="wwwroot\_images\lab-photos\" />

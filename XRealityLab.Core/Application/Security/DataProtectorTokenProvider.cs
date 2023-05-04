@@ -24,6 +24,6 @@ namespace Application.Security
 
     public class UniqueCode
     {
-        public readonly string BankIdRouteValue = "ARIIdRouteValue";
+        public readonly string BankIdRouteValue = "XRealityLabIdRouteValue";
     }
 }

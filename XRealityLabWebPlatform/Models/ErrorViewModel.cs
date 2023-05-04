@@ -1,6 +1,6 @@
 using System;
 
-namespace ARIWebPlatform.Models
+namespace XRealityLab.Models
 {
     public class ErrorViewModel
     {

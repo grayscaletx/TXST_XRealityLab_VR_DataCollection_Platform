@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 
-namespace ARI
+namespace XRealityLab
 {
     public static class HtmlHelpers
     {

@@ -1,8 +1,6 @@
 ﻿using Application.Security;
 using XRealityLab.Common;
 using XRealityLab.Models;
-using XRealityLab.PDFTemplates.Models;
-using XRealityLab.Users.Queries;
 using Common.Constants;
 using Infrastructure.Entities;
 using iTextSharp.text;
@@ -37,7 +35,6 @@ namespace XRealityLab.Controllers
     public class AdministratorController : Controller
     {
         private readonly XRealityLabdbContext _context;
-        private IUserRepository _userRepository;
         private readonly IHostingEnvironment _environment;
         private readonly CustomIDataProtection _protector;
         private readonly UserManager<IdentityUser> _userManager;
@@ -46,7 +43,6 @@ namespace XRealityLab.Controllers
             UserManager<IdentityUser> userManager)
         {
              _context = context;
-            _userRepository = new UserRepository(_context);
             _environment = IHostingEnvironment;
             _userManager = userManager;
             _protector = customIDataProtection;
