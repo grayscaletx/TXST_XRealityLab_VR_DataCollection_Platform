@@ -173,22 +173,30 @@ namespace XRealityLabAPI.Controllers
         [HttpPost("QualtricsResult")]
         public async Task<ActionResult<ResponseDTO>> PostQualtricsResult(string _authToken, QualtricsResultAPI _qualtricsResultAPI)
         {
+            string debugState = "1000";
             try
             {
+                debugState = "1001";
 
                 //FIND the IDs from the hashes
                 int participantId = _context.Participant.ToList().Where(k => IdentityConversions.MD5Hash(k.ParticipantId.ToString()) == _qualtricsResultAPI.ParticipantMD5).FirstOrDefault().ParticipantId;
                 int sessionId = _context.Session.ToList().Where(k => IdentityConversions.MD5Hash(k.SessionId.ToString()) == _qualtricsResultAPI.SessionMD5).FirstOrDefault().SessionId;
                 int researchId = _context.Research.ToList().Where(k => IdentityConversions.MD5Hash(k.ResearchId.ToString()) == _qualtricsResultAPI.ResearchMD5).FirstOrDefault().ResearchId;
 
+                debugState = "1002";
+
                 if (!await _context.UserAuthToken.AnyAsync(k => k.AuthToken == _authToken))
-                    return NotFound(MessageConverter.GetResponse("AuthToken is incorrect", MethodResult.Failed));
+                    return NotFound(MessageConverter.GetResponse("AuthToken is incorrect " + debugState, MethodResult.Failed));
+
+                debugState = "1003";
 
                 /*if (_participantResultAPI.ParticipantId == null || _participantResultAPI.SessionId == null || _participantResultAPI.ResearchId == null || _participantResultAPI.NoOfMistakes == null || _participantResultAPI.Time == null)
                     return NotFound(MessageConverter.GetResponse("Invalid Data", MethodResult.Failed));*/
                 if (!await _context.SessionParticipant.Where(k => k.ParticipantId == participantId &&
                 k.SessionId == sessionId).AnyAsync())
-                    return NotFound(MessageConverter.GetResponse("Participant session combination incorrect", MethodResult.Failed));
+                    return NotFound(MessageConverter.GetResponse("Participant session combination incorrect " + debugState, MethodResult.Failed));
+
+                debugState = "1004";
 
                 //check if i am allowed to write in this session project and if research is of this project {maybe check type}
                 //Get userId PI or RA
@@ -196,20 +204,27 @@ namespace XRealityLabAPI.Controllers
                 //Get projectId
                 int projectId = _context.ProjectSession.Where(k => k.SessionId == sessionId).FirstOrDefault().ProjectId;
                 if (!await _context.ProjectUser.Where(k => k.ProjectId == projectId && k.UserId == userId && (k.RoleId == (int)RoleType.PrincipleInvestigator || k.RoleId == (int)RoleType.ResearchAssistant)).AnyAsync())
-                    return NotFound(MessageConverter.GetResponse("No access to this session", MethodResult.Failed));
+                    return NotFound(MessageConverter.GetResponse("No access to this session " + debugState, MethodResult.Failed));
+
+                debugState = "1005";
 
                 //check researchId
                 if (!await _context.ProjectResearch.Where(k => k.ProjectId == projectId && k.ResearchId == researchId).AnyAsync())
-                    return NotFound(MessageConverter.GetResponse("No access to this research", MethodResult.Failed));
+                    return NotFound(MessageConverter.GetResponse("No access to this research " + debugState, MethodResult.Failed));
+
+                debugState = "1006";
 
                 //check research type
                 if (!await _context.Research.Where(k => k.ResearchId == researchId && k.ResearchMethodId == (int)ResearchType.QualtricsQuestionnaire).AnyAsync())
-                    return NotFound(MessageConverter.GetResponse("No Virtual or Augmented reality research with this pass token", MethodResult.Failed));
+                    return NotFound(MessageConverter.GetResponse("No Virtual or Augmented reality research with this pass token " + debugState, MethodResult.Failed));
 
+                debugState = "1007";
 
                 //check if today have sent more than 50 results
                 if (_context.ParticipantResult.Where(k => k.SessionId == sessionId && k.Registered > DateTime.Today).Count() >= 50)
-                    return NotFound(MessageConverter.GetResponse("Too many post request for this session today", MethodResult.Failed));
+                    return NotFound(MessageConverter.GetResponse("Too many post request for this session today " + debugState, MethodResult.Failed));
+
+                debugState = "1008";
 
                 QualtricsResult qualtricsResult = new QualtricsResult
                 {
@@ -220,14 +235,16 @@ namespace XRealityLabAPI.Controllers
                     Notes = _qualtricsResultAPI.Notes
                 };
 
+                debugState = "1009";
+
                 _context.QualtricsResult.Add(qualtricsResult);
                 _context.SaveChanges();
 
-                return new ActionResult<ResponseDTO>(MessageConverter.GetResponse("Saved Data", MethodResult.Succeeded));
+                return new ActionResult<ResponseDTO>(MessageConverter.GetResponse("Saved Data " + debugState, MethodResult.Succeeded));
             }
             catch (Exception ex)
             {
-                return NotFound(MessageConverter.GetResponse("Failed to save the data.", MethodResult.Failed));
+                return NotFound(MessageConverter.GetResponse("Failed to save the data. " + debugState, MethodResult.Failed));
             }
 
         }
