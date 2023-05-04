@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using XRealityLab.API;
 using XRealityLab.Common;
@@ -174,6 +175,8 @@ namespace XRealityLabAPI.Controllers
         public async Task<ActionResult<ResponseDTO>> PostQualtricsResult(string _authToken, QualtricsResultAPI _qualtricsResultAPI)
         {
             string debugState = "1000";
+            string jsonString = JsonSerializer.Serialize(_qualtricsResultAPI);
+
             try
             {
                 debugState = "1001";
@@ -244,7 +247,45 @@ namespace XRealityLabAPI.Controllers
             }
             catch (Exception ex)
             {
-                return NotFound(MessageConverter.GetResponse("Failed to save the data. " + debugState, MethodResult.Failed));
+                return NotFound(MessageConverter.GetResponse("Failed to save the data.", MethodResult.Failed));
+            }
+
+        }
+        [HttpPost("QualtricsResultDebug")]
+        public async Task<ActionResult<ResponseDTO>> PostQualtricsResultDebug(string _authToken, QualtricsResultAPI _qualtricsResultAPI)
+        {
+
+            string jsonString = JsonSerializer.Serialize(_qualtricsResultAPI);
+
+            string debugState = "1000 JSON: " + jsonString;
+            try
+            {
+                debugState = "1001 JSON: " + jsonString;
+
+                if (!await _context.UserAuthToken.AnyAsync(k => k.AuthToken == _authToken))
+                    return NotFound(MessageConverter.GetResponse("AuthToken is incorrect " + debugState + "auth: " + _authToken, MethodResult.Failed));                
+
+                debugState = "1002 JSON: " + jsonString;
+
+                QualtricsResult qualtricsResult = new QualtricsResult
+                {
+                    ParticipantId = 3,
+                    SessionId = 3,
+                    ResearchId = 17,
+                    DocumentUrl = _qualtricsResultAPI.DocumentUrl,
+                    Notes = _qualtricsResultAPI.Notes
+                };
+
+                debugState = "1009 JSON: " + jsonString;
+
+                _context.QualtricsResult.Add(qualtricsResult);
+                _context.SaveChanges();
+
+                return new ActionResult<ResponseDTO>(MessageConverter.GetResponse("Saved Data " + debugState + "auth: " + _authToken, MethodResult.Succeeded));
+            }
+            catch (Exception ex)
+            {
+                return NotFound(MessageConverter.GetResponse("Failed to save the data. " + debugState + "auth: " + _authToken, MethodResult.Failed));
             }
 
         }
