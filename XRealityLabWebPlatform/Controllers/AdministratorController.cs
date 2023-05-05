@@ -429,6 +429,24 @@ namespace XRealityLab.Controllers
 
             return RedirectToAction("Organizations", "Administrator");
         }
+        public async Task<IActionResult> RemoveAllUser()
+        {
+            List<User> users = _context.User.Where(k => k.RoleId != 1).ToList();
+            foreach (var user in users)
+            {
+                var identityUser = await _userManager.FindByEmailAsync(user.Email);
+                if (identityUser != null)
+                {
+                    var userManagerResult = await _userManager.DeleteAsync(identityUser);
+                    if (!userManagerResult.Succeeded)
+                        RedirectToAction(nameof(Organizations));
+                }                
+            }
+            _context.User.RemoveRange(users);
+            _context.SaveChanges();
+
+            return RedirectToAction(nameof(Organizations));
+        }
         //Init Data
         [HttpGet]
         public JsonResult GetPhotoUrl()
