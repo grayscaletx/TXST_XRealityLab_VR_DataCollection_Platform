@@ -36,9 +36,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="wwwroot\X.ico">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Update="wwwroot\images\ok.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
