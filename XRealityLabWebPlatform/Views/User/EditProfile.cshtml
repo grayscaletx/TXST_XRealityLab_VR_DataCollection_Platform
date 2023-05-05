@@ -3,7 +3,7 @@
 @using XRealityLab.Common;
 
 @{
-    ViewBag.Title = "Edit Organization";
+    ViewBag.Title = "EditProfile";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -17,22 +17,38 @@
 <!--Alert dialog-->
 @if (ViewBag.actionMessage != null)
 {
-    <div class="alert alert-info alert-dismissible fade show" role="alert">
-        <button class="close" type="button" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-        @ViewBag.actionMessage
-    </div>
+    if (ViewBag.actionMessage == "Success")
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            @ViewBag.actionMessage
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            @ViewBag.actionMessage
+        </div>
+    }
+
 }
 
 <!--Projects Cards-->
-
-
 <form asp-action="EditProfile">
     <div class="row">
-        <div class="col-xl-4">            
+        <div class="col-xl-4">
             <div class="card card-default">
                 <div class="card-body">
+                    <h2>Edit Profile</h2>
+                    <div class="form-group" style="display: none;">
+                        <label>passToken</label>
+                        <input asp-for="PassToken" class="form-control" type="text" placeholder="Enter Title" />
+                    </div>
                     <div class="form-group" align="center">
                         <div align="center" style="padding :10px 0 0 0">
                             <img id="imgIcon" src="~/_images/group_icons/organization_blank_icon.png" alt="Avatar" width="90" height="90" class="rounded-circle" />
@@ -41,7 +57,7 @@
                         </div>
                         <label class="col-md-6 col-form-label">Organization Icon</label>
                         <div>
-                            <input id="inputFileToLoad" class="form-control filestyle" type="file" accept="image/png, image/jpeg" data-classbutton="btn btn-secondary" data-classinput="form-control inline" onchange="encodeImageFileAsURL()" data-icon="&lt;span class='fa fa-upload mr'&gt;&lt;/span&gt;" />
+                            <input id="inputFileToLoad" class="form-control filestyle" type="file" data-classbutton="btn btn-secondary" data-classinput="form-control inline" onchange="encodeImageFileAsURL()" data-icon="&lt;span class='fa fa-upload mr'&gt;&lt;/span&gt;" />
                         </div>
                     </div>
                     <div class="form-group">
@@ -66,85 +82,31 @@
                         <label>Phone Number</label>
                         <input asp-for="Telephone" class="form-control" type="text" placeholder="Enter Phone Number" />
                     </div>
-                    <div class="form-group" style="visibility: hidden">
-                        <label>Phone Number</label>
-                        <input asp-for="PassToken" class="form-control" type="text" />
+                    <div align="right">
+                        <button onclick="location.href='@Url.Action("ChangePassword", "User")'" class="btn btn-outline-secondary" type="button">Change Password</button>
                     </div>
                 </div>
             </div>
         </div>
-    </div>    
-    <button class="btn btn-sm btn-primary" type="submit">Update</button>
-</form>
-<br/>
-<div>
-    <button class="btn btn-sm btn-outline-primary" onclick="location.href='/User/ChangePassword'">Change Password</button>
-</div>
+    </div>
+    <button class="btn btn-sm btn-primary" type="submit">Submit</button>
 
+</form>
 
 @section Styles {
     <link href="~/vendor/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.css" rel="stylesheet" />
-    <link rel="stylesheet" href="/css/coloris.css" />
-    <style>
-        input {
-            width: 150px;
-            height: 32px;
-            padding: 0 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-family: inherit;
-            font-size: inherit;
-            font-weight: inherit;
-            box-sizing: border-box;
-        }
 
-        .examples {
-            display: flex;
-            flex-wrap: wrap;
-        }
-
-        .example {
-            flex-shrink: 0;
-            width: 300px;
-            margin-bottom: 30px;
-        }
-
-        .square .clr-field button,
-        .circle .clr-field button {
-            width: 22px;
-            height: 22px;
-            left: 5px;
-            right: auto;
-            border-radius: 5px;
-        }
-
-        .square .clr-field input,
-        .circle .clr-field input {
-            padding-left: 36px;
-        }
-
-        .circle .clr-field button {
-            border-radius: 50%;
-        }
-
-        .full .clr-field button {
-            width: 100%;
-            height: 100%;
-            border-radius: 5px;
-        }
-    </style>
 }
 
 @section Scripts {
+    <script src="~/vendor/bootstrap/dist/js/bootstrap.js"></script>
     <script src="~/vendor/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.js"></script>
+    <script src="~/master/js/modules/extras/calendar.js"></script>
+    <script src="~/master/js/modules/forms/color-picker.js"></script>
     <script type='text/javascript'>
         function encodeImageFileAsURL() {
             var filesSelected = document.getElementById("inputFileToLoad").files;
-            if (filesSelected[0].size > 2097152) {
-                alert("File is too big!");
-                this.value = "";
-            }
-            else if (filesSelected.length > 0) {
+            if (filesSelected.length > 0) {
                 var fileToLoad = filesSelected[0];
                 var fileReader = new FileReader();
                 fileReader.onload = function (fileLoadedEvent) {
@@ -159,57 +121,7 @@
     <script>
         $(document).ready(function () {
             document.getElementById("imgIcon").src = document.getElementById("photo-url").src;
-            document.getElementById("colorDiv").style.color = document.getElementById("color-hex").style.color;
-            });
-    </script>
-    <script src="~/vendor/bootstrap/dist/js/bootstrap.js"></script>
-    <script src="~/master/js/modules/extras/calendar.js"></script>
-    <script src="~/master/js/modules/forms/color-picker.js"></script>
-    <script src="/js/coloris.js"></script>
-    <script type='text/javascript'>
-        Coloris({
-            el: '.coloris',
-            swatches: [
-                '#5BB79E',
-                '#4F91CD',
-                '#9F78B9',
-                '#E1BD42',
-                '#D07F39',
-                '#CE5543',
-                '#76CB8E',
-                '#364658',
-                '#A5B0B1',
-                '#53A564'
-            ]
         });
-        Coloris.setInstance('.instance3', {
-            theme: 'polaroid',
-            swatchesOnly: true
-        });
-
-        function changeColor() {
-            var colorDiv = document.getElementById("colorDiv").style.color;
-            var colorHex = RGBToHex(colorDiv);
-            document.getElementById("colorValue").value = colorHex;
-        }
-        function RGBToHex(rgb) {
-            // Choose correct separator
-            let sep = rgb.indexOf(",") > -1 ? "," : " ";
-            // Turn "rgb(r,g,b)" into [r,g,b]
-            rgb = rgb.substr(4).split(")")[0].split(sep);
-
-            let r = (+rgb[0]).toString(16),
-                g = (+rgb[1]).toString(16),
-                b = (+rgb[2]).toString(16);
-
-            if (r.length == 1)
-                r = "0" + r;
-            if (g.length == 1)
-                g = "0" + g;
-            if (b.length == 1)
-                b = "0" + b;
-
-            return "#" + r + g + b;
-        }
     </script>
+
 }
