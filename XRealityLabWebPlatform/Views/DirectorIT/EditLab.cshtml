@@ -26,93 +26,97 @@
 }
 
 <!--Projects Cards-->
-<form asp-action="EditLab">
-    <div class="row">
-        <div class="col-xl-6">
-            <div class="card card-default">
-                <div class="card-body">
-                    <h2>Lab Details</h2>
-                    <input type="hidden" asp-for="PassToken" />
-                    <div class="form-group" align="center">
-                        <div align="center" style="padding :10px 0 0 0">
-                            <img id="imgIcon" src="~/_images/group_icons/organization_blank_icon.png" alt="Avatar" width="90" height="90" class="rounded-circle" />
-                            <input id="inputBase64" type="hidden" asp-for="PhotoBase64" />
-                            <img id="photo-url" src="@Model.PhotoUrl" hidden />
-                        </div>
-                        <label class="col-md-6 col-form-label">Organization Icon</label>
-                        <div>
-                            <input id="inputFileToLoad" class="form-control filestyle" type="file" data-classbutton="btn btn-secondary" data-classinput="form-control inline" onchange="encodeImageFileAsURL()" data-icon="&lt;span class='fa fa-upload mr'&gt;&lt;/span&gt;" />
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Color</label>
-                        <div class="example full">
-                            <div id="colorDiv" class="clr-field" style="color: rgb(255, 204, 0);">
-                                <button type="button" aria-labelledby="clr-open-label"></button>
-                                <input type="text" class="coloris instance3" value="#ffcc00" onchange="changeColor()">
-                                <input id="colorValue" type="hidden" asp-for="Color" />
+
+<div class="card-body">
+    <form asp-action="EditLab">
+        <div class="row">
+            <div class="col-xl-6">
+                <div class="card card-default">
+                    <div class="card-body">
+                        <h2>Lab Details</h2>
+                        <input type="hidden" asp-for="PassToken" />
+                        <div class="form-group" align="center">
+                            <div align="center" style="padding :10px 0 0 0">
+                                <img id="imgIcon" src="~/_images/group_icons/organization_blank_icon.png" alt="Avatar" width="90" height="90" class="rounded-circle" />
+                                <input id="inputBase64" type="hidden" asp-for="PhotoBase64" />
+                                <img id="photo-url" src="@Model.PhotoUrl" hidden />
                             </div>
-                            <div id="color-hex" style="color: @Model.Color;"></div>
+                            <label class="col-md-6 col-form-label">Organization Icon</label>
+                            <div>
+                                <input id="inputFileToLoad" class="form-control filestyle" type="file" data-classbutton="btn btn-secondary" data-classinput="form-control inline" onchange="encodeImageFileAsURL()" data-icon="&lt;span class='fa fa-upload mr'&gt;&lt;/span&gt;" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Color</label>
+                            <div class="example full">
+                                <div id="colorDiv" class="clr-field" style="color: rgb(255, 204, 0);">
+                                    <button type="button" aria-labelledby="clr-open-label"></button>
+                                    <input type="text" class="coloris instance3" value="#ffcc00" onchange="changeColor()">
+                                    <input id="colorValue" type="hidden" asp-for="Color" />
+                                </div>
+                                <div id="color-hex" style="color: @Model.Color;"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Lab Title</label>
+                            <input asp-for="FullName" class="form-control" type="text" placeholder="" />
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <input asp-for="Description" class="form-control" type="text" placeholder="" />
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label>Lab Title</label>
-                        <input asp-for="FullName" class="form-control" type="text" placeholder="" />
+                </div>
+            </div>
+            <div class="col-xl-4">
+                <div class="card card-default">
+                    <div class="card-body">
+                        <h2>Email address</h2>
+                        <div align="right">
+                            <a class="fa mr fas fa-ellipsis-h text-black" data-toggle="dropdown"></a>
+                            <div class="dropdown-menu" role="menu">
+                                <a class="dropdown-item" href="/DirectorIT/ChangeLabDirector?passToken=@Model.PassToken">Change Lab Director</a>
+                            </div>
+                        </div>
+                        <div class="form-group" style="pointer-events: none">
+                            <input asp-for="Email" class="form-control" type="email" placeholder="Enter email" style="background-color:lightgray" />
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Description</label>
-                        <input asp-for="Description" class="form-control" type="text" placeholder="" />
+                </div>
+                <div class="card card-default">
+                    <div class="card-body">
+                        <h2>Lab Director and Contact</h2>
+                        <div class="form-group">
+                            <label>Rank</label>
+                            <select id="rank" asp-for="Rank" class="form-control form-control-lg">
+                                @foreach (var item in Enum.GetValues(typeof(Rank)))
+                                {
+                                    <option value=@((int)item)>@((Rank)item).</option>
+                                }
+                            </select>
+                            @*<input asp-for="Rank" class="form-control" type="text" placeholder="Enter Rank" />*@
+                        </div>
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <input asp-for="Firstname" class="form-control" type="text" placeholder="Enter First Name" />
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name</label>
+                            <input asp-for="Lastname" class="form-control" type="text" placeholder="Enter Last Name" />
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input asp-for="Telephone" class="form-control" type="text" placeholder="Enter Phone Number" />
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-xl-4">
-            <div class="card card-default">
-                <div class="card-body">
-                    <h2>Email address</h2>
-                    <div align="right">
-                        <a class="fa mr fas fa-ellipsis-h text-black" data-toggle="dropdown"></a>
-                        <div class="dropdown-menu" role="menu">
-                            <a class="dropdown-item" href="/DirectorIT/ChangeLabDirector?passToken=@Model.PassToken">Change Lab Director</a>
-                        </div>
-                    </div>
-                    <div class="form-group" style="pointer-events: none">
-                        <input asp-for="Email" class="form-control" type="email" placeholder="Enter email" style="background-color:lightgray" />
-                    </div>
-                </div>
-            </div>
-            <div class="card card-default">
-                <div class="card-body">
-                    <h2>Lab Director and Contact</h2>
-                    <div class="form-group">
-                        <label>Rank</label>
-                        <select id="rank" asp-for="Rank" class="form-control form-control-lg">
-                            @foreach (var item in Enum.GetValues(typeof(Rank)))
-                            {
-                                <option value=@((int)item)>@((Rank)item).</option>
-                            }
-                        </select>
-                        @*<input asp-for="Rank" class="form-control" type="text" placeholder="Enter Rank" />*@
-                    </div>
-                    <div class="form-group">
-                        <label>First Name</label>
-                        <input asp-for="Firstname" class="form-control" type="text" placeholder="Enter First Name" />
-                    </div>
-                    <div class="form-group">
-                        <label>Last Name</label>
-                        <input asp-for="Lastname" class="form-control" type="text" placeholder="Enter Last Name" />
-                    </div>
-                    <div class="form-group">
-                        <label>Phone Number</label>
-                        <input asp-for="Telephone" class="form-control" type="text" placeholder="Enter Phone Number" />
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <button class="btn btn-sm btn-outline-primary" href="/DirectorIT/Labs">Cancel</button>
-    <button class="btn btn-sm btn-primary" type="submit">Update</button>
-</form>
+        <button class="btn btn-sm btn-primary" type="submit">Update</button>
+    </form>
+    <br/>
+    <button class="btn btn-sm btn-outline-primary" onclick="location.href='/DirectorIT/Labs'">Cancel</button>
+</div>
 
 @section Styles {
     <link href="~/vendor/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.css" rel="stylesheet" />

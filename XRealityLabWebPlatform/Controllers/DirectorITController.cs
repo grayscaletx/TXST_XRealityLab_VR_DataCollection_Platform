@@ -103,7 +103,15 @@ namespace XRealityLab.Controllers
                 return RedirectToAction(nameof(AddLab), new { _actionMessage = responseDTO.Message });
 
             if (await _context.User.AnyAsync(k => k.Email == userDTO.Email.Trim()))
-                return RedirectToAction(nameof(AddLab), new { _actionMessage = "Failed to create user" });
+                return RedirectToAction(nameof(AddLab), new { _actionMessage = "Failed to create user, email already in use" });
+
+            var _identityUser = await _userManager.FindByEmailAsync(userDTO.Email.Trim());
+            if (_identityUser != null)
+            {
+                var userManagerResult = await _userManager.DeleteAsync(_identityUser);
+                if (!userManagerResult.Succeeded)
+                    return RedirectToAction(nameof(AddLab), new { _actionMessage = "Couldn't create the user identity, Try again later!" });
+            }
 
             var hasCreated = await IdentityMigration.CreateIdentityUserAsync(_userManager, userDTO.Email.Trim(), userDTO.Password);
             if (!hasCreated.Succeeded)
@@ -336,7 +344,7 @@ namespace XRealityLab.Controllers
             _context.User.Update(director);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(EditLab));
+            return RedirectToAction(nameof(EditLab), new { passToken = labDirectorDTO.PassToken, _actionMessage = "Success" });
         }
         public async Task<IActionResult> RemoveLab(string passToken)
         {

@@ -1,4 +1,8 @@
-﻿
+﻿@model XRealityLab.Models.SearchDTO
+@using System.Security.Claims;
+@using XRealityLab.Common;
+@using Common.Constants;
+
 @{
     ViewData["Title"] = "Search";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -6,14 +10,21 @@
 
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-lg-9">
-        <h2>Search for</h2>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                Search
-            </li>
-            <li class="active breadcrumb-item">
-                <strong>Search Page</strong>
-            </li>
-        </ol>
+        <h2>Search for: @Model.searchText</h2>
     </div>
+
+    
+
+</div>
+<div class="card-body">
+    @if (Model.searchText == "profile")
+    {
+        <a href="/User/EditProfile">edit profile</a>
+    }
+    else 
+    {
+        <div>
+            NO DATA FOUND
+        </div>
+    }
 </div>
