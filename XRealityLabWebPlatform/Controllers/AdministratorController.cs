@@ -114,6 +114,15 @@ namespace XRealityLab.Controllers
             if (await _context.User.AnyAsync(k => k.Email == userDTO.Email.Trim()))
                 return RedirectToAction(nameof(AddOrganization), new { actionMessage = "Failed to create the user" });
 
+            //user doesnt exist in SQL database but exist in ASP.NET identity delete user identity from ASP.NET and re-Add him
+            var _identityUser = await _userManager.FindByEmailAsync(userDTO.Email.Trim());
+            if (_identityUser != null)
+            {
+                var userManagerResult = await _userManager.DeleteAsync(_identityUser);
+                if (!userManagerResult.Succeeded)
+                    return RedirectToAction(nameof(AddOrganization), new { _actionMessage = "Couldn't create the user identity, Try again later!" });
+            }
+
             var hasCreated = await IdentityMigration.CreateIdentityUserAsync(_userManager, userDTO.Email.Trim(), userDTO.Password);
             if (!hasCreated.Succeeded)
                 return RedirectToAction(nameof(AddOrganization), new { actionMessage = "Couldn't create the user identity" });
@@ -399,6 +408,15 @@ namespace XRealityLab.Controllers
 
             if (await _context.User.AnyAsync(k => k.Email == userDTO.Email.Trim()))
                 return RedirectToAction(nameof(ChangeITDirector), new { passToken = organizationDirectorDTO.PassToken, _actionMessage = "Failed to create user" });
+
+            //user doesnt exist in SQL database but exist in ASP.NET identity delete user identity from ASP.NET and re-Add him
+            var _identityUser = await _userManager.FindByEmailAsync(userDTO.Email.Trim());
+            if (_identityUser != null)
+            {
+                var userManagerResult = await _userManager.DeleteAsync(_identityUser);
+                if (!userManagerResult.Succeeded)
+                    return RedirectToAction(nameof(ChangeITDirector), new { _actionMessage = "Couldn't create the user identity, Try again later!" });
+            }
 
             var hasCreated = await IdentityMigration.CreateIdentityUserAsync(_userManager, userDTO.Email.Trim(), userDTO.Password);
             if (!hasCreated.Succeeded)
