@@ -62,9 +62,11 @@
                         <h4 class="card-title text-white" style="padding: 13px">Director of IT</h4>
                     </div>
                     <div style="background-color:white;margin:0px -16px; height:103px">
-                        <span class="fa fa-envelope" style="padding:15px 10px">
+                        <em class="fa fa-envelope" style="padding:15px 10px"></em>
+                        <span style="font-weight:bold;font-size:15px">@((Rank)item.ITDirector.Rank  + ". " + item.ITDirector.Firstname + " " + item.ITDirector.Lastname)</span>
+                        @*<span class="fa fa-envelope" style="padding:15px 10px">
                             @((Rank)item.ITDirector.Rank  + ". " + item.ITDirector.Firstname + " " + item.ITDirector.Lastname)
-                        </span>
+                        </span>*@
                     </div>
                 </div>
             </div>

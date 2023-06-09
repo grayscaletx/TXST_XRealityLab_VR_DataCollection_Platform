@@ -72,7 +72,7 @@ namespace XRealityLab.Controllers
                 {
                     ProjectId = project.ProjectId,
                     PassToken = _protector.Decode(project.ProjectId.ToString()),
-                    FullName = project.FullName.Length < 25 ? project.FullName : project.FullName.Substring(0, 25) + "...",
+                    FullName = project.FullName.Length < 25 ? project.FullName : project.FullName.Substring(0, 25) + "...",                    
                     Color = project.Color,
                     PhotoUrl = project.PhotoUrl,
                     Registered = project.Registered,
@@ -554,7 +554,9 @@ namespace XRealityLab.Controllers
                 });
             }
             sessionDTO.participantDTOs = participantDTOs;
-            
+            sessionDTO.ProjectPassToken = _protector.Decode(_context.ProjectSession.Where(x => x.SessionId == int.Parse(_protector.Encode(passToken))).FirstOrDefault().ProjectId.ToString());
+
+
             return View(sessionDTO);
         }
         public IActionResult NewParticipant(string passToken)
@@ -619,6 +621,7 @@ namespace XRealityLab.Controllers
         {
             ResultDTO resultDTO = new ResultDTO
             {
+                ProjectPassToken = _protector.Decode(_context.ProjectSession.Where(x => x.SessionId == int.Parse(_protector.Encode(sessionPassToken))).FirstOrDefault().ProjectId.ToString()),
                 SessionPassToken = sessionPassToken,
                 SessionMD5 = IdentityConversions.MD5Hash(_protector.Encode(sessionPassToken)),
                 ParticipantPassToken = passToken,

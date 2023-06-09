@@ -27,18 +27,18 @@
             </li>
             @if (role == RoleType.Administrator.GetEnumDescription())
             {
-                <li>
+                <li class="@Html.isActive("Administrator", "Organizations")">
                     <a href="@Url.Action("Organizations", RoleType.Administrator.GetEnumDescription())" title="Organizations">
-                        <em class="fa-2x mr-2 far fa-clipboard"></em>
+                        <em class="fa-2x  far fa-clipboard"></em>
                         <span>Organizations</span>
                     </a>
                 </li>
             }
             else if (role == RoleType.DirectorOfIT.GetEnumDescription())
             {
-                <li>
+                <li class="@Html.isActive("DirectorOfIT", "Labs")">
                     <a href="@Url.Action("Labs", RoleType.DirectorOfIT.GetEnumDescription())" title="Organizations">
-                        <em class="fa-2x mr-2 far fa-clipboard"></em>
+                        <em class="fa-2x  far fa-clipboard"></em>
                         <span>Labs</span>
                     </a>
                 </li>
@@ -46,65 +46,65 @@
             }
             else if (role == RoleType.LabDirector.GetEnumDescription())
             {
-                <li>
+                <li class="@Html.isActive("Project", "AllProjects")">
                     <a href="@Url.Action("AllProjects", "Project")" title="Organizations">
-                        <em class="fa-2x mr-2 far fa-clipboard"></em>
+                        <em class="fa-2x  far fa-clipboard"></em>
                         <span>All Projects</span>
                     </a>
                 </li>
-                <li>
+                <li class="@Html.isActive("Project", "MyProjects")">
                     <a href="@Url.Action("MyProjects", "Project")" title="Organizations">
-                        <em class="fa-2x mr-2 far fa-clipboard"></em>
+                        <em class="fa-2x  far fa-clipboard"></em>
                         <span>My Projects</span>
                     </a>
                 </li>
-                <li>
+                <li class="@Html.isActive("User", "PrincipleInvestigators")">
                     <a href="@Url.Action("PrincipleInvestigators", "User")" title="PrincipleIvestigators">
-                        <em class="fa-2x mr-2 fas fa-users"></em>
+                        <em class="fa-2x  fas fa-users"></em>
                         <span>Principle Ivestigators</span>
                     </a>
                 </li>
-                <li>
+                <li class="@Html.isActive("User", "ResearchAssistants")">
                     <a href="@Url.Action("ResearchAssistants", "User")" title="ResearchAssistants">
-                        <em class="fa-2x mr-2 fas fa-users"></em>
+                        <em class="fa-2x fas fa-users"></em>
                         <span>Research Assistants</span>
                     </a>
                 </li>
             }
             else if (role == RoleType.PrincipleInvestigator.GetEnumDescription())
             {
-                <li>
+                <li class="@Html.isActive("Project", "MyProjects")">
                     <a href="@Url.Action("MyProjects", "Project")" title="My Projects">
-                        <em class="fa-2x mr-2 far fa-clipboard"></em>
+                        <em class="fa-2x  far fa-clipboard"></em>
                         <span>My Projects</span>
                     </a>
                 </li>
-                <li>
+                <li class="@Html.isActive("User", "PrincipleInvestigators")">
                     <a href="@Url.Action("PrincipleInvestigators", "User")" title="PrincipleIvestigators">
-                        <em class="fa-2x mr-2 fas fa-users"></em>
+                        <em class="fa-2x  fas fa-users"></em>
                         <span>Principle Ivestigators</span>
                     </a>
                 </li>
-                <li>
+                <li class="@Html.isActive("User", "ResearchAssistants")">
                     <a href="@Url.Action("ResearchAssistants", "User")" title="ResearchAssistants">
-                        <em class="fa-2x mr-2 fas fa-users"></em>
+                        <em class="fa-2x  fas fa-users"></em>
                         <span>Research Assistants</span>
                     </a>
                 </li>
             }
             else if (role == RoleType.ResearchAssistant.GetEnumDescription())
             {
-                <li>
+                <li class="@Html.isActive("Project", "MyProjects")">
                     <a href="@Url.Action("MyProjects", "Project")" title="Organizations">
-                        <em class="fa-2x mr-2 far fa-clipboard"></em>
+                        <em class="fa-2x  far fa-clipboard"></em>
                         <span>My Projects</span>
                     </a>
                 </li>
 
             }
-            <li>
+            <li class="@Html.isActive("General", "Index")">
                 <a href="@Url.Action("Index", "General")">
-                    <em class="fa-2x icon-settings mr-2"></em>
+                    <em class="fa-2x icon-settings "></em>
                     <span>Settings</span>
                 </a>
             </li>

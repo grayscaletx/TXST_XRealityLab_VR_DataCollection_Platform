@@ -6,6 +6,7 @@ namespace XRealityLab.Models
 {
     public class ResultDTO
     {
+        public string ProjectPassToken { get; set; }
         public string SessionPassToken { get; set; }
         public string SessionMD5 { get; set; }
         public string ParticipantPassToken { get; set; }
