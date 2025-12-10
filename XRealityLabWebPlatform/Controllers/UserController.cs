@@ -77,30 +77,26 @@ namespace XRealityLab.Controllers
                 {
                     return RedirectToAction(nameof(EditProfile), new { _actionMessage = "Invalid Data" });
                 }
-                //CONVERT base64 to Image <-Library
                 string base64 = _userDTO.PhotoBase64.Substring(_userDTO.PhotoBase64.IndexOf(',') + 1);
                 base64 = base64.Trim('\0');
                 byte[] chartData = Convert.FromBase64String(base64);
-                System.Drawing.Image image;
-                using (var ms = new MemoryStream(chartData, 0, chartData.Length))
-                {
-                    image = System.Drawing.Image.FromStream(ms);
-                }
-                image = new Bitmap(image, new Size(150, 150));
-                string myUniqueFileName = Convert.ToString(Guid.NewGuid());
-                string fileExtension = "";
-                if (_userDTO.PhotoBase64.StartsWith("data:image/png;base64,"))
-                {
-                    fileExtension = ".png";
-                }
-                else if (_userDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,"))
-                {
-                    fileExtension = ".jpeg";
-                }
+
+                string myUniqueFileName = Guid.NewGuid().ToString();
+                string fileExtension = _userDTO.PhotoBase64.StartsWith("data:image/png;base64,")
+                    ? ".png"
+                    : ".jpeg";
+
                 string newFileName = myUniqueFileName + fileExtension;
-                var fileName = string.Empty;
-                fileName = Path.Combine(_environment.WebRootPath, "_images", "user-photos") + $@"\{newFileName}";
-                image.Save(fileName);
+                var folderPath = Path.Combine(_environment.WebRootPath, "_images", "user-photos");
+                Directory.CreateDirectory(folderPath);
+                var fileName = Path.Combine(folderPath, newFileName);
+
+                using (var ms = new MemoryStream(chartData))
+                using (var img = System.Drawing.Image.FromStream(ms))
+                using (var resized = new Bitmap(img, new Size(150, 150)))
+                {
+                    resized.Save(fileName);  
+                }
 
                 bool isUploaded = await ContainerService.UploadOperationAsync(Path.Combine(_environment.WebRootPath, "_images", "user-photos"),
                     newFileName, AzureGPV2Credentials.CONTAINER_USER_ICONS);
@@ -137,6 +133,13 @@ namespace XRealityLab.Controllers
         [HttpPost]
         public async Task<IActionResult> ChangePassword(PasswordDTO passwordDTO)
         {
+            if (string.IsNullOrWhiteSpace(passwordDTO.OldPassword) ||
+                string.IsNullOrWhiteSpace(passwordDTO.NewPassword) ||
+                string.IsNullOrWhiteSpace(passwordDTO.NewPasswordConfirm))
+            {
+                return RedirectToAction(nameof(ChangePassword),
+                    new { _actionMessage = "All password fields are required" });
+            }
             User user = _context.User.Where(k => k.Email == User.Identity.Name).FirstOrDefault();
             //Check Old Password if correct            
             if(user.PasswordHash != IdentityConversions.MD5Hash(passwordDTO.OldPassword))
@@ -144,6 +147,9 @@ namespace XRealityLab.Controllers
             //Check if new passwords match
             if(passwordDTO.NewPassword != passwordDTO.NewPasswordConfirm)
                 return RedirectToAction(nameof(ChangePassword), new { _actionMessage = "New Passwords dont match" });
+            //Check if new password is different from old
+            if (passwordDTO.NewPassword == passwordDTO.OldPassword)
+                return RedirectToAction(nameof(ChangePassword), new { _actionMessage = "New password must be different from old password" });
             var identityUser = await _userManager.FindByNameAsync(user.Email);
             if (identityUser == null)
             {

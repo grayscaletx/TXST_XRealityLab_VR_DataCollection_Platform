@@ -10,12 +10,30 @@ namespace XRealityLab.Models
     {
         public int OrganizationId { get; set; }
         public string PassToken { get; set; }
+        [Required(ErrorMessage = "Organization name is required")]
+        [StringLength(50, MinimumLength = 2, ErrorMessage = "Organization name must be between 2 and 50 characters")]
+        [Display(Name = "Organization name")]
         public string FullName { get; set; }
+
         public int ITDirectorId { get; set; }
+
+        [Required(ErrorMessage = "Street is required")]
+        [StringLength(50, ErrorMessage = "Street can't be longer than 50 characters")]
         public string Street { get; set; }
+
+        [Required(ErrorMessage = "City is required")]
+        [StringLength(50, ErrorMessage = "City can't be longer than 50 characters")]
         public string City { get; set; }
+
+        [Required(ErrorMessage = "Country is required")]
+        [StringLength(50, ErrorMessage = "Country can't be longer than 50 characters")]
         public string Country { get; set; }
+        [Required(ErrorMessage = "State is required")]
+        [StringLength(50)]
         public string State { get; set; }
+
+        [Required(ErrorMessage = "ZIP code is required")]
+        [StringLength(10, ErrorMessage = "ZIP code can't be longer than 10 characters")]
         public string ZIPCode { get; set; }
         public string Color { get; set; }
         public string PhotoUrl { get; set; }
@@ -30,13 +48,26 @@ namespace XRealityLab.Models
         public int UserId { get; set; }
         public string UserPassToken { get; set; }
         [Display(Name = "Rank")]
+        [Required(ErrorMessage = "Rank is required")]
         public int Rank { get; set; }
+
+        [Required(ErrorMessage = "First name is required")]
+        [StringLength(50, MinimumLength = 2)]
         [Display(Name = "First name")]
         public string Firstname { get; set; }
+
+        [Required(ErrorMessage = "Last name is required")]
+        [StringLength(50, MinimumLength = 2)]
         [Display(Name = "Last name")]
         public string Lastname { get; set; }
+
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email address")]
         [Display(Name = "Email address")]
         public string Email { get; set; }
+
+        [Required(ErrorMessage = "Password is required")]
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters")]
         [Display(Name = "Password")]
         public string Password { get; set; }
         [Display(Name = "Telephone")]

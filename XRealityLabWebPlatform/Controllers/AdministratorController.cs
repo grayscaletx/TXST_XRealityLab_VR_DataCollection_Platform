@@ -25,6 +25,7 @@ using EnumsNET;
 using Microsoft.AspNetCore.Authorization;
 using Common.Helpers;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Common;
 using System.Drawing;
 using Mail;
@@ -38,14 +39,16 @@ namespace XRealityLab.Controllers
         private readonly IHostingEnvironment _environment;
         private readonly CustomIDataProtection _protector;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly ILogger<AdministratorController> _logger;
 
         public AdministratorController(XRealityLabdbContext context, IHostingEnvironment IHostingEnvironment, CustomIDataProtection customIDataProtection,
-            UserManager<IdentityUser> userManager)
+            UserManager<IdentityUser> userManager, ILogger<AdministratorController> logger)
         {
              _context = context;
             _environment = IHostingEnvironment;
             _userManager = userManager;
             _protector = customIDataProtection;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Organizations(string _actionMessage)
@@ -91,7 +94,10 @@ namespace XRealityLab.Controllers
         [HttpPost]
         public async Task<IActionResult> AddOrganization(OrganizationDirectorDTO organizationDirectorDTO)
         {
-            if (!ModelState.IsValid) return RedirectToAction(nameof(AddOrganization), new { actionMessage = "Didnt fill the form correctly" });
+            if (!ModelState.IsValid)
+            {
+                return View(organizationDirectorDTO); 
+            }
 
             UserDTO userDTO = new UserDTO
             {
@@ -109,10 +115,16 @@ namespace XRealityLab.Controllers
 
             ResponseDTO responseDTO = await DataValidation.UserValidation(_context, userDTO);
             if (responseDTO.Result == "Failed")
-                return RedirectToAction(nameof(AddOrganization), new { actionMessage = responseDTO.Message });
+            {
+                ModelState.AddModelError(string.Empty, responseDTO.Message);
+                return View(organizationDirectorDTO);
+            }
 
             if (await _context.User.AnyAsync(k => k.Email == userDTO.Email.Trim()))
-                return RedirectToAction(nameof(AddOrganization), new { actionMessage = "Failed to create the user" });
+            {
+                ModelState.AddModelError(nameof(organizationDirectorDTO.Email), "Email already exists");
+                return View(organizationDirectorDTO);
+            }
 
             //user doesnt exist in SQL database but exist in ASP.NET identity delete user identity from ASP.NET and re-Add him
             var _identityUser = await _userManager.FindByEmailAsync(userDTO.Email.Trim());
@@ -165,42 +177,54 @@ namespace XRealityLab.Controllers
                 return Json(responseDTO);
             }
 
-            //Upload icon
             if (!string.IsNullOrWhiteSpace(organizationDirectorDTO.PhotoBase64))
             {
-                //Check if the file is jpg or png
-                if (!(organizationDirectorDTO.PhotoBase64.StartsWith("data:image/png;base64,") || organizationDirectorDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,")))
-                    return RedirectToAction(nameof(Organizations), new { _actionMessage = "Invalid Data" });
+                if (!(organizationDirectorDTO.PhotoBase64.StartsWith("data:image/png;base64,") ||
+                      organizationDirectorDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,")))
+                {
+                    ModelState.AddModelError(nameof(organizationDirectorDTO.PhotoBase64), "Invalid image format");
+                    return View(organizationDirectorDTO);
+                }
 
-                //CONVERT base64 to Image <-Library
                 string base64 = organizationDirectorDTO.PhotoBase64.Substring(organizationDirectorDTO.PhotoBase64.IndexOf(',') + 1);
                 base64 = base64.Trim('\0');
                 byte[] chartData = Convert.FromBase64String(base64);
-                System.Drawing.Image image;
-                using (var ms = new MemoryStream(chartData, 0, chartData.Length))
-                {
-                    image = System.Drawing.Image.FromStream(ms);
-                }
-                image = new Bitmap(image, new Size(150, 150));
-                string myUniqueFileName = Convert.ToString(Guid.NewGuid());
-                string fileExtension = string.Empty;
-                if (organizationDirectorDTO.PhotoBase64.StartsWith("data:image/png;base64,"))
-                    fileExtension = ".png";
-                else if (organizationDirectorDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,"))
-                    fileExtension = ".jpeg";
-                string newFileName = myUniqueFileName + fileExtension;
-                var fileName = Path.Combine(_environment.WebRootPath, "_images", "organization-photos") + $@"\{newFileName}";
-                image.Save(fileName);
 
-                bool isUploaded = await ContainerService.UploadOperationAsync(Path.Combine(_environment.WebRootPath, "_images", "organization-photos"),
-                    newFileName, AzureGPV2Credentials.CONTAINER_ORGANIZATION_ICONS);
+                string myUniqueFileName = Guid.NewGuid().ToString();
+                string fileExtension = organizationDirectorDTO.PhotoBase64.StartsWith("data:image/png;base64,")
+                    ? ".png"
+                    : ".jpeg";
+
+                string newFileName = myUniqueFileName + fileExtension;
+                var folderPath = Path.Combine(_environment.WebRootPath, "_images", "organization-photos");
+                Directory.CreateDirectory(folderPath);
+                var fileName = Path.Combine(folderPath, newFileName);
+
+                using (var ms = new MemoryStream(chartData))
+                using (var img = System.Drawing.Image.FromStream(ms))
+                using (var resized = new Bitmap(img, new Size(150, 150)))
+                {
+                    resized.Save(fileName);
+                }
+
+                bool isUploaded = await ContainerService.UploadOperationAsync(
+                    folderPath,
+                    newFileName,
+                    AzureGPV2Credentials.CONTAINER_ORGANIZATION_ICONS);
 
                 if (isUploaded)
-                    organization.PhotoUrl = Path.Combine(BaseLink.AZURE_BLOB_URL, AzureGPV2Credentials.CONTAINER_ORGANIZATION_ICONS, newFileName);
+                {
+                    organization.PhotoUrl = $"{BaseLink.AZURE_BLOB_URL.TrimEnd('/')}/{AzureGPV2Credentials.CONTAINER_ORGANIZATION_ICONS.TrimStart('/')}/{newFileName}";
 
-                //DELETE from root
-                if (System.IO.File.Exists(Path.Combine(_environment.WebRootPath, "_images", "organization-photos") + $@"\{newFileName}"))
-                    System.IO.File.Delete(Path.Combine(_environment.WebRootPath, "_images", "organization-photos") + $@"\{newFileName}");
+                }
+                else
+                {
+                    organization.PhotoUrl = PhotoUrl.ORGANIZATION_ICON_PNG;
+                }
+
+                var localPath = Path.Combine(folderPath, newFileName);
+                if (System.IO.File.Exists(localPath))
+                    System.IO.File.Delete(localPath);
             }
             else
             {
@@ -261,14 +285,18 @@ namespace XRealityLab.Controllers
         [HttpPost]
         public async Task<IActionResult> EditOrganization(OrganizationDirectorDTO organizationDirectorDTO)
         {
-            if (!ModelState.IsValid) return RedirectToAction(nameof(EditOrganization), new { passToken = organizationDirectorDTO.PassToken, _actionMessage = "Invalid Data" });
+            ModelState.Remove(nameof(OrganizationDirectorDTO.Password));
+
+            if (!ModelState.IsValid)
+                return RedirectToAction(nameof(EditOrganization),
+                    new { passToken = organizationDirectorDTO.PassToken, _actionMessage = "Invalid Data" });
 
             //Get director id
             var directorIT = _context.User.Where(k => k.Email == organizationDirectorDTO.Email).FirstOrDefault();
 
             Organization organization = _context.Organization.Where(k => k.OrganizationId == int.Parse(_protector.Encode(organizationDirectorDTO.PassToken))).FirstOrDefault();
             if (_context.OrganizationLab.Where(k => k.OrganizationId == organization.OrganizationId).Count() > organizationDirectorDTO.NoAllowedLabs)
-                return RedirectToAction(nameof(EditOrganization), new { passToken =organizationDirectorDTO.PassToken, _actionMessage = "No of Allowed Labs Invalid" });
+                return RedirectToAction(nameof(EditOrganization), new { passToken = organizationDirectorDTO.PassToken, _actionMessage = "No of Allowed Labs Invalid" });
 
             //Upload icon
             if (!string.IsNullOrWhiteSpace(organizationDirectorDTO.PhotoBase64))
@@ -322,7 +350,7 @@ namespace XRealityLab.Controllers
             organization.SubscriptionExpiration = organizationDirectorDTO.SubscriptionExpiration;
             organization.Registered = DateTime.Now;
             organization.Country = organizationDirectorDTO.Country;
-            
+
             ResponseDTO responseDTO = await DataValidation.OrganizationValidation(_context, organization);
             if (responseDTO.Result == Enum.GetName(typeof(RoleType), MethodResult.Failed))
                 return Json(responseDTO);
@@ -340,13 +368,50 @@ namespace XRealityLab.Controllers
 
             return RedirectToAction("Organizations", "Administrator");
         }
+
         public async Task<IActionResult> RemoveOrganization(string passToken)
         {
-            Organization organization = await _context.Organization.Where(k => k.OrganizationId == int.Parse(_protector.Encode(passToken))).FirstOrDefaultAsync();
-            await Migration.RemoveOrganizationDirectorAsync(_context, _userManager, organization);
+            int orgId;
+            try
+            {
+                orgId = int.Parse(_protector.Encode(passToken));
+            }
+            catch
+            {
+                return RedirectToAction(nameof(Organizations),
+                    new { _actionMessage = "Invalid token" });
+            }
 
-            return RedirectToAction(nameof(Organizations));
+            var organization = await _context.Organization
+                .FirstOrDefaultAsync(k => k.OrganizationId == orgId);
+
+            if (organization == null)
+            {
+                return RedirectToAction(nameof(Organizations),
+                    new { _actionMessage = "Organization not found" });
+            }
+
+            var response = await Migration.RemoveOrganizationDirectorAsync(_context, _userManager, organization);
+
+            if (response.Result == MethodResult.Failed.ToString())
+            {
+                return RedirectToAction(nameof(Organizations),
+                    new { _actionMessage = $"Remove ERROR: {response.Message}" });
+            }
+
+            bool stillExists = await _context.Organization
+                .AnyAsync(o => o.OrganizationId == orgId);
+
+            if (stillExists)
+            {
+                return RedirectToAction(nameof(Organizations),
+                    new { _actionMessage = "Remove ERROR: organization still exists in DB after remove." });
+            }
+
+            return RedirectToAction(nameof(Organizations),
+                new { _actionMessage = "Organization removed successfully!" });
         }
+
 
         public IActionResult ChangeITDirector(string passToken, string _actionMessage) 
         {
@@ -386,8 +451,18 @@ namespace XRealityLab.Controllers
         [HttpPost]
         public async Task<IActionResult> ChangeITDirector(OrganizationDirectorDTO organizationDirectorDTO)
         {
+            ModelState.Remove(nameof(OrganizationDirectorDTO.FullName));
+            ModelState.Remove(nameof(OrganizationDirectorDTO.Street));
+            ModelState.Remove(nameof(OrganizationDirectorDTO.City));
+            ModelState.Remove(nameof(OrganizationDirectorDTO.Country));
+            ModelState.Remove(nameof(OrganizationDirectorDTO.State));
+            ModelState.Remove(nameof(OrganizationDirectorDTO.ZIPCode));
             //Data validation
-            if (!ModelState.IsValid) return RedirectToAction(nameof(ChangeITDirector), new { passToken = organizationDirectorDTO.PassToken , _actionMessage = "Invalid Data" });
+            if (!ModelState.IsValid)
+            {
+                ViewBag.actionMessage = "Invalid Data";
+                return View(organizationDirectorDTO);   // ΟΧΙ Redirect
+            }
 
             UserDTO userDTO = new UserDTO
             {

@@ -10,8 +10,14 @@ namespace XRealityLab.Models
     {
         public int LabId { get; set; }
         public string PassToken { get; set; }
+        [Required(ErrorMessage = "Lab name is required")]
+        [StringLength(50, ErrorMessage = "Lab name can't exceed 50 characters")]
         public string FullName { get; set; }
+
         public int LabDirectorId { get; set; }
+
+        [Required(ErrorMessage = "Description is required")]
+        [StringLength(250, ErrorMessage = "Description can't exceed 250 characters")]
         public string Description { get; set; }
         public string PhotoUrl { get; set; }
         public string PhotoBase64 { get; set; }
@@ -23,10 +29,15 @@ namespace XRealityLab.Models
         public string UserPassToken { get; set; }
         [Display(Name = "Rank")]
         public int Rank { get; set; }
+
+        [Required(ErrorMessage = "First name is required")]
         [Display(Name = "First name")]
         public string Firstname { get; set; }
+        [Required(ErrorMessage = "Last name is required")]
         [Display(Name = "Last name")]
         public string Lastname { get; set; }
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email")]
         [Display(Name = "Email address")]
         public string Email { get; set; }
         [Display(Name = "Password")]

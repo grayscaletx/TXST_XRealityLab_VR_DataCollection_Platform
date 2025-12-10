@@ -55,33 +55,43 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Organization Title*</label>
-                        <input asp-for="FullName" class="form-control" type="text" placeholder="" />
+                        <label asp-for="FullName">Organization Title*</label>
+                        <input asp-for="FullName" class="form-control" type="text" />
+                        <span asp-validation-for="FullName" class="text-danger"></span>
                     </div>
+
                     <div class="form-group">
-                        <label>Street Address*</label>
-                        <input asp-for="Street" class="form-control" type="text" placeholder="" />
+                        <label asp-for="Street">Street Address*</label>
+                        <input asp-for="Street" class="form-control" type="text" />
+                        <span asp-validation-for="Street" class="text-danger"></span>
                     </div>
+
                     <div class="form-group">
-                        <label>City*</label>
-                        <input asp-for="City" class="form-control" type="text" placeholder="" />
+                        <label asp-for="City">City*</label>
+                        <input asp-for="City" class="form-control" type="text" />
+                        <span asp-validation-for="City" class="text-danger"></span>
                     </div>
+
                     <div class="form-group">
-                        <label>Country*</label>
-                        <input asp-for="Country" class="form-control" type="text" placeholder="" />
+                        <label asp-for="Country">Country*</label>
+                        <input asp-for="Country" class="form-control" type="text" />
+                        <span asp-validation-for="Country" class="text-danger"></span>
                     </div>
+
                     <div class="form-row align-items-center">
                         <div class="col-auto">
                             <label>State*</label>
                             <div class="input-group mb-2">
                                 <input asp-for="State" type="text" class="form-control mb-2" id="inlineFormInput" placeholder="">
                             </div>
+                            <span asp-validation-for="State" class="text-danger"></span>
                         </div>
                         <div class="col-auto">
                             <label>Zip Code*</label>
                             <div class="input-group mb-2">
                                 <input asp-for="ZIPCode" type="text" class="form-control mb-2" id="inlineFormInput" placeholder="">
                             </div>
+                            <span asp-validation-for="ZIPCode" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -102,16 +112,21 @@
                         @*<input asp-for="Rank" class="form-control" type="text" placeholder="Enter Rank" />*@
                     </div>
                     <div class="form-group">
-                        <label>First Name*</label>
-                        <input asp-for="Firstname" class="form-control" type="text" placeholder="Enter First Name" />
+                        <label asp-for="Firstname">First Name*</label>
+                        <input asp-for="Firstname" class="form-control" />
+                        <span asp-validation-for="Firstname" class="text-danger"></span>
                     </div>
+
                     <div class="form-group">
-                        <label>Last Name*</label>
-                        <input asp-for="Lastname" class="form-control" type="text" placeholder="Enter Last Name" />
+                        <label asp-for="Lastname">Last Name*</label>
+                        <input asp-for="Lastname" class="form-control" />
+                        <span asp-validation-for="Lastname" class="text-danger"></span>
                     </div>
+
                     <div class="form-group">
-                        <label>Email address*</label>
-                        <input asp-for="Email" class="form-control" type="email" placeholder="Enter email" />
+                        <label asp-for="Email">Email address*</label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label>Password*</label>
@@ -124,10 +139,12 @@
                                 <button onclick="copyToClipboard()" class="btn btn-outline-secondary" type="button">Copy</button>
                             </div>
                         </div>
+                        <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label>Phone Number</label>
                         <input asp-for="Telephone" class="form-control" type="text" placeholder="Enter Phone Number" />
+                        <span asp-validation-for="Telephone" class="text-danger"></span>
                     </div>
                 </div>
             </div>
@@ -136,19 +153,22 @@
                     <div class="form-group">
                         <label>Number of Allowed Labs*</label>
                         <input asp-for="NoAllowedLabs" type="number" class="form-control mb-2" id="inlineFormInput" placeholder="Enter Max Labs">
+                        <span asp-validation-for="NoAllowedLabs" class="text-danger"></span>
                     </div>
                     <div class="form-row align-items-center">
                         <div class="col-auto">
                             <label>Subscription Started*</label>
                             <div class="input-group mb-2">
-                                <input asp-for="SubscriptionStarted" type="date" class="form-control" id="inlineFormInputGroup" placeholder="Username">
+                                <input asp-for="SubscriptionStarted" type="date" class="form-control" id="inlineFormInputGroup" placeholder="Username">  
                             </div>
+                            <span asp-validation-for="SubscriptionStarted" class="text-danger"></span>
                         </div>
                         <div class="col-auto">
                             <label>Subscription Expiration*</label>
                             <div class="input-group mb-2">
                                 <input asp-for="SubscriptionExpiration" type="date" class="form-control" id="inlineFormInputGroup" placeholder="Username">
                             </div>
+                            <span asp-validation-for="SubscriptionExpiration" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -159,6 +179,7 @@
 </form>
 
 @section Styles {
+    <partial name="_ValidationScriptsPartial" />
     <link href="~/vendor/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.css" rel="stylesheet" />
     <link rel="stylesheet" href="/css/coloris.css" />
     <style>

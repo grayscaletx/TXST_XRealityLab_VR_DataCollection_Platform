@@ -143,48 +143,59 @@ namespace XRealityLab.Controllers
             //Upload icon
             if (!string.IsNullOrWhiteSpace(labDirectorDTO.PhotoBase64))
             {
-                //Check if the file is jpg or png
-                if (!(labDirectorDTO.PhotoBase64.StartsWith("data:image/png;base64,") || labDirectorDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,")))
+                // Check if the file is jpg or png
+                if (!(labDirectorDTO.PhotoBase64.StartsWith("data:image/png;base64,") ||
+                      labDirectorDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,")))
                 {
                     return RedirectToAction(nameof(AddLab), new { _actionMessage = "Invalid Data" });
                 }
-                //CONVERT base64 to Image <-Library
+
+                // CONVERT base64 to Image
                 string base64 = labDirectorDTO.PhotoBase64.Substring(labDirectorDTO.PhotoBase64.IndexOf(',') + 1);
                 base64 = base64.Trim('\0');
                 byte[] chartData = Convert.FromBase64String(base64);
-                System.Drawing.Image image;
+
                 using (var ms = new MemoryStream(chartData, 0, chartData.Length))
+                using (var img = System.Drawing.Image.FromStream(ms))
+                using (var resized = new Bitmap(img, new Size(150, 150)))
                 {
-                    image = System.Drawing.Image.FromStream(ms);
-                }
-                image = new Bitmap(image, new Size(150, 150));
-                string myUniqueFileName = Convert.ToString(Guid.NewGuid());
-                string fileExtension = "";
-                if (labDirectorDTO.PhotoBase64.StartsWith("data:image/png;base64,"))
-                {
-                    fileExtension = ".png";
-                }
-                else if (labDirectorDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,"))
-                {
-                    fileExtension = ".jpeg";
-                }
-                string newFileName = myUniqueFileName + fileExtension;
-                var fileName = string.Empty;
-                fileName = Path.Combine(_environment.WebRootPath, "_images", "lab-photos") + $@"\{newFileName}";
-                image.Save(fileName);
+                    string myUniqueFileName = Guid.NewGuid().ToString();
+                    string fileExtension = labDirectorDTO.PhotoBase64.StartsWith("data:image/png;base64,")
+                        ? ".png"
+                        : ".jpeg";
 
-                bool isUploaded = await ContainerService.UploadOperationAsync(Path.Combine(_environment.WebRootPath, "_images", "lab-photos"),
-                    newFileName, AzureGPV2Credentials.CONTAINER_LAB_ICONS);
+                    string newFileName = myUniqueFileName + fileExtension;
 
-                if (isUploaded)
-                {
-                    lab.PhotoUrl = Path.Combine(BaseLink.AZURE_BLOB_URL, AzureGPV2Credentials.CONTAINER_LAB_ICONS, newFileName);
-                }
+                    // φτιάχνουμε τον φάκελο αν δεν υπάρχει
+                    var folderPath = Path.Combine(_environment.WebRootPath, "_images", "lab-photos");
+                    Directory.CreateDirectory(folderPath);
 
-                //DELETE from root
-                if (System.IO.File.Exists(Path.Combine(_environment.WebRootPath, "_images", "lab-photos") + $@"\{newFileName}"))
-                {
-                    System.IO.File.Delete(Path.Combine(_environment.WebRootPath, "_images", "lab-photos") + $@"\{newFileName}");
+                    var filePath = Path.Combine(folderPath, newFileName);
+
+                    // εδώ δεν θα ξανασκάσει GDI+
+                    resized.Save(filePath);
+
+                    bool isUploaded = await ContainerService.UploadOperationAsync(
+                        folderPath,
+                        newFileName,
+                        AzureGPV2Credentials.CONTAINER_LAB_ICONS);
+
+                    if (isUploaded)
+                    {
+                        lab.PhotoUrl =
+                            $"{BaseLink.AZURE_BLOB_URL.TrimEnd('/')}/{AzureGPV2Credentials.CONTAINER_LAB_ICONS.TrimStart('/')}/{newFileName}";
+                    }
+                    else
+                    {
+                        // fallback για ασφάλεια
+                        lab.PhotoUrl = PhotoUrl.LAB_ICON_PNG;
+                    }
+
+                    // DELETE from root
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
                 }
             }
             else
@@ -385,12 +396,13 @@ namespace XRealityLab.Controllers
         [HttpPost]
         public async Task<IActionResult> ChangeLabDirector(LabDirectorDTO labDirectorDTO)
         {
-            //Data validation
+            ModelState.Remove(nameof(LabDirectorDTO.FullName));
+            ModelState.Remove(nameof(LabDirectorDTO.Description));
             if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(ChangeLabDirector), new { passToken = labDirectorDTO.PassToken , _actionMessage = "Invalid Data" });
+                ViewBag.actionMessage = "Invalid Data";
+                return View(labDirectorDTO); 
             }
-
             //Upload icon
             if (!string.IsNullOrWhiteSpace(labDirectorDTO.PhotoBase64))
             {

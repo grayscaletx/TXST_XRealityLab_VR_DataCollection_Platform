@@ -80,31 +80,39 @@ namespace XRealityLab
             }
         }
 
-        public static async Task<ResponseDTO> RemoveOrganizationDirectorAsync(XRealityLabdbContext _context, UserManager<IdentityUser> _userManager, Organization _organization)
+        public static async Task<ResponseDTO> RemoveOrganizationDirectorAsync(
+    XRealityLabdbContext _context,
+    UserManager<IdentityUser> _userManager,
+    Organization _organization)
         {
             try
             {
-                Organization organization = _context.Organization.Where(k => k.OrganizationId == _organization.OrganizationId).FirstOrDefault();
-                User user = _context.User.Where(k => k.UserId == _organization.ItdirectorId).FirstOrDefault();
+                Organization organization = _context.Organization
+                    .FirstOrDefault(k => k.OrganizationId == _organization.OrganizationId);
+                User user = _context.User
+                    .FirstOrDefault(k => k.UserId == _organization.ItdirectorId);
 
-                //This is mandatory
-                //START
                 var identityUser = await _userManager.FindByEmailAsync(user.Email);
                 if (identityUser != null)
                 {
                     var userManagerResult = await _userManager.DeleteAsync(identityUser);
                     if (!userManagerResult.Succeeded)
-                        return MessageConverter.GetResponse(string.Empty, MethodResult.Failed);
+                        return MessageConverter.GetResponse(
+                            "Failed to delete identity user.",
+                            MethodResult.Failed);
                 }
-                //END
 
-                List<int> labIds = new List<int>();
-                labIds = await _context.OrganizationLab.Where(k => k.OrganizationId == organization.OrganizationId).Select(k => k.LabId).ToListAsync();
-                foreach(int id in labIds)
+                var labIds = await _context.OrganizationLab
+                    .Where(k => k.OrganizationId == organization.OrganizationId)
+                    .Select(k => k.LabId)
+                    .ToListAsync();
+
+                foreach (int id in labIds)
                 {
                     Lab lab = _context.Lab.Find(id);
                     await RemoveLabDirectorAsync(_context, _userManager, lab);
                 }
+
                 _context.Remove(organization);
                 _context.Remove(user);
 
@@ -113,9 +121,15 @@ namespace XRealityLab
             }
             catch (Exception ex)
             {
-                return MessageConverter.GetResponse(string.Empty, MethodResult.Failed);
+                return new ResponseDTO
+                {
+                    Result = MethodResult.Failed.ToString(),
+                    Message = $"RemoveOrganizationDirectorAsync ERROR → {ex.Message} | INNER → {ex.InnerException?.Message}"
+                };
             }
         }
+
+
 
         public static async Task<ResponseDTO> RemoveLabDirectorAsync(XRealityLabdbContext _context, UserManager<IdentityUser> _userManager, Lab _lab)
         {
@@ -266,29 +280,46 @@ namespace XRealityLab
                 return MessageConverter.GetResponse(string.Empty, MethodResult.Failed);
             }
         }
-        public static async Task<ResponseDTO> RemoveSessionAsync(XRealityLabdbContext _context, Session _session)
+        public static async Task<ResponseDTO> RemoveSessionAsync(
+    XRealityLabdbContext _context, Session _session)
         {
             try
             {
-                Session session = _context.Session.Where(k => k.SessionId == _session.SessionId).FirstOrDefault();
-                //Remove all participants from this session
-                List<int> participantIds = _context.SessionParticipant.Where(k => k.SessionId == _session.SessionId).Select(k => k.SessionId).ToList();
-                foreach (int participantId in participantIds)
+                var session = _context.Session
+                    .FirstOrDefault(k => k.SessionId == _session.SessionId);
+
+                // ΠΡΕΠΕΙ ΝΑ ΠΑΡΟΥΜΕ ΤΟΥΣ PARTICIPANT IDs
+                var participantIds = _context.SessionParticipant
+                    .Where(k => k.SessionId == _session.SessionId)
+                    .Select(k => k.ParticipantId)
+                    .ToList();
+
+                foreach (var participantId in participantIds)
                 {
-                    Participant participant = _context.Participant.Where(k => k.ParticipantId == participantId).FirstOrDefault();
-                    ResponseDTO responseDTO = await RemoveParticipantAsync(_context, _session, participant);
+                    var participant = _context.Participant
+                        .FirstOrDefault(k => k.ParticipantId == participantId);
+
+                    await RemoveParticipantAsync(_context, _session, participant);
                 }
-                ProjectSession projectSession = _context.ProjectSession.Where(k => k.SessionId == _session.SessionId).FirstOrDefault();
-                _context.ProjectSession.Remove(projectSession);
+
+                var projectSession = _context.ProjectSession
+                    .FirstOrDefault(k => k.SessionId == _session.SessionId);
+                if (projectSession != null)
+                    _context.ProjectSession.Remove(projectSession);
+
                 _context.Session.Remove(session);
+
                 await _context.SaveChangesAsync();
-                return MessageConverter.GetResponse(string.Empty, MethodResult.Succeeded);
+                return MessageConverter.GetResponse("", MethodResult.Succeeded);
             }
             catch (Exception ex)
             {
-                return MessageConverter.GetResponse(string.Empty, MethodResult.Failed);
+                return MessageConverter.GetResponse(
+                    $"RemoveSessionAsync ERROR → {ex.Message} | INNER → {ex.InnerException?.Message}",
+                    MethodResult.Failed);
             }
         }
+
         public static async Task<ResponseDTO> RemoveParticipantAsync(XRealityLabdbContext _context, Session _session, Participant _participant)
         {
             try

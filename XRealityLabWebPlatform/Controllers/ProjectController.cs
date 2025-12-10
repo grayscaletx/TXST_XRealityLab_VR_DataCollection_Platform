@@ -131,8 +131,10 @@ namespace XRealityLab.Controllers
             //Data validation
             if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(AddProject), new { _actionMessage = "Invalid Data" });
+                ViewBag.actionMessage = "Invalid Data";   
+                return View(projectDTO);                 
             }
+
             //User that call AddProject
             User user = _context.User.Where(k => k.Email == User.Identity.Name).FirstOrDefault();
             int labId = _context.LabUser.Where(k => k.UserId == user.UserId).FirstOrDefault().LabId;
@@ -143,55 +145,66 @@ namespace XRealityLab.Controllers
             {
                 FullName = projectDTO.FullName,
                 Description = projectDTO.Description,
-                Color = projectDTO.Color,
+                Color = string.IsNullOrEmpty(projectDTO.Color) ? "#ffcc00" : projectDTO.Color,
                 Registered = DateTime.Now
             };
 
-            //Upload icon
             if (!string.IsNullOrWhiteSpace(projectDTO.PhotoBase64))
             {
-                //Check if the file is jpg or png
-                if (!(projectDTO.PhotoBase64.StartsWith("data:image/png;base64,") || projectDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,")))
+                // Check if the file is jpg or png
+                if (!(projectDTO.PhotoBase64.StartsWith("data:image/png;base64,") ||
+                      projectDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,")))
                 {
                     return RedirectToAction(nameof(AddProject), new { _actionMessage = "Invalid Data" });
                 }
-                //CONVERT base64 to Image <-Library
+
+                // CONVERT base64 to Image
                 string base64 = projectDTO.PhotoBase64.Substring(projectDTO.PhotoBase64.IndexOf(',') + 1);
                 base64 = base64.Trim('\0');
                 byte[] chartData = Convert.FromBase64String(base64);
-                System.Drawing.Image image;
+
                 using (var ms = new MemoryStream(chartData, 0, chartData.Length))
+                using (var img = System.Drawing.Image.FromStream(ms))
+                using (var resized = new Bitmap(img, new Size(150, 150)))
                 {
-                    image = System.Drawing.Image.FromStream(ms);
-                }
-                image = new Bitmap(image, new Size(150, 150));
-                string myUniqueFileName = Convert.ToString(Guid.NewGuid());
-                string fileExtension = "";
-                if (projectDTO.PhotoBase64.StartsWith("data:image/png;base64,"))
-                {
-                    fileExtension = ".png";
-                }
-                else if (projectDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,"))
-                {
-                    fileExtension = ".jpeg";
-                }
-                string newFileName = myUniqueFileName + fileExtension;
-                var fileName = string.Empty;
-                fileName = Path.Combine(_environment.WebRootPath, "_images", "project-photos") + $@"\{newFileName}";
-                image.Save(fileName);
+                    string myUniqueFileName = Guid.NewGuid().ToString();
+                    string fileExtension = projectDTO.PhotoBase64.StartsWith("data:image/png;base64,")
+                        ? ".png"
+                        : ".jpeg";
 
-                bool isUploaded = await ContainerService.UploadOperationAsync(Path.Combine(_environment.WebRootPath, "_images", "project-photos"),
-                    newFileName, AzureGPV2Credentials.CONTAINER_PROJECT_ICONS);
+                    string newFileName = myUniqueFileName + fileExtension;
 
-                if (isUploaded)
-                {
-                    project.PhotoUrl = Path.Combine(BaseLink.AZURE_BLOB_URL, AzureGPV2Credentials.CONTAINER_PROJECT_ICONS, newFileName);
-                }
+                    // ΦΑΚΕΛΟΣ + ΔΗΜΙΟΥΡΓΙΑ
+                    var folderPath = Path.Combine(_environment.WebRootPath, "_images", "project-photos");
+                    Directory.CreateDirectory(folderPath);   
 
-                //DELETE from root
-                if (System.IO.File.Exists(Path.Combine(_environment.WebRootPath, "_images", "project-photos") + $@"\{newFileName}"))
-                {
-                    System.IO.File.Delete(Path.Combine(_environment.WebRootPath, "_images", "project-photos") + $@"\{newFileName}");
+                    var filePath = Path.Combine(folderPath, newFileName);
+
+                    // εδώ δεν θα ξανασκάσει GDI+
+                    resized.Save(filePath);
+
+                    bool isUploaded = await ContainerService.UploadOperationAsync(
+                        folderPath,
+                        newFileName,
+                        AzureGPV2Credentials.CONTAINER_PROJECT_ICONS);
+
+                    if (isUploaded)
+                    {
+                        // μόνο για δοκιμή
+                        project.PhotoUrl =
+                            $"{BaseLink.AZURE_BLOB_URL.TrimEnd('/')}/{AzureGPV2Credentials.CONTAINER_PROJECT_ICONS.TrimStart('/')}/{newFileName}";
+
+                    }
+                    else
+                    {
+                        project.PhotoUrl = PhotoUrl.PROJECT_ICON_PNG;
+                    }
+
+                    // DELETE from root
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
                 }
             }
             else
@@ -260,48 +273,54 @@ namespace XRealityLab.Controllers
             //Upload icon
             if (!string.IsNullOrWhiteSpace(projectDTO.PhotoBase64))
             {
-                //Check if the file is jpg or png
-                if (!(projectDTO.PhotoBase64.StartsWith("data:image/png;base64,") || projectDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,")))
+                // Check if the file is jpg or png
+                if (!(projectDTO.PhotoBase64.StartsWith("data:image/png;base64,") ||
+                      projectDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,")))
                 {
                     return RedirectToAction(nameof(EditProject), new { passToken = projectDTO.PassToken, _actionMessage = "Invalid Data" });
                 }
-                //CONVERT base64 to Image <-Library
+
+                // CONVERT base64 to Image
                 string base64 = projectDTO.PhotoBase64.Substring(projectDTO.PhotoBase64.IndexOf(',') + 1);
                 base64 = base64.Trim('\0');
                 byte[] chartData = Convert.FromBase64String(base64);
-                System.Drawing.Image image;
+
                 using (var ms = new MemoryStream(chartData, 0, chartData.Length))
+                using (var img = System.Drawing.Image.FromStream(ms))
+                using (var resized = new Bitmap(img, new Size(150, 150)))
                 {
-                    image = System.Drawing.Image.FromStream(ms);
-                }
-                image = new Bitmap(image, new Size(150, 150));
-                string myUniqueFileName = Convert.ToString(Guid.NewGuid());
-                string fileExtension = "";
-                if (projectDTO.PhotoBase64.StartsWith("data:image/png;base64,"))
-                {
-                    fileExtension = ".png";
-                }
-                else if (projectDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,"))
-                {
-                    fileExtension = ".jpeg";
-                }
-                string newFileName = myUniqueFileName + fileExtension;
-                var fileName = string.Empty;
-                fileName = Path.Combine(_environment.WebRootPath, "_images", "project-photos") + $@"\{newFileName}";
-                image.Save(fileName);
+                    string myUniqueFileName = Guid.NewGuid().ToString();
+                    string fileExtension = projectDTO.PhotoBase64.StartsWith("data:image/png;base64,")
+                        ? ".png"
+                        : ".jpeg";
 
-                bool isUploaded = await ContainerService.UploadOperationAsync(Path.Combine(_environment.WebRootPath, "_images", "project-photos"),
-                    newFileName, AzureGPV2Credentials.CONTAINER_PROJECT_ICONS);
+                    string newFileName = myUniqueFileName + fileExtension;
 
-                if (isUploaded)
-                {
-                    project.PhotoUrl = Path.Combine(BaseLink.AZURE_BLOB_URL, AzureGPV2Credentials.CONTAINER_PROJECT_ICONS, newFileName);
-                }
+                    // ΦΑΚΕΛΟΣ + ΔΗΜΙΟΥΡΓΙΑ
+                    var folderPath = Path.Combine(_environment.WebRootPath, "_images", "project-photos");
+                    Directory.CreateDirectory(folderPath);   // <- ΧΩΡΙΣ ΑΥΤΟ ΣΚΑΕΙ GDI+
 
-                //DELETE from root
-                if (System.IO.File.Exists(Path.Combine(_environment.WebRootPath, "_images", "project-photos") + $@"\{newFileName}"))
-                {
-                    System.IO.File.Delete(Path.Combine(_environment.WebRootPath, "_images", "project-photos") + $@"\{newFileName}");
+                    var filePath = Path.Combine(folderPath, newFileName);
+
+                    // εδώ δεν θα ξανασκάσει GDI+
+                    resized.Save(filePath);
+
+                    bool isUploaded = await ContainerService.UploadOperationAsync(
+                        folderPath,
+                        newFileName,
+                        AzureGPV2Credentials.CONTAINER_PROJECT_ICONS);
+
+                    if (isUploaded)
+                    {
+                        project.PhotoUrl =
+                            $"{BaseLink.AZURE_BLOB_URL.TrimEnd('/')}/{AzureGPV2Credentials.CONTAINER_PROJECT_ICONS.TrimStart('/')}/{newFileName}";
+                    }
+
+                    // DELETE from root
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
                 }
             }
 
