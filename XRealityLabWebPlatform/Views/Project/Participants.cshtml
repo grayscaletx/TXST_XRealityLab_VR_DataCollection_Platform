@@ -1,4 +1,4 @@
-﻿@model XRealityLab.Models.SessionDTO
+@model XRealityLab.Models.SessionDTO
 
 @using XRealityLab.Common;
 
@@ -35,9 +35,9 @@
 }
 
 <div class="container" style="float: left;">
-    <h2>@Model.Title</h2>
+    <h2>@Model.Title <span class="xr-count">@Model.participantDTOs.Count participants</span></h2>
     <div class="card">
-        <div class="card-body" style="overflow-y: scroll">
+        <div class="xr-table-scroll">
             <table class="table table-striped table-bordered table-hover" id="participantsDataTable">
                 <thead>
                     <tr>
@@ -47,7 +47,7 @@
                     <th>Created</th>*@
                         @foreach (var item in Model.researchDTOs)
                         {
-                            <th style="width:8%">@item.Title (@item.TypeId)</th>
+                            <th style="width:14%">@item.Title<span class="xr-th-sub">@item.TypeId</span></th>
                         }
                         <th></th>
                     </tr>
@@ -56,7 +56,7 @@
                     @{int count = 0; }
                     <tr>
                         @{string passToken = Model.PassToken;}
-                        <td class="text-primary" colspan="40" align="left"><a href="/Project/NewParticipant?passToken=@passToken"> <strong style="font-size:20px">New Participant +</strong> </a></td>
+                        <td class="text-primary" colspan="40" align="left"><a href="/Project/NewParticipant?passToken=@passToken"> New participant + </a></td>
                     </tr>
                     @foreach (var item in Model.participantDTOs)
                     {
@@ -65,7 +65,7 @@
                         <tr class="gradeX">
                             <td data-sort="@item.ParticipantId">P#@item.ParticipantId</td>
                             @{string resultsTokens = "passToken=" + item.PassToken + "&sessionPassToken=" + Model.PassToken;}
-                            <td class="text-primary"> <a href="/Project/Results?@resultsTokens"><strong style="font-size:18px"> @item.FirstName @item.LastName </strong>  <br />  @item.Email @item.Registered</a></td>
+                            <td class="text-primary"> <a href="/Project/Results?@resultsTokens">@item.FirstName @item.LastName</a><span class="xr-cell-sub">@item.Email &middot; added @item.Registered.ToString("MM/dd/yyyy")</span></td>
                             @*<td>@item.Email</td>
                         <td>@item.Registered</td>*@
                             @foreach (var researchCompletion in item.researchCompletionDTOs)
@@ -74,7 +74,7 @@
                                 {
                                     if (researchCompletion.ResearchMethodId == (int)ResearchType.OfflineMethod)
                                     {
-                                        completeid = "offline-complete" + count.ToString();
+                                        completeid = "offline-complete" + count.ToString() + "-" + researchCompletion.ResearchId.ToString();
                                         <td align="center">
                                             <div class="form-group row">
                                                 <form id=@completeid method="post" enctype="multipart/form-data" asp-action="OfflineComplete" asp-route-participantPassToken=@item.PassToken asp-route-sessionPassToken=@Model.PassToken asp-route-researchPassToken=@researchCompletion.PassToken>
@@ -110,7 +110,7 @@
                                 {
                                     if (researchCompletion.ResearchMethodId == (int)ResearchType.OfflineMethod)
                                     {
-                                        completeid = "offline-complete" + count.ToString();
+                                        completeid = "offline-complete" + count.ToString() + "-" + researchCompletion.ResearchId.ToString();
                                         <td align="center">
                                             <div class="form-group row">
                                                 <form id=@completeid method="post" enctype="multipart/form-data" asp-action="OfflineComplete" asp-route-participantPassToken=@item.PassToken asp-route-sessionPassToken=@Model.PassToken asp-route-researchPassToken=@researchCompletion.PassToken>

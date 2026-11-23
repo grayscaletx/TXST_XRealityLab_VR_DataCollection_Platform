@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -31,8 +31,7 @@ namespace XRealityLab.Entities
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=xrealitylab.database.windows.net, 1433;Database=XRealityLabdb;User ID=xrealitylab;Password=fy*%trep5w;Integrated Security=False");
+throw new System.InvalidOperationException("No connection string configured.");
             }
         }
 

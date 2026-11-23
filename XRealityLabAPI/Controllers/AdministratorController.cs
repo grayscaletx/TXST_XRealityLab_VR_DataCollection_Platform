@@ -1,4 +1,4 @@
-﻿using Common;
+using Common;
 using Common.Helpers;
 using Infrastructure.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -34,9 +34,15 @@ namespace XRealityLabAPI.Controllers
             if (!await _context.UserAuthToken.AnyAsync(k => k.AuthToken == _authToken)) return NotFound(MessageConverter.GetResponse("AuthToken is incorrect", MethodResult.Failed));
 
             var authToken = await _context.UserAuthToken.Where(k => k.AuthToken == _authToken).FirstOrDefaultAsync();
-            int organizationId = _context.OrganizationLab.Where(k => k.LabId == (_context.LabUser.Where(x => x.UserId == authToken.UserId).FirstOrDefault().LabId)).FirstOrDefault().OrganizationId;
-
-            Organization organization = _context.Organization.Where(k => k.OrganizationId == organizationId).FirstOrDefault();
+            Organization organization = await _context.Organization.Where(k => k.ItdirectorId == authToken.UserId).FirstOrDefaultAsync();
+            if (organization == null)
+            {
+                var labUser = await _context.LabUser.Where(x => x.UserId == authToken.UserId).FirstOrDefaultAsync();
+                var organizationLab = labUser == null ? null : await _context.OrganizationLab.Where(k => k.LabId == labUser.LabId).FirstOrDefaultAsync();
+                if (organizationLab != null)
+                    organization = await _context.Organization.Where(k => k.OrganizationId == organizationLab.OrganizationId).FirstOrDefaultAsync();
+            }
+            if (organization == null) return NotFound(MessageConverter.GetResponse("No organization found for this user", MethodResult.Failed));
             OrganizationAPI organizationAPI = new OrganizationAPI
             {
                 OrganizationId = organization.OrganizationId,

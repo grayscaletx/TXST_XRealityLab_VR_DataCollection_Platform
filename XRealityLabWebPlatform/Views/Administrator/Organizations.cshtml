@@ -1,5 +1,4 @@
-﻿@model List<XRealityLab.Models.OrganizationDTO>
-@using System.Security.Claims;
+@model List<XRealityLab.Models.OrganizationDTO>
 @using XRealityLab.Common;
 
 @{
@@ -7,70 +6,53 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<!--Header-->
 <div class="content-heading">
     <div>
-        <strong>Organizations</strong>
-        @*<button class="btn btn-sm btn-outline-primary" onclick="location.href='@Url.Action("RemoveAllUser", "Administrator")'">RemoveAllUser</button>*@
+        <strong>Organizations</strong><span class="xr-count">@Model.Count</span>
+        <span class="xr-sub">Each organization has one Director of IT, who creates its labs.</span>
     </div>
 </div>
 
-<!--Alert dialog-->
-@if (ViewBag.actionMessage != null)
-{
-    <div class="alert alert-info alert-dismissible fade show" role="alert">
-        <button class="close" type="button" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-        @ViewBag.actionMessage
-    </div>
-}
+<partial name="_ActionMessage" />
 
-<div class="container">
-    <div class="card-columns">
-        <div class="card row mb-4" style="height:360px;background-color:transparent" onclick="location.href='/Administrator/AddOrganization'">
-            <div align="center" style="padding :60px 0 0 0">
-                <h4 style="color: #4bc4e9;font-size:100px">+</h4>
-                <h4 style="color: #4bc4e9">New Organization</h4>
-            </div>
-            <img style="margin:-215px 0px 0 0" width="370" height="360" src="/_images/group_icons/new_organization.png" />
-        </div>
-        @foreach (var item in Model)
-        {
-            <div class="card row mb-4" style="background-color : @item.Color;padding:10px 0;height:360px" onclick="location.href='/Administrator/Organization?passToken='+ @item.PassToken">
+<div class="xr-grid">
+    <a class="xr-card xr-card-new" href="/Administrator/AddOrganization">
+        <span class="xr-plus">+</span>
+        New organization
+    </a>
+
+    @foreach (var item in Model)
+    {
+        <article class="xr-card" style="--xr-card-color:@item.Color">
+            <div class="xr-card-band">
                 @if (item.Expired)
                 {
-                    <div class="px-2 float-left badge badge-danger" style="margin:6px 10px">Expired: @item.SubscriptionExpiration.ToString("MM/dd/yyyy")</div>
+                    <span class="xr-card-badge is-danger">Expired @item.SubscriptionExpiration.ToString("MM/dd/yyyy")</span>
                 }
                 else if (item.NotStarted)
                 {
-                    <div class="px-2 float-left badge badge-success" style="margin:6px 10px">Starting: @item.SubscriptionStarted.ToString("MM/dd/yyyy")</div>
+                    <span class="xr-card-badge is-ok">Starts @item.SubscriptionStarted.ToString("MM/dd/yyyy")</span>
                 }
-                <div align="right">
-                    <a class="fa-2x mr-2 fas fa-ellipsis-h text-white" data-toggle="dropdown"></a>
-                    <div class="dropdown-menu" role="menu">
-                        <a class="dropdown-item" href="/Administrator/EditOrganization?passToken=@item.PassToken">Edit Organization</a>
-                        <a class="dropdown-item" href="/Administrator/RemoveOrganization?passToken=@item.PassToken" onclick="return confirm('Are you sure you want to delete this item?');" >Remove Organization</a>
-                    </div>
-                </div>
-                <div align="center" style="padding :10px 0 0 0" onclick="location.href='/Administrator/EditOrganization?passToken=@item.PassToken'">
-                    <img src="@item.PhotoUrl" alt="Avatar" width="90" height="90" class="rounded-circle" />
-                </div>
-                <h3 class="text-white" style="margin:10px">@item.FullName</h3>
-                <div class="card-body">
-                    <div style="background-color: black; margin: 0px -16px; height: 50px">
-                        <h4 class="card-title text-white" style="padding: 13px">Director of IT</h4>
-                    </div>
-                    <div style="background-color:white;margin:0px -16px; height:103px">
-                        <em class="fa fa-envelope" style="padding:15px 10px"></em>
-                        <span style="font-weight:bold;font-size:15px">@((Rank)item.ITDirector.Rank  + ". " + item.ITDirector.Firstname + " " + item.ITDirector.Lastname)</span>
-                        @*<span class="fa fa-envelope" style="padding:15px 10px">
-                            @((Rank)item.ITDirector.Rank  + ". " + item.ITDirector.Firstname + " " + item.ITDirector.Lastname)
-                        </span>*@
+                <div class="xr-card-menu">
+                    <a class="fas fa-ellipsis-h" data-toggle="dropdown" role="button" aria-label="Actions for @item.FullName"></a>
+                    <div class="dropdown-menu dropdown-menu-right" role="menu">
+                        <a class="dropdown-item" href="/Administrator/EditOrganization?passToken=@item.PassToken">Edit organization</a>
+                        <a class="dropdown-item" href="/Administrator/ChangeITDirector?passToken=@item.PassToken">Change Director of IT</a>
+                        <a class="dropdown-item text-danger" href="/Administrator/RemoveOrganization?passToken=@item.PassToken" onclick="return confirm('Remove this organization together with its labs, projects and users? This cannot be undone.');">Remove organization</a>
                     </div>
                 </div>
             </div>
-        }
-    </div>
+            <img class="xr-card-avatar" src="@item.PhotoUrl" alt="" />
+            <div class="xr-card-body">
+                <h3 class="xr-card-title"><a href="/Administrator/EditOrganization?passToken=@item.PassToken">@item.FullName</a></h3>
+                <p class="xr-label">Director of IT</p>
+                <ul class="xr-people">
+                    <li>@((Rank)item.ITDirector.Rank + ". " + item.ITDirector.Firstname + " " + item.ITDirector.Lastname)</li>
+                </ul>
+                <div class="xr-card-foot">
+                    <a href="/Administrator/EditOrganization?passToken=@item.PassToken">Edit organization</a>
+                </div>
+            </div>
+        </article>
+    }
 </div>
-

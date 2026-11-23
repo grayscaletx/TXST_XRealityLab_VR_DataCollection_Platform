@@ -1,12 +1,38 @@
-﻿@{
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+
+@{
     ViewBag.Title = "Settings";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<!--Header-->
 <div class="content-heading">
     <div>
         <strong>Settings</strong>
+        <span class="xr-sub">Your account on this platform.</span>
     </div>
 </div>
 
+<section class="xr-panel">
+    <div class="xr-panel-head">
+        <h3>Profile</h3>
+    </div>
+    <p>Change your name, title, phone number and picture.</p>
+    <a class="btn btn-primary" href="@Url.Action("EditProfile", "User")">Edit profile</a>
+</section>
+
+<section class="xr-panel">
+    <div class="xr-panel-head">
+        <h3>Password</h3>
+    </div>
+    <p>The same email address and password are used to log in here and from your VR / AR applications. After changing it, update the password in those applications too.</p>
+    <a class="btn btn-outline-primary" href="@Url.Action("ChangePassword", "User")">Change password</a>
+</section>
+
+<section class="xr-panel">
+    <div class="xr-panel-head">
+        <h3>About</h3>
+        <span class="xr-type">Version @Configuration["Version"]</span>
+    </div>
+    <p class="xr-nodata">XRealityLab research platform.</p>
+</section>

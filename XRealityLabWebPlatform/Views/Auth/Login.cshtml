@@ -1,66 +1,44 @@
-﻿@model XRealityLab.Application.IdentityLoginUserDTO
+@model XRealityLab.Application.IdentityLoginUserDTO
 @using Microsoft.Extensions.Options
 @inject IOptions<XRealityLab.Security.ReCAPTCHASettings> GoogleReCAPTCHA
 
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "Log in";
     Layout = "~/Views/Shared/_AuthLayout.cshtml";
 }
 
-<div class="block-center mt-4 wd-xl" >
-    <div class="card card-flat" style="background-color:#4bc4e9">
-        <div class="card-header text-center" >
-            <a href="#">
-                <img class="block-center" src="~/_images/Logo/XRealityLab.png" style="max-width: 250px;" alt="Image" />
-            </a>
-        </div>
-        <div class="card-body">
-            <p class="text-center py-2" style="color:white">Login</p>
-            <form asp-action="Login" class="mb-3">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="form-group">
-                    <div class="input-group with-focus">
-                        <input asp-for="Email" class="form-control border-right-0" type="email" placeholder="Email address" required="required" />
-                        <div class="input-group-append">
-                            <span asp-validation-for="Email" class="text-muted bg-transparent border-left-0 text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="input-group with-focus">
-                        <input asp-for="Password" class="form-control border-right-0" placeholder="Password" required="required" />
-                        <div class="input-group-append">
-                            <span asp-validation-for="Password" class="text-muted bg-transparent text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-                <input asp-for="Token" type="hidden" />
-                <div class="form-group">
-                    <input type="submit" value="Login" class="btn btn-block btn-secondary mt-3" />
-                </div>
-                <div class="clearfix">
-                    <div class="float-right">
-                        <a asp-action="ForgotPassword" class="text-white"><small>Forgot your password?</small></a>
-                    </div>
-                </div>
-            </form>
-            <br />
-        </div>
-    </div>
-    <br />
-    <p class="m-t"><small>Copyright © 2025 </small><a href="http://xrealitylab.com"><small> XRealityLab </small></a><small>All rights reserved.</small></p>
-</div>
+<h2>Log in</h2>
+<p class="xr-sub">Use the email address your account was created with.</p>
 
+<form asp-action="Login">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="Email">Email address</label>
+        <input asp-for="Email" class="form-control" type="email" autocomplete="username" required="required" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Password">Password</label>
+        <input asp-for="Password" class="form-control" autocomplete="current-password" required="required" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+    <input asp-for="Token" type="hidden" />
+    <button type="submit" class="btn btn-primary btn-block">Log in</button>
+</form>
+
+<p class="xr-auth-links"><a asp-action="ForgotPassword">Forgot your password?</a></p>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    <script src="https://www.google.com/recaptcha/api.js?render=@GoogleReCAPTCHA.Value.ReCAPTCHA_Site_Key"></script>
-    <script>
-        grecaptcha.ready(function () {
-            grecaptcha.execute('@GoogleReCAPTCHA.Value.ReCAPTCHA_Site_Key', { action: 'homepage' }).then(function (token) {
-                console.log(token);
-                $('#Token').val(token);
-        });
-    });
-    </script>
+    @if (!string.IsNullOrWhiteSpace(GoogleReCAPTCHA.Value.ReCAPTCHA_Site_Key))
+    {
+        <script src="https://www.google.com/recaptcha/api.js?render=@GoogleReCAPTCHA.Value.ReCAPTCHA_Site_Key"></script>
+        <script>
+            grecaptcha.ready(function () {
+                grecaptcha.execute('@GoogleReCAPTCHA.Value.ReCAPTCHA_Site_Key', { action: 'homepage' }).then(function (token) {
+                    $('#Token').val(token);
+                });
+            });
+        </script>
+    }
 }

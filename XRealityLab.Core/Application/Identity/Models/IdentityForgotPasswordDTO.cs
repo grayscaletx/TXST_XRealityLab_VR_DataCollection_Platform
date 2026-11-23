@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace XRealityLab.Application
 {
@@ -9,7 +9,7 @@ namespace XRealityLab.Application
         [DataType(DataType.EmailAddress)]
         [EmailAddress]
         public string Email { get; set; }
-        [Required]
+        // reCAPTCHA token: only present (and only checked) when reCAPTCHA keys are configured
         public string Token { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿@model XRealityLab.ProfileNavDTO;
+@model XRealityLab.ProfileNavDTO;
 @using XRealityLab
 @using System.Security.Claims;
 
@@ -14,8 +14,8 @@
         <!-- Name and Job-->
         <div class="user-block-info">
             <span class="user-block-name"><strong>@Model.FullName</strong></span>
-            <span class="user-block-role">@Model.RoleName</span>
-            <a href="@Url.Action("EditProfile", "User")"><em class="fas fa-edit" style="color:gray"></em></a>
+            <span class="user-block-role">@(Model.RoleName == "DirectorIT" ? "Director of IT" : Model.RoleName == "LabDirector" ? "Lab Director" : Model.RoleName == "PrincipleInvestigator" ? "Principal Investigator" : Model.RoleName == "ResearchAssistant" ? "Research Assistant" : Model.RoleName)</span>
+            <a href="@Url.Action("EditProfile", "User")"><em class="fas fa-edit" title="Edit profile"></em></a>
         </div>
     </div>
 </div>

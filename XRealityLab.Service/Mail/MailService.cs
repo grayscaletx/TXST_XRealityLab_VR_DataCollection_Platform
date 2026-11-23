@@ -1,53 +1,104 @@
-﻿using Common.Constants;
+using Common.Constants;
+using MimeKit;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Mail
 {
+    /// <summary>
+    /// Sends the platform e-mails (invitation with temporary password, password reset link).
+    /// The provider is chosen in configuration (Mail:Provider = SendGrid | Smtp | None).
+    /// With "None" the e-mail is written to the application log, so a fresh installation
+    /// works without any mail account.
+    /// E-mail bodies are built here, so no SendGrid templates are required.
+    /// </summary>
     public class MailService
     {
-        SendGridClient client;
-        SendGridMessage msg;
-
-        public MailService()
-        {
-            client = new SendGridClient(SendGridCredentials.API_KEY);
-            msg = new SendGridMessage();
-            msg.SetFrom(new EmailAddress(SendGridCredentials.SET_FROM_EMAIL, SendGridCredentials.SET_FROM_NAME));
-        }
-
         public async Task<bool> SendResetPasswordAsync(string resetLink, string email)
         {
-            msg.AddTo(new EmailAddress(email, SendGridCredentials.SET_FROM_NAME));
-            msg.AddSubstitution("-resetLink-", resetLink);
-            msg.SetTemplateId(SendGridCredentials.TEMPLATE_FORGOT_PASSWORD_ID);
-            msg.Subject = "Reset your XRealityLab password";
+            string html =
+                "<p>Hello,</p>" +
+                "<p>We received a request to reset the password of your XRealityLab account.</p>" +
+                "<p><a href=\"" + WebUtility.HtmlEncode(resetLink) + "\">Click here to choose a new password</a></p>" +
+                "<p>If the link does not open, copy this address into your browser:<br/>" + WebUtility.HtmlEncode(resetLink) + "</p>" +
+                "<p>If you did not ask for this, you can ignore this e-mail.</p>" +
+                "<p>" + WebUtility.HtmlEncode(SendGridCredentials.SET_FROM_NAME) + "</p>";
 
-            var response = await client.SendEmailAsync(msg);
-            Console.WriteLine(response.Headers.ToString());
-
-            return (response.StatusCode == System.Net.HttpStatusCode.Accepted) ? true : false;
+            return await SendAsync(email, "Reset your XRealityLab password", html);
         }
 
         public async Task<bool> SendAccountCreationAsync(string firstname, string role, string password, string organizationName, string type, string email)
         {
-            msg.AddTo(new EmailAddress(email, SendGridCredentials.SET_FROM_NAME));
-            msg.AddSubstitution("-name-", firstname);
-            msg.AddSubstitution("-role-", role);
-            msg.AddSubstitution("-password-", password);
-            msg.AddSubstitution("-organizationName-", organizationName);
-            msg.AddSubstitution("-type-", type);
-            msg.SetTemplateId(SendGridCredentials.TEMPLATE_PLATFORM_INVITATION_ID);
-            msg.Subject = "Log In To your XRealityLab Platform Account";
+            string platform = string.IsNullOrWhiteSpace(SendGridCredentials.PLATFORM_URL)
+                ? string.Empty
+                : "<p>Platform address: <a href=\"" + WebUtility.HtmlEncode(SendGridCredentials.PLATFORM_URL) + "\">" + WebUtility.HtmlEncode(SendGridCredentials.PLATFORM_URL) + "</a></p>";
 
-            var response = await client.SendEmailAsync(msg);
-            Console.WriteLine(response.Headers.ToString());
+            string html =
+                "<p>Hello " + WebUtility.HtmlEncode(firstname) + ",</p>" +
+                "<p>An XRealityLab account was created for you as <b>" + WebUtility.HtmlEncode(role) + "</b> of the " +
+                WebUtility.HtmlEncode(type) + " <b>" + WebUtility.HtmlEncode(organizationName) + "</b>.</p>" +
+                "<p>E-mail: " + WebUtility.HtmlEncode(email) + "<br/>Temporary password: <b>" + WebUtility.HtmlEncode(password) + "</b></p>" +
+                platform +
+                "<p>Please log in and change your password (profile icon &gt; Change Password) within 10 days. " +
+                "After 10 days the temporary password expires and you will need the \"Forgot your password?\" link.</p>" +
+                "<p>" + WebUtility.HtmlEncode(SendGridCredentials.SET_FROM_NAME) + "</p>";
 
-            return (response.StatusCode == System.Net.HttpStatusCode.Accepted) ? true : false;
+            return await SendAsync(email, "Log in to your XRealityLab platform account", html);
+        }
+
+        private static async Task<bool> SendAsync(string to, string subject, string html)
+        {
+            try
+            {
+                string provider = (SendGridCredentials.PROVIDER ?? "None").Trim().ToLowerInvariant();
+
+                if (provider == "sendgrid" && !string.IsNullOrWhiteSpace(SendGridCredentials.API_KEY))
+                {
+                    var client = new SendGridClient(SendGridCredentials.API_KEY);
+                    var msg = MailHelper.CreateSingleEmail(
+                        new EmailAddress(SendGridCredentials.SET_FROM_EMAIL, SendGridCredentials.SET_FROM_NAME),
+                        new EmailAddress(to), subject, null, html);
+                    var response = await client.SendEmailAsync(msg);
+                    bool ok = response.StatusCode == HttpStatusCode.Accepted;
+                    if (!ok) Console.WriteLine("[Mail] SendGrid refused the e-mail to " + to + ": " + response.StatusCode);
+                    return ok;
+                }
+
+                if (provider == "smtp" && !string.IsNullOrWhiteSpace(SendGridCredentials.SMTP_HOST))
+                {
+                    var message = new MimeMessage();
+                    message.From.Add(new MailboxAddress(SendGridCredentials.SET_FROM_NAME, SendGridCredentials.SET_FROM_EMAIL));
+                    message.To.Add(new MailboxAddress(to, to));
+                    message.Subject = subject;
+                    message.Body = new BodyBuilder { HtmlBody = html }.ToMessageBody();
+
+                    using (var smtp = new MailKit.Net.Smtp.SmtpClient())
+                    {
+                        var security = SendGridCredentials.SMTP_USE_SSL
+                            ? MailKit.Security.SecureSocketOptions.Auto
+                            : MailKit.Security.SecureSocketOptions.None;
+                        await smtp.ConnectAsync(SendGridCredentials.SMTP_HOST, SendGridCredentials.SMTP_PORT, security);
+                        if (!string.IsNullOrWhiteSpace(SendGridCredentials.SMTP_USER))
+                            await smtp.AuthenticateAsync(SendGridCredentials.SMTP_USER, SendGridCredentials.SMTP_PASSWORD);
+                        await smtp.SendAsync(message);
+                        await smtp.DisconnectAsync(true);
+                    }
+                    return true;
+                }
+
+                // No mail provider configured: keep the content available to the installer in the log.
+                Console.WriteLine("[Mail] (no provider configured) To: " + to + " | Subject: " + subject);
+                Console.WriteLine("[Mail] " + html);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("[Mail] Sending to " + to + " failed: " + ex.Message);
+                return false;
+            }
         }
     }
 }

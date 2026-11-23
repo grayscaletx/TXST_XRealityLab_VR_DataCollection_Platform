@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>XRealityLab - Platform Guide</title>
+<link rel="stylesheet" href="../XRealityLabWebPlatform/wwwroot/fonts/xr/fonts.css">
+<style>
+    @page { size: A4; margin: 18mm 16mm 18mm 16mm; }
+    @page :first { margin: 0; }
+    * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1D2B38; margin: 0; }
+    h1, h2, h3 { font-family: 'Sora', 'Segoe UI', sans-serif; color: #101B26; letter-spacing: -.01em; }
+    h1 { font-size: 20pt; margin: 0 0 4mm; padding-top: 2mm; border-top: 3px solid #0A84AD; page-break-before: always; }
+    h2 { font-size: 13pt; margin: 7mm 0 2mm; }
+    h3 { font-size: 11pt; margin: 5mm 0 1.5mm; }
+    p { margin: 0 0 2.5mm; }
+    ul, ol { margin: 0 0 3mm; padding-left: 5.5mm; }
+    li { margin-bottom: 1mm; }
+    a { color: #0A84AD; text-decoration: none; }
+    code, pre, .mono { font-family: 'IBM Plex Mono', Consolas, monospace; font-size: 9pt; }
+    code { background: #EEF2F5; padding: 0 3px; border-radius: 3px; }
+    pre { background: #101B26; color: #E6EDF3; padding: 3.5mm 4mm; border-radius: 6px; white-space: pre-wrap; word-break: break-word; margin: 0 0 3.5mm; page-break-inside: avoid; line-height: 1.45; }
+    pre code { background: transparent; padding: 0; color: inherit; }
+    table { width: 100%; border-collapse: collapse; margin: 0 0 4mm; font-size: 9.5pt; page-break-inside: avoid; }
+    th { text-align: left; font-family: 'IBM Plex Mono', Consolas, monospace; font-size: 8pt; letter-spacing: .08em; text-transform: uppercase; color: #617182; border-bottom: 1.5px solid #101B26; padding: 1.5mm 2mm; }
+    td { border-bottom: 1px solid #DCE3E9; padding: 1.8mm 2mm; vertical-align: top; }
+    figure { margin: 3mm 0 5mm; page-break-inside: avoid; }
+    figure img { width: 100%; border: 1px solid #DCE3E9; border-radius: 6px; display: block; }
+    figcaption { font-size: 8.5pt; color: #617182; margin-top: 1.5mm; }
+    .note { border-left: 4px solid #F0A531; background: #FFFBF2; padding: 2.5mm 4mm; margin: 0 0 4mm; border-radius: 0 6px 6px 0; page-break-inside: avoid; }
+    .note.info { border-left-color: #0A84AD; background: #EEF8FC; }
+    .cover { height: 296mm; overflow: hidden; page-break-after: avoid; display: flex; flex-direction: column; justify-content: space-between; background: #101B26; color: #fff; margin: 0; padding: 30mm 24mm 26mm;
+             background-image: radial-gradient(circle, rgba(255,255,255,.16) 1px, transparent 1.4px); background-size: 22px 22px; }
+    .cover img { width: 62mm; }
+    .cover h1 { border: 0; color: #fff; font-size: 34pt; line-height: 1.1; margin: 0 0 6mm; page-break-before: auto; }
+    .cover h1 em { font-style: normal; color: #35C6EC; }
+    .cover p { color: #A9B8C6; font-size: 12pt; max-width: 120mm; }
+    .cover .mono { color: #6F8194; font-size: 9pt; letter-spacing: .08em; text-transform: uppercase; }
+    .toc { page-break-before: always; }
+    .toc h1 { page-break-before: auto; }
+    .toc ol { list-style: none; padding: 0; counter-reset: toc; }
+    .toc li { counter-increment: toc; padding: 2mm 0; border-bottom: 1px solid #DCE3E9; font-size: 11pt; }
+    .toc li::before { content: counter(toc, decimal-leading-zero); font-family: 'IBM Plex Mono', monospace; color: #0A84AD; margin-right: 4mm; font-size: 9.5pt; }
+    .tree { font-family: 'IBM Plex Mono', monospace; font-size: 9pt; background: #F3F6F8; border: 1px solid #DCE3E9; border-radius: 6px; padding: 3.5mm 4mm; white-space: pre; margin-bottom: 4mm; page-break-inside: avoid; }
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+    .keep { page-break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<section class="cover">
+    <img src="../XRealityLabWebPlatform/wwwroot/_images/Logo/XRealityLab-wordmark.png" alt="XRealityLab">
+    <div>
+        <h1>Platform guide.<br><em>Every trial, on record.</em></h1>
+        <p>What the platform does, what each role can do in it, how to connect a Unity application or a questionnaire to it, and how to install it on another machine.</p>
+    </div>
+    <p class="mono">Version 1.40 &middot; November 2026</p>
+</section>
+
+<section class="toc">
+    <h1>Contents</h1>
+    <ol>
+        <li>Overview</li>
+        <li>Roles and what each one does</li>
+        <li>A study from start to finish</li>
+        <li>Connecting a Unity application</li>
+        <li>Connecting a Qualtrics questionnaire</li>
+        <li>API reference</li>
+        <li>Installing on another machine</li>
+        <li>Configuration reference</li>
+        <li>Running it day to day</li>
+        <li>What changed in version 1.40</li>
+        <li>Known limitations</li>
+    </ol>
+</section>
+
+<!-- ============================================================ 1 -->
+<h1>1. Overview</h1>
+<p>XRealityLab is a web platform for research labs that run studies with participants in virtual and augmented reality. Researchers plan a study in the browser, register participants, and the VR / AR application sends each participant's results to the platform over an API. Questionnaire links and scanned paper forms can be attached to the same participant, so everything about one session ends up in one place and can be exported.</p>
+
+<h2>How it is organized</h2>
+<div class="tree">Organization            a university or company
+ └─ Lab                 a research group inside it
+     └─ Project         one study
+         ├─ Research methods     what is measured (VR / AR task, questionnaire, offline form)
+         └─ Data collections     sessions in which participants take part
+             └─ Participants     people who take part in that session
+                 └─ Results      one set per research method</div>
+
+<h2>The parts of the system</h2>
+<table>
+    <tr><th style="width:27%">Part</th><th>What it is</th></tr>
+    <tr><td><b>Web platform</b><br><span class="mono">XRealityLabWebPlatform</span></td><td>The website researchers log in to. ASP.NET Core 3.1 MVC.</td></tr>
+    <tr><td><b>API</b><br><span class="mono">XRealityLabAPI</span></td><td>A small web API used by Unity applications and questionnaires to read projects and save results. It has a built-in test page (Swagger) at its root address.</td></tr>
+    <tr><td><b>Database</b></td><td>Microsoft SQL Server. Both the web platform and the API use the same database.</td></tr>
+    <tr><td><b>File storage</b></td><td>Pictures and uploaded result files. Either an Azure Storage account or a folder on the server.</td></tr>
+    <tr><td><b>E-mail</b></td><td>Invitations with a temporary password and password-reset links. SendGrid, any SMTP server, or none.</td></tr>
+</table>
+
+<figure><img src="images/01-login.png" alt="Log in page"><figcaption>The log in page.</figcaption></figure>
+
+<!-- ============================================================ 2 -->
+<h1>2. Roles and what each one does</h1>
+<p>There are five roles. Each role creates the level below it, so accounts are always created by someone, never by self-registration. The new user receives an e-mail with a temporary password.</p>
+<table>
+    <tr><th style="width:24%">Role</th><th style="width:26%">Created by</th><th>Can do</th></tr>
+    <tr><td><b>Administrator</b></td><td>The installation (first start)</td><td>Create, edit and remove organizations. Each organization is created together with its Director of IT and a limit on how many labs it may have.</td></tr>
+    <tr><td><b>Director of IT</b></td><td>Administrator</td><td>Create, edit and remove the labs of their organization, each together with its Lab Director. Replace a Lab Director.</td></tr>
+    <tr><td><b>Lab Director</b></td><td>Director of IT</td><td>See all projects of the lab. Create projects. Create Principal Investigators and Research Assistants. Assign them to projects. Define research methods.</td></tr>
+    <tr><td><b>Principal Investigator</b></td><td>Lab Director or another Principal Investigator</td><td>Create projects. Add researchers and research methods to their projects. Run data collections: sessions, participants, results, exports. Send results from Unity.</td></tr>
+    <tr><td><b>Research Assistant</b></td><td>Lab Director or Principal Investigator</td><td>Run data collections in the projects they are assigned to. Send results from Unity.</td></tr>
+</table>
+
+<h2>Administrator</h2>
+<ol>
+    <li>Log in and choose <b>New organization</b>.</li>
+    <li>Fill in the organization details, the number of labs it is allowed, and the subscription start and end dates.</li>
+    <li>Fill in the Director of IT. Press <b>Generate</b> to create a temporary password, then <b>Submit</b>. The Director of IT receives the invitation e-mail.</li>
+</ol>
+<p>The menu on each organization card (the three dots) has <b>Edit organization</b>, <b>Change Director of IT</b> and <b>Remove organization</b>. Removing an organization also removes its labs, projects and users.</p>
+<figure><img src="images/02-organizations.png" alt="Organizations"><figcaption>Administrator: the list of organizations.</figcaption></figure>
+
+<h2>Director of IT</h2>
+<ol>
+    <li>Log in and choose <b>New lab</b>. The tile disappears when the organization has reached its allowed number of labs.</li>
+    <li>Fill in the lab and its Lab Director, generate a password and submit.</li>
+</ol>
+<p>When a Lab Director is replaced, the previous one stays in the lab as a Principal Investigator.</p>
+<figure><img src="images/04-labs.png" alt="Labs"><figcaption>Director of IT: the labs of the organization, with the used and allowed number.</figcaption></figure>
+
+<h2>Lab Director</h2>
+<ul>
+    <li><b>All Projects</b>: every project of the lab. The menu on a project card opens its data collections, research methods, Principal Investigators and Research Assistants, and lets you edit or remove the project.</li>
+    <li><b>Principal Investigators</b> and <b>Research Assistants</b>: create the researchers of the lab.</li>
+    <li>A new researcher must be <b>added to a project</b> before they can work in it: project menu, then <b>Principal Investigators</b> or <b>Research Assistants</b>.</li>
+</ul>
+<figure><img src="images/05-all-projects.png" alt="All projects"><figcaption>Lab Director: all projects of the lab.</figcaption></figure>
+
+<h2>Principal Investigator and Research Assistant</h2>
+<p>Both work from <b>My Projects</b>. Opening a project shows its data collections. A Principal Investigator also sees the project menu and can create projects; a Research Assistant only sees the projects they were added to.</p>
+<figure><img src="images/08-my-projects.png" alt="My projects"><figcaption>Principal Investigator: My Projects.</figcaption></figure>
+
+<h2>Every role: first log in and passwords</h2>
+<ul>
+    <li>The invitation e-mail contains a <b>temporary password that is valid for 10 days</b>.</li>
+    <li>After logging in, change it: the pencil icon under your name, then <b>Change password</b> (or <b>Settings</b>). This also activates the account for the API, so a Unity application can only log in after the password has been changed once.</li>
+    <li>If the 10 days have passed, use <b>Forgot your password?</b> on the log in page.</li>
+</ul>
+
+<!-- ============================================================ 3 -->
+<h1>3. A study from start to finish</h1>
+<h2>Step 1. Create the project</h2>
+<p>A Lab Director or Principal Investigator chooses <b>New project</b>, gives it a name, a description (both required), a colour and optionally a picture.</p>
+
+<h2>Step 2. Define the research methods</h2>
+<p>Project menu, then <b>Research methods</b>, then <b>New Research Method +</b>. Give the method a title and choose its type:</p>
+<table>
+    <tr><th style="width:30%">Type</th><th>Where the result comes from</th></tr>
+    <tr><td>Virtual or Augmented Reality</td><td>Sent by the Unity application through the API: total time, number of mistakes and an optional note. A participant can have several runs.</td></tr>
+    <tr><td>Qualtrics Questionnaire</td><td>Reported through the API when the questionnaire is finished, with a link to the response.</td></tr>
+    <tr><td>Offline Method</td><td>A file (PDF or Excel) uploaded by the researcher on the Results page, for example a scanned form. The researcher ticks it as completed in the participants list.</td></tr>
+</table>
+<figure><img src="images/06-research-methods.png" alt="Research methods"><figcaption>The research methods of a project.</figcaption></figure>
+
+<h2>Step 3. Add the researchers</h2>
+<p>Project menu, then <b>Principal Investigators</b> or <b>Research Assistants</b>. The upper table lists the available people of the lab; the lower table lists those already in the project.</p>
+
+<h2>Step 4. Create a data collection (session)</h2>
+<p>Open the project, then <b>New Session +</b>. A data collection is one round of data gathering, for example "Pilot, week 1".</p>
+<figure><img src="images/09-data-collections.png" alt="Data collections"><figcaption>The data collections of a project. The menu at the end of a row exports or removes the session.</figcaption></figure>
+
+<h2>Step 5. Register participants</h2>
+<p>Open the data collection, then <b>New participant +</b>. A participant is identified by e-mail address: if the address already exists, the same person is added to this session.</p>
+<p>The list has one column per research method. A ticked box means a result exists. The box of an Offline method can be ticked by hand.</p>
+<figure><img src="images/10-participants.png" alt="Participants"><figcaption>The participants of a data collection and their progress per research method.</figcaption></figure>
+
+<h2>Step 6. Collect and read the results</h2>
+<p>Click a participant's name to open their Results page. It shows:</p>
+<ul>
+    <li>the <b>participant pass token</b> and <b>session pass token</b> at the top, and a <b>research pass token</b> under each research method. These three values tell the API whose result is being saved (see chapter 4);</li>
+    <li>every VR / AR run with its time, mistakes and note;</li>
+    <li>whether the questionnaire was completed, with a link to the response;</li>
+    <li>the uploaded file of an Offline method, and the field to upload or replace it;</li>
+    <li>free-text session notes about this participant.</li>
+</ul>
+<figure><img src="images/11-results.png" alt="Results" style="width:78%"><figcaption>The Results page of one participant.</figcaption></figure>
+
+<h2>Step 7. Export</h2>
+<ul>
+    <li><b>One participant</b>: in the participants list, row menu, <b>Export Data</b>. Downloads a CSV file.</li>
+    <li><b>A whole data collection</b>: in the data collections list, row menu, <b>Export Data</b>. Downloads a ZIP with one CSV per participant.</li>
+</ul>
+<p>Each CSV contains the session, the participant, the pass tokens and, per research method, its results.</p>
+
+<!-- ============================================================ 4 -->
+<h1>4. Connecting a Unity application</h1>
+<p>The Unity application talks to the <b>API</b>, not to the website. It needs four things:</p>
+<table>
+    <tr><th style="width:30%">What</th><th>Where to find it</th></tr>
+    <tr><td>API address</td><td>The address of the API, for example <code>https://xrealitylab-api.azurewebsites.net</code>.</td></tr>
+    <tr><td>Researcher e-mail and password</td><td>The account of a Principal Investigator or Research Assistant who is <b>in the project</b> and has changed the temporary password.</td></tr>
+    <tr><td>Participant and session pass token</td><td>Top of the participant's Results page, <b>Copy</b> button.</td></tr>
+    <tr><td>Research pass token</td><td>Results page, under the VR / AR research method.</td></tr>
+</table>
+
+<h2>The two calls</h2>
+<p><b>1. Log in</b> and receive an auth token:</p>
+<pre>GET {api}/api/Users/email/{email}/{password}
+
+{ "userId": 4, "firstName": "Paula", "lastName": "Invest",
+  "authToken": "kLqyunRjuKwX...", "roleId": 4, ... }</pre>
+<p><b>2. Save a result</b> for the participant:</p>
+<pre>POST {api}/api/Project/ParticipantResult?_authToken={authToken, URL-encoded}
+Content-Type: application/json
+
+{
+  "participantMD5": "c81e728d9d4c2f636f067f89cc14862c",
+  "sessionMD5":     "c81e728d9d4c2f636f067f89cc14862c",
+  "researchMD5":    "c4ca4238a0b923820dcc509a6f75849b",
+  "time":           "00:02:35",
+  "noOfMistakes":   4,
+  "notes":          "optional, up to 250 characters"
+}
+
+{ "message": "Saved Data", "result": "Succeeded" }</pre>
+
+<div class="note">
+    <b>Three things that commonly go wrong.</b>
+    <ul style="margin-bottom:0">
+        <li>The auth token contains characters such as <code>$ % ^ *</code>. It must be URL-encoded when it is put in the address.</li>
+        <li>Every log in creates a new token and cancels the previous one. Two devices using the same account at the same time will log each other out; give each device its own researcher account.</li>
+        <li>At most 50 results per session can be saved per day.</li>
+    </ul>
+</div>
+
+<h2>Ready-made Unity script</h2>
+<p>The repository contains <code>docs/unity/XRealityLabClient.cs</code>. Copy it into the <code>Assets</code> folder of the Unity project, add the component to a GameObject and fill in the fields in the Inspector. From your own code:</p>
+<pre>var lab = GetComponent&lt;XRealityLabClient&gt;();
+
+// once, when the application starts
+yield return lab.Login((ok, message) =&gt; Debug.Log(message));
+
+// when the participant finishes the task
+yield return lab.SendResult(TimeSpan.FromSeconds(155), mistakes: 4, notes: "",
+                            done: (ok, message) =&gt; Debug.Log(message));</pre>
+<p>The script uses only <code>UnityWebRequest</code> and <code>JsonUtility</code>, so it needs no extra packages. For headsets, type the three pass tokens into the Inspector before building, or add your own input screen that sets <code>participantPassToken</code>, <code>sessionPassToken</code> and <code>researchPassToken</code> at run time.</p>
+
+<h2>Trying it without Unity</h2>
+<p>Open the API address in a browser. The Swagger page lists every call and has a <b>Try it out</b> button for each.</p>
+
+<!-- ============================================================ 5 -->
+<h1>5. Connecting a Qualtrics questionnaire</h1>
+<p>A questionnaire is marked as completed when something calls the API with the participant's three pass tokens and, optionally, a link to the response:</p>
+<pre>POST {api}/api/Project/QualtricsResult?_authToken={authToken, URL-encoded}
+Content-Type: application/json
+
+{
+  "participantMD5": "...",
+  "sessionMD5":     "...",
+  "researchMD5":    "...  (pass token of the Qualtrics research method)",
+  "documentUrl":    "https://... link to the response, up to 200 characters",
+  "notes":          "optional"
+}</pre>
+<p>A typical set-up in Qualtrics:</p>
+<ol>
+    <li>Give the participant a survey link that carries the three pass tokens as embedded data, for example <code>...?p=PARTICIPANT&amp;s=SESSION&amp;r=RESEARCH</code>.</li>
+    <li>At the end of the survey flow, add a <b>Web Service</b> element that sends the POST above, filling the three values from the embedded data.</li>
+    <li>The auth token must be a current one: obtain it with the log in call first, or use an account that is only used for this purpose so its token is not replaced by another log in.</li>
+</ol>
+<div class="note info">The exact screens differ between Qualtrics licences, so this part has to be set up in your own Qualtrics account. Any other survey tool that can send a web request at the end of a survey works the same way.</div>
+
+<!-- ============================================================ 6 -->
+<h1>6. API reference</h1>
+<p>All addresses start with the API address. Every call except the log in needs <code>_authToken</code> in the query string. Errors are returned with HTTP status 404 and a body of the form <code>{ "message": "...", "result": "Failed" }</code>.</p>
+<table>
+    <tr><th style="width:44%">Call</th><th>Returns</th></tr>
+    <tr><td class="mono">GET /api/Users/email/{email}/{password}</td><td>Logs in. Returns the user and a new <code>authToken</code>.</td></tr>
+    <tr><td class="mono">GET /api/Project/GetMyProjects</td><td>The projects in which the user is Principal Investigator or Research Assistant, with their Principal Investigators.</td></tr>
+    <tr><td class="mono">GET /api/Project/GetDataCollections<br>&amp;projectId={id}</td><td>The sessions of a project, with the number of participants.</td></tr>
+    <tr><td class="mono">GET /api/Project/GetParticipants<br>&amp;sessionId={id}</td><td>The participants of a session.</td></tr>
+    <tr><td class="mono">POST /api/Project/ParticipantResult</td><td>Saves one VR / AR result (chapter 4).</td></tr>
+    <tr><td class="mono">POST /api/Project/QualtricsResult</td><td>Marks a questionnaire as completed (chapter 5).</td></tr>
+    <tr><td class="mono">GET /api/DirectorIT/GetLab</td><td>The lab of the user.</td></tr>
+    <tr><td class="mono">GET /api/Administrator/GetOrganization</td><td>The organization of the user.</td></tr>
+</table>
+<h2>Messages when saving a result fails</h2>
+<table>
+    <tr><th style="width:44%">Message</th><th>Meaning</th></tr>
+    <tr><td>AuthToken is incorrect</td><td>Log in again; the token was replaced or mistyped, or is not URL-encoded.</td></tr>
+    <tr><td>Participant session combination incorrect</td><td>The participant is not part of that session.</td></tr>
+    <tr><td>No access to this session</td><td>The researcher is not a Principal Investigator or Research Assistant of the project.</td></tr>
+    <tr><td>No access to this research</td><td>The research method belongs to another project.</td></tr>
+    <tr><td>No Virtual or Augmented reality research with this pass token</td><td>The research pass token belongs to a method of another type.</td></tr>
+    <tr><td>Too many post request for this session today</td><td>The limit of 50 results per session per day was reached.</td></tr>
+    <tr><td>Failed to save the data. Check that the ... pass tokens are correct.</td><td>One of the three pass tokens does not exist.</td></tr>
+</table>
+
+<!-- ============================================================ 7 -->
+<h1>7. Installing on another machine</h1>
+<p>The platform needs a machine that can run .NET Core 3.1 and a SQL Server database. On its first start it creates the database tables, the fixed data and the first Administrator by itself.</p>
+
+<h2>Option A. Windows (tested)</h2>
+<p><b>You need:</b> the <a href="https://dotnet.microsoft.com/download/dotnet/3.1">.NET Core 3.1 SDK</a>, SQL Server (the Express or LocalDB edition is enough) and Git.</p>
+<ol>
+    <li>Get the code:
+<pre>git clone https://github.com/gntakakis/XRealityLab.git
+cd XRealityLab</pre></li>
+    <li>Set the configuration as environment variables in the PowerShell window you will start the platform from. Replace the e-mail and password with your own:
+<pre>$env:ConnectionStrings__xrealitylabdb = "Server=(localdb)\MSSQLLocalDB;Database=XRealityLabdb;Trusted_Connection=True"
+$env:Database__AutoCreate = "true"
+$env:Seed__AdminEmail     = "you@your-university.edu"
+$env:Seed__AdminPassword  = "choose-a-password"
+$env:ASPNETCORE_URLS      = "http://localhost:5080"
+$env:HttpsRedirection     = "false"</pre>
+    For SQL Server Express use <code>Server=.\SQLEXPRESS;Database=XRealityLabdb;Trusted_Connection=True</code>.</li>
+    <li>Start the web platform:
+<pre>cd XRealityLabWebPlatform
+dotnet run --no-launch-profile</pre>
+    The window shows "Database schema created" and "First Administrator created". Open <code>http://localhost:5080</code> and log in.</li>
+    <li>Start the API in a second PowerShell window, with the same connection string and another port:
+<pre>$env:ConnectionStrings__xrealitylabdb = "Server=(localdb)\MSSQLLocalDB;Database=XRealityLabdb;Trusted_Connection=True"
+$env:ASPNETCORE_URLS  = "http://localhost:5081"
+$env:HttpsRedirection = "false"
+cd XRealityLabAPI
+dotnet run --no-launch-profile</pre>
+    Open <code>http://localhost:5081</code> to see the API test page.</li>
+</ol>
+<div class="note info">With these settings no e-mail account is needed: invitation and reset e-mails are written to the window the web platform runs in, so you can read the temporary passwords there. Pictures and uploaded files are stored in <code>XRealityLabWebPlatform/App_Data/files</code>. For real use, configure e-mail (chapter 8) and serve the platform over HTTPS.</div>
+
+<h2>Option B. Docker (provided, not yet verified on a server)</h2>
+<p>The repository contains <code>docker-compose.yml</code>, which starts SQL Server, the web platform and the API together. It needs a machine with Docker and at least 4 GB of memory.</p>
+<pre>copy .env.example .env        (then fill in the passwords in .env)
+docker compose up -d --build</pre>
+<p>Web platform: <code>http://localhost:8080</code>. API: <code>http://localhost:8081</code>. Put a reverse proxy with HTTPS in front of both for real use. These files were written together with version 1.40 but have not been run end to end yet, so expect to adjust small things on first use.</p>
+
+<h2>Option C. Azure App Service (how the hosted instance runs)</h2>
+<ol>
+    <li>Create an Azure SQL database, a Storage account and two App Services (web platform and API), runtime stack .NET Core 3.1.</li>
+    <li>Publish each project: <code>dotnet publish -c Release</code>, then deploy the output folder (Visual Studio "Publish", or zip deploy).</li>
+    <li>In each App Service, under <b>Configuration &gt; Application settings</b>, add the settings of chapter 8. On Azure the names use two underscores, for example <code>Storage__AzureConnectionString</code>.</li>
+</ol>
+
+<!-- ============================================================ 8 -->
+<h1>8. Configuration reference</h1>
+<p>Settings can be placed in <code>appsettings.json</code> of each project or, better for passwords, in environment variables. In an environment variable the colon becomes two underscores: <code>Mail:Provider</code> becomes <code>Mail__Provider</code>. No password is stored in the source code.</p>
+<h2>Web platform</h2>
+<table>
+    <tr><th style="width:38%">Setting</th><th>Meaning</th></tr>
+    <tr><td class="mono">ConnectionStrings:xrealitylabdb</td><td>SQL Server connection string. Required.</td></tr>
+    <tr><td class="mono">Database:AutoCreate</td><td><code>true</code> creates the tables, the roles, the research method types and the first Administrator when they are missing. Existing data is never changed. Use it on a new installation.</td></tr>
+    <tr><td class="mono">Seed:AdminEmail<br>Seed:AdminPassword</td><td>An Administrator account, created on start when no user with that e-mail exists yet. This is the only way to create an Administrator. The password needs at least 4 characters and one lower-case letter.</td></tr>
+    <tr><td class="mono">Storage:AzureConnectionString</td><td>Connection string of an Azure Storage account. Leave empty to store files on the server.</td></tr>
+    <tr><td class="mono">Storage:PublicBaseUrl</td><td>Public address of the stored files. With Azure: <code>https://ACCOUNT.blob.core.windows.net/</code>. Without: leave <code>/files/</code>.</td></tr>
+    <tr><td class="mono">Storage:LocalPath</td><td>Folder for files when Azure is not used. Default <code>App_Data/files</code>.</td></tr>
+    <tr><td class="mono">Mail:Provider</td><td><code>SendGrid</code>, <code>Smtp</code> or <code>None</code>. With <code>None</code>, e-mails are written to the application log.</td></tr>
+    <tr><td class="mono">Mail:FromEmail, Mail:FromName</td><td>Sender. With SendGrid it must be a verified sender of your SendGrid account.</td></tr>
+    <tr><td class="mono">Mail:SendGridApiKey</td><td>API key for SendGrid.</td></tr>
+    <tr><td class="mono">Mail:SmtpHost, SmtpPort, SmtpUser, SmtpPassword, SmtpUseSsl</td><td>Settings for an SMTP server, for example the university mail server.</td></tr>
+    <tr><td class="mono">PlatformUrl</td><td>Public address of the website. Shown in invitation e-mails.</td></tr>
+    <tr><td class="mono">GoogleReCAPTCHA:ReCAPTCHA_Site_Key<br>GoogleReCAPTCHA:ReCAPTCHA_Secret_Key</td><td>Optional reCAPTCHA v3 keys for the log in and forgot-password pages. The keys are tied to a domain, so create your own. Leave empty to switch reCAPTCHA off.</td></tr>
+    <tr><td class="mono">DataProtection:KeysPath</td><td>Folder in which the encryption keys are kept. Set it when running in Docker so that users stay logged in after a restart.</td></tr>
+    <tr><td class="mono">HttpsRedirection</td><td><code>false</code> when a reverse proxy already handles HTTPS, or for a local test over HTTP.</td></tr>
+</table>
+<h2>API</h2>
+<table>
+    <tr><th style="width:38%">Setting</th><th>Meaning</th></tr>
+    <tr><td class="mono">ConnectionStrings:xrealitylabdb</td><td>The same database as the web platform. Required.</td></tr>
+    <tr><td class="mono">HttpsRedirection</td><td>As above.</td></tr>
+</table>
+
+<!-- ============================================================ 9 -->
+<h1>9. Running it day to day</h1>
+<h2>Backups</h2>
+<ul>
+    <li><b>Database</b>: this is where all studies, participants and results are. Back it up with the normal SQL Server tools; Azure SQL keeps automatic backups.</li>
+    <li><b>Files</b>: the Storage account, or the <code>App_Data/files</code> folder.</li>
+</ul>
+<h2>Good to know</h2>
+<ul>
+    <li>After the web platform restarts, everyone has to log in again once. Nothing is lost.</li>
+    <li>The first page after a quiet period can take around ten seconds to appear while the platform wakes up.</li>
+    <li>Uploaded files are reachable by anyone who has their exact address. The addresses are long random names and are only shown to logged-in researchers, but do not share them outside the team.</li>
+    <li>If an invitation e-mail did not arrive, the user can still be given the temporary password by the person who created the account (it is shown on the form before submitting, with a <b>Copy</b> button).</li>
+</ul>
+<h2>Where the code lives</h2>
+<table>
+    <tr><th style="width:36%">Folder</th><th>Content</th></tr>
+    <tr><td class="mono">XRealityLabWebPlatform</td><td>Website: controllers, views, styles (<code>wwwroot/css/xr-theme.css</code> is the visual theme).</td></tr>
+    <tr><td class="mono">XRealityLabAPI</td><td>API controllers.</td></tr>
+    <tr><td class="mono">XRealityLab.Core</td><td>Shared models, settings, start-up and database preparation (<code>Application/Setup/PlatformSetup.cs</code>).</td></tr>
+    <tr><td class="mono">XRealityLab.Infrastructure</td><td>Database tables (Entity Framework Core).</td></tr>
+    <tr><td class="mono">XRealityLab.Service</td><td>File storage and e-mail.</td></tr>
+    <tr><td class="mono">docker, docs</td><td>Docker files, this guide and the Unity script.</td></tr>
+</table>
+
+<!-- ============================================================ 10 -->
+<h1>10. What changed in version 1.40</h1>
+<h2>New look</h2>
+<p>Every screen was restyled: new log in page, project and organization cards, tables, forms and a Results page that shows the pass tokens on screen instead of hiding them behind buttons.</p>
+<h2>Installation and security</h2>
+<ul>
+    <li>Passwords and keys were removed from the source code and moved to configuration.</li>
+    <li>A new installation prepares its own database and first Administrator.</li>
+    <li>The platform can run without Azure and without SendGrid.</li>
+    <li>A leftover address that deleted all users in one request was removed, as was a test call in the API that wrote fixed rows.</li>
+    <li>The user-management pages now require a log in.</li>
+</ul>
+<h2>Fixes</h2>
+<ul>
+    <li>The API participant list checked access against the wrong record, and the participant count per session was wrong.</li>
+    <li>An existing participant could not be added to a session that already had participants.</li>
+    <li>New sessions, labs, projects and research methods could be attached to an older record with the same name.</li>
+    <li>Removing a session left its participants and results in the database.</li>
+    <li>Exports broke when a name or note contained a comma. Questionnaire results were missing from the screen and from exports.</li>
+    <li>Cancel buttons on three forms submitted the form.</li>
+    <li>With two Offline methods in a project, ticking one could tick the other.</li>
+    <li>File handling that only worked on Windows, and a script error on every page.</li>
+    <li>A wrong auth token is now reported as such by the API.</li>
+</ul>
+
+<!-- ============================================================ 11 -->
+<h1>11. Known limitations</h1>
+<p>These were left as they are, because changing them would break Unity applications that already use the platform or is beyond a retouch. They matter if the platform is ever used for sensitive data.</p>
+<ul>
+    <li><b>Password storage.</b> Passwords are stored as MD5 hashes, which is weak by current standards. Use a password that is not used anywhere else.</li>
+    <li><b>API log in.</b> The password is part of the address of the log in call. Always use HTTPS, and avoid the character <code>/</code> in passwords of accounts used from Unity.</li>
+    <li><b>Pass tokens</b> are derived from internal record numbers. They only work together with a valid auth token of a researcher in the project.</li>
+    <li><b>Permissions inside a lab.</b> Menus are shown per role, but a logged-in user who knows the exact address of a management page can open it. Give accounts only to people you trust with the lab's data.</li>
+    <li><b>.NET Core 3.1</b> is no longer supported by Microsoft. The platform runs, but receives no security updates from the framework. Moving to a current .NET version is the main piece of future work.</li>
+    <li><b>Validation.</b> Organization and lab forms accept values the code intended to reject (for example a ZIP code that is not five digits).</li>
+    <li><b>Changing a director</b> does not send an invitation e-mail; pass the generated password on yourself.</li>
+    <li><b>Editing a session</b> or removing a research method is not available.</li>
+</ul>
+
+</body>
+</html>

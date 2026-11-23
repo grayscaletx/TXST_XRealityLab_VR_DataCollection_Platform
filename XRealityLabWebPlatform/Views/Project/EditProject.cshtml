@@ -1,4 +1,4 @@
-﻿@model XRealityLab.Models.ProjectDTO
+@model XRealityLab.Models.ProjectDTO
 @using System.Security.Claims;
 @using XRealityLab.Common;
 
@@ -69,7 +69,7 @@
             </div>
         </div>
     </div>
-    <button class="btn btn-sm btn-outline-primary" href="/Project/MyProjects">Cancel</button>
+    <button type="button" class="btn btn-sm btn-outline-primary" onclick="location.href='/Project/MyProjects'">Cancel</button>
     <button class="btn btn-sm btn-primary" type="submit">Update</button>
 </form>
 

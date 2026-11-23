@@ -1,0 +1,20 @@
+# XRealityLab web platform (ASP.NET Core 3.1 MVC)
+# Build from the repository root:  docker build -f docker/Dockerfile.web -t xrealitylab-web .
+FROM mcr.microsoft.com/dotnet/sdk:3.1-focal AS build
+WORKDIR /src
+COPY . .
+RUN dotnet publish XRealityLabWebPlatform/XRealityLab.csproj -c Release -o /app
+
+FROM mcr.microsoft.com/dotnet/aspnet:3.1-focal
+# libgdiplus is required by System.Drawing (icon resizing) on Linux
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgdiplus libc6-dev \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY --from=build /app .
+ENV ASPNETCORE_URLS=http://+:8080 \
+    Storage__LocalPath=/data/files \
+    DataProtection__KeysPath=/data/keys
+VOLUME /data
+EXPOSE 8080
+ENTRYPOINT ["dotnet", "XRealityLab.dll"]

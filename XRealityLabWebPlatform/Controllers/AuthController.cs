@@ -1,4 +1,4 @@
-﻿using XRealityLab.Application;
+using XRealityLab.Application;
 using XRealityLab.Common;
 using XRealityLab.Security;
 using Common;
@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
-using NETCore.MailKit.Core;
 using System;
 using System.Linq;
 using System.Security.Claims;
@@ -25,14 +24,12 @@ namespace XRealityLab.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly GoogleReCAPTCHAService _googleReCAPTCHAService;
-        private readonly IEmailService _emailService;
         private readonly IHostingEnvironment _environment;
 
         public AuthController(XRealityLabdbContext context,
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
             GoogleReCAPTCHAService googleReCAPTCHAService,
-            IEmailService emailService,
             IHostingEnvironment IHostingEnvironment)
         {
             _context = context;
@@ -40,7 +37,6 @@ namespace XRealityLab.Controllers
             _signInManager = signInManager;
             _googleReCAPTCHAService = googleReCAPTCHAService;
             _environment = IHostingEnvironment;
-            _emailService = emailService;
         }
 
         public IActionResult Index()
@@ -92,10 +88,11 @@ namespace XRealityLab.Controllers
         public async Task<IActionResult> Login([Bind("Email,Password,Token")] IdentityLoginUserDTO identityUserDto)
         {
             //Google reCAPTCHA validation
-            var _GoogleReCAPTCHA = _googleReCAPTCHAService.VerifyReCAPTCHA(identityUserDto.Token);
-
-            if (!_GoogleReCAPTCHA.Result.success && _GoogleReCAPTCHA.Result.score <= 0.5)
+            if (!await _googleReCAPTCHAService.IsHumanAsync(identityUserDto.Token))
                 return AuthenticationError(View(), string.Empty, "Please try again later.");
+
+            if (!ModelState.IsValid || string.IsNullOrWhiteSpace(identityUserDto.Email) || string.IsNullOrEmpty(identityUserDto.Password))
+                return AuthenticationError(View(), string.Empty, "Email, Password combination wrong");
 
             string hash = IdentityConversions.MD5Hash(identityUserDto.Password);
             var user = _context.User.Include(l => l.Role).Where(k => k.Email == identityUserDto.Email.Trim() && k.PasswordHash == hash).FirstOrDefault();
@@ -210,17 +207,18 @@ namespace XRealityLab.Controllers
         public async Task<IActionResult> ForgotPassword([Bind("Email,Token")] IdentityForgotPasswordDTO identityForgotPasswordDto)
         {
             //Google reCAPTCHA validation
-            var _GoogleReCAPTCHA = _googleReCAPTCHAService.VerifyReCAPTCHA(identityForgotPasswordDto.Token);
-
-            if (!_GoogleReCAPTCHA.Result.success && _GoogleReCAPTCHA.Result.score <= 0.5)
+            if (!await _googleReCAPTCHAService.IsHumanAsync(identityForgotPasswordDto.Token))
                 return AuthenticationError(View(), string.Empty, "Please try again later.");
+
+            if (string.IsNullOrWhiteSpace(identityForgotPasswordDto.Email))
+                return AuthenticationError(View(), string.Empty, "Please enter your email address.");
 
             var user = _context.User.Where(k => k.Email == identityForgotPasswordDto.Email.Trim()).FirstOrDefault();
 
             ViewBag.Message = "We have just sent you a link to reset your password.";
 
             // User doesn't exist or invalid model
-            if (user != null || !ModelState.IsValid)
+            if (user != null)
             {
                 var identityUser = await _userManager.FindByNameAsync(identityForgotPasswordDto.Email.Trim());
                 if (identityUser == null)
@@ -299,6 +297,12 @@ namespace XRealityLab.Controllers
             }
 
             return BadRequest();
+        }
+
+        [AllowAnonymous]
+        public IActionResult Error()
+        {
+            return Content("Something went wrong while handling your request. Please go back and try again. If the problem persists, contact the platform administrator.");
         }
 
         [Authorize]

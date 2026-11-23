@@ -15,7 +15,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using XRealityLab.AuthorizationRequirements;
+using Microsoft.AspNetCore.HttpOverrides;
+using XRealityLab.Setup;
 
 namespace XRealityLabAPI
 {
@@ -32,11 +33,19 @@ namespace XRealityLabAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            var connection = string.Empty;
-            //if (Configuration.GetSection("Environment").Value == "Production")
-            //    connection = Configuration.GetConnectionString("xrealitylab_prod");
-            //else
-            connection = Configuration.GetConnectionString("xrealitylab");
+            // Same database as the web platform. "xrealitylab" is still accepted for older configuration files.
+            string connection = Configuration.GetConnectionString("xrealitylabdb");
+            if (string.IsNullOrWhiteSpace(connection)) connection = Configuration.GetConnectionString("xrealitylab");
+            if (string.IsNullOrWhiteSpace(connection))
+                throw new InvalidOperationException("Connection string 'xrealitylabdb' is missing. Set it in appsettings.json or in the environment variable ConnectionStrings__xrealitylabdb.");
+
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+                options.KnownNetworks.Clear();
+                options.KnownProxies.Clear();
+            });
+
             services.AddDbContext<XRealityLabdbContext>(options => options.UseSqlServer(connection));
 
             //Register the Swagger generator, defining 1 or more Swagger documents
@@ -59,12 +68,20 @@ namespace XRealityLabAPI
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseForwardedHeaders();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
+            if (!string.Equals(Configuration["HttpsRedirection"], "false", StringComparison.OrdinalIgnoreCase))
+                app.UseHttpsRedirection();
+
+            using (var scope = app.ApplicationServices.CreateScope())
+            {
+                PlatformSetup.PrepareDatabase(scope.ServiceProvider.GetRequiredService<XRealityLabdbContext>(), Configuration);
+            }
             app.UseRouting();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>

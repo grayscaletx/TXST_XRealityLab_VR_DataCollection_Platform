@@ -1,4 +1,4 @@
-﻿using Application.Security;
+using Application.Security;
 using XRealityLab.Common;
 using XRealityLab.Models;
 using Common.Constants;
@@ -213,7 +213,7 @@ namespace XRealityLab.Controllers
             await _context.Lab.AddAsync(lab);
             //Get LabId
             await _context.SaveChangesAsync();
-            Lab thisLab = _context.Lab.Where(k => k.FullName == lab.FullName).FirstOrDefault();
+            Lab thisLab = lab; // the generated LabId is available after SaveChanges (lab names are not unique)
             OrganizationLab organizationLab = new OrganizationLab
             {
                 OrganizationId = organizationId,                
@@ -315,7 +315,7 @@ namespace XRealityLab.Controllers
                 }
                 string newFileName = myUniqueFileName + fileExtension;
                 var fileName = string.Empty;
-                fileName = Path.Combine(_environment.WebRootPath, "_images", "lab-photos") + $@"\{newFileName}";
+                fileName = Path.Combine(_environment.WebRootPath, "_images", "lab-photos", newFileName);
                 image.Save(fileName);
 
                 bool isUploaded = await ContainerService.UploadOperationAsync(Path.Combine(_environment.WebRootPath, "_images", "lab-photos"),
@@ -323,13 +323,13 @@ namespace XRealityLab.Controllers
 
                 if (isUploaded)
                 {
-                    lab.PhotoUrl = Path.Combine(BaseLink.AZURE_BLOB_URL, AzureGPV2Credentials.CONTAINER_LAB_ICONS, newFileName);
+                    lab.PhotoUrl = BaseLink.Combine(AzureGPV2Credentials.CONTAINER_LAB_ICONS, newFileName);
                 }
 
                 //DELETE from root
-                if (System.IO.File.Exists(Path.Combine(_environment.WebRootPath, "_images", "lab-photos") + $@"\{newFileName}"))
+                if (System.IO.File.Exists(Path.Combine(_environment.WebRootPath, "_images", "lab-photos", newFileName)))
                 {
-                    System.IO.File.Delete(Path.Combine(_environment.WebRootPath, "_images", "lab-photos") + $@"\{newFileName}");
+                    System.IO.File.Delete(Path.Combine(_environment.WebRootPath, "_images", "lab-photos", newFileName));
                 }
             }
 
@@ -435,7 +435,7 @@ namespace XRealityLab.Controllers
             {
                 var userManagerResult = await _userManager.DeleteAsync(_identityUser);
                 if (!userManagerResult.Succeeded)
-                    return RedirectToAction(nameof(ChangeLabDirector), new { _actionMessage = "Couldn't create the user identity, Try again later!" });
+                    return RedirectToAction(nameof(ChangeLabDirector), new { passToken = labDirectorDTO.PassToken, _actionMessage = "Couldn't create the user identity, Try again later!" });
             }
 
             var hasCreated = await IdentityMigration.CreateIdentityUserAsync(_userManager, userDTO.Email.Trim(), userDTO.Password);

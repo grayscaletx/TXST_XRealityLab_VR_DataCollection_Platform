@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace XRealityLab.Application
 {
@@ -14,7 +14,7 @@ namespace XRealityLab.Application
         [Required(ErrorMessage = "Password is a required field.")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
-        [Required]
+        // reCAPTCHA token: only present (and only checked) when reCAPTCHA keys are configured
         public string Token { get; set; }
     }
 }

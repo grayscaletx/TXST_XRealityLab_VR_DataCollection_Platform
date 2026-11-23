@@ -1,281 +1,166 @@
-﻿@model XRealityLab.Models.ResultDTO
+@model XRealityLab.Models.ResultDTO
 @using XRealityLab.Common;
 
 @{
     ViewBag.Title = "Results";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    int i = 0;
 }
 
-<!--Header-->
-<div>
-    <ol class="breadcrumb breadcrumb px-0 pb-0">
-        <li class="breadcrumb-item">
-            <a href="@Url.Action("MyProjects", "Project")">My Projects</a>
-        </li>
-        <li class="breadcrumb-item">
-            <a href="/Project/DataCollections?passToken=@Model.ProjectPassToken">Data Collections</a>
-        </li>
-        <li class="breadcrumb-item">
-            <a href="/Project/Participants?passToken=@Model.SessionPassToken">Participants</a>
-        </li>
-        <li class="breadcrumb-item active">Results</li>
-    </ol>
-</div>
 <div class="content-heading">
     <div>
-        <h2>Results of @Model.ParticipantDTO.FirstName @Model.ParticipantDTO.LastName (@Model.ParticipantDTO.Email).</h2>
-        <h2>Data Collection: @Model.Title</h2>
-        <div class="row">
-            <div class="col-xl-3 col-md-6">
-                <div class="form-group">
-                    <div class="input-group mb-3">
-                        <input type="hidden" style="pointer-events: none" id="participant-pass-token" value=@Model.ParticipantMD5 />
-                        <div class="input-group-append">
-                            <button onclick="copyParticipantPassTokenToClipboard()" class="btn btn-info" type="button">Copy Participant Pass Token</button>
-                        </div>
-                    </div>
+        <strong>@Model.ParticipantDTO.FirstName @Model.ParticipantDTO.LastName</strong>
+        <span class="xr-sub">@Model.ParticipantDTO.Email &middot; Data collection: @Model.Title</span>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="@Url.Action("MyProjects", "Project")">My projects</a></li>
+            <li class="breadcrumb-item"><a href="/Project/DataCollections?passToken=@Model.ProjectPassToken">Data collections</a></li>
+            <li class="breadcrumb-item"><a href="/Project/Participants?passToken=@Model.SessionPassToken">Participants</a></li>
+            <li class="breadcrumb-item active">Results</li>
+        </ol>
+
+        @* The pass tokens identify this participant and session to the API (Unity / Qualtrics). *@
+        <div class="xr-tokens">
+            <div class="xr-token">
+                <div class="xr-token-text">
+                    <p class="xr-label">Participant pass token</p>
+                    <code id="participant-pass-token">@Model.ParticipantMD5</code>
                 </div>
+                <button class="xr-copy" type="button" data-copy="participant-pass-token">Copy</button>
             </div>
-            <div class="col-xl-3 col-md-6">
-                <div class="form-group">
-                    <div class="input-group mb-3">
-                        <input type="hidden" style="pointer-events: none" id="session-pass-token" value=@Model.SessionMD5 />
-                        <div class="input-group-append">
-                            <button onclick="copySessionPassTokenToClipboard()" class="btn btn-info" type="button">Copy Session Pass Token</button>
-                        </div>
-                    </div>
+            <div class="xr-token">
+                <div class="xr-token-text">
+                    <p class="xr-label">Session pass token</p>
+                    <code id="session-pass-token">@Model.SessionMD5</code>
                 </div>
+                <button class="xr-copy" type="button" data-copy="session-pass-token">Copy</button>
             </div>
         </div>
     </div>
 </div>
 
+<partial name="_ActionMessage" />
 
-
-<!--Alert dialog-->
-@if (ViewBag.actionMessage != null)
+@foreach (var research in Model.ResearchDTOs)
 {
-    <div class="alert alert-info alert-dismissible fade show" role="alert">
-        <button class="close" type="button" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-        @ViewBag.actionMessage
-    </div>
+    i++;
+    string researchId = "research-pass-token-" + i.ToString();
+
+    <section class="xr-panel">
+        <div class="xr-panel-head">
+            <h3>@research.Title</h3>
+            <span class="xr-type">@research.TypeId</span>
+        </div>
+
+        @if (research.TypeId == ResearchType.VirtualAugmentedReality.GetEnumDescription())
+        {
+            var runs = research.VAResultDTOs.Where(r => r != null).ToList();
+            if (runs.Count == 0)
+            {
+                <p class="xr-nodata">No results yet. They appear here as soon as the VR / AR application sends them.</p>
+            }
+            else
+            {
+                int run = 0;
+                <div class="xr-trials">
+                    @foreach (var vAResult in runs)
+                    {
+                        run++;
+                        <div class="xr-trial">
+                            <p class="xr-label">Run @run &middot; @vAResult.Registered.ToString("MM/dd/yyyy HH:mm")</p>
+                            <div class="xr-readout">
+                                <div><span>@vAResult.Time</span><small>Total time</small></div>
+                                <div class="is-mistakes"><span>@vAResult.NoOfMistakes</span><small>Mistakes</small></div>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(vAResult.Notes))
+                            {
+                                <p class="xr-trial-note">@vAResult.Notes</p>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        }
+        else if (research.TypeId == ResearchType.QualtricsQuestionnaire.GetEnumDescription())
+        {
+            if (research.QualtricsResultDTO != null)
+            {
+                <p class="xr-done"><em class="fas fa-check-circle"></em> Questionnaire completed</p>
+                if (!string.IsNullOrWhiteSpace(research.QualtricsResultDTO.DocumentUrl))
+                {
+                    <a href="@research.QualtricsResultDTO.DocumentUrl" target="_blank" rel="noopener">Open the submitted response</a>
+                }
+            }
+            else
+            {
+                <p class="xr-nodata">No results yet. They appear here when the questionnaire reports back.</p>
+            }
+        }
+        else if (research.TypeId == ResearchType.OfflineMethod.GetEnumDescription())
+        {
+            bool hasFile = research.OfflineResultDTO != null && !string.IsNullOrEmpty(research.OfflineResultDTO.DocumentUrl);
+            if (hasFile)
+            {
+                <p class="xr-done"><em class="fas fa-file-alt"></em> File uploaded</p>
+                <a href="@research.OfflineResultDTO.DocumentUrl" target="_blank" rel="noopener">Open the file</a>
+            }
+            else
+            {
+                <p class="xr-nodata">No file yet. Upload the scanned form or spreadsheet for this participant.</p>
+            }
+            <form class="xr-upload" method="post" enctype="multipart/form-data" asp-action="UploadFile" asp-route-participantPassToken="@Model.ParticipantPassToken" asp-route-sessionPassToken="@Model.SessionPassToken" asp-route-researchPassToken="@research.ResearchPassToken">
+                <input type="file" name="files" accept="application/pdf, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required="required" aria-label="File for @research.Title" />
+                <button type="submit" class="btn btn-primary">@(hasFile ? "Replace file" : "Upload file")</button>
+            </form>
+        }
+
+        <div class="xr-tokens">
+            <div class="xr-token">
+                <div class="xr-token-text">
+                    <p class="xr-label">Research pass token</p>
+                    <code id="@researchId">@research.ResearchMD5</code>
+                </div>
+                <button class="xr-copy" type="button" data-copy="@researchId">Copy</button>
+            </div>
+        </div>
+    </section>
 }
 
-<div class="container" style="float: left;">      
-    @{int i = 0; }
-    <div class="card">
-        <div class="col-xl-3 col-md-6">
-            <div class="form-group">
-                <form id="modal-update-photo-form" method="post" enctype="multipart/form-data" asp-action="TakeSessionNote" asp-route-participantPassToken=@Model.ParticipantPassToken asp-route-sessionPassToken=@Model.SessionPassToken>
-                    <div class="form-group">
-                        <div class="col-md-10">
-                            <textarea id="participant-note" name="notes" rows="8" cols="70">@Model.Notes</textarea>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-10">
-                            <input type="submit" value="Take Note" class="btn btn-primary" style="width:200px;color:white" />
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-        @foreach (var research in Model.ResearchDTOs)
-        {
-            <div class="card">
-                @{
-                    i++;
-                    string researchId = "research-pass-token-" + i.ToString();
-                    string noteId = "note-id-" + i.ToString();
-                }
-                <div class="row">
-                    <div class="col-xl-3 col-md-6">
-                        <h3>@research.Title (@research.TypeId)</h3>
-                    </div>
-                    <div class="col-xl-3 col-md-6">
-                        <div class="form-group">
-                            <div class="input-group mb-3">
-                                <input type="hidden" style="pointer-events: none" id="@researchId" value=@research.ResearchMD5 />
-                                <div class="input-group-append">
-                                    <button onclick="copyResearchPassTokenToClipboard('@researchId')" class="btn btn-info" type="button">Copy Research Pass Token</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @if (research.TypeId == ResearchType.VirtualAugmentedReality.GetEnumDescription())
-                {
-
-                    @if (research.VAResultDTOs.Count == 0)
-                    {
-                        <h4>No results yet</h4>
-                    }
-                    else
-                    {
-                        @foreach (var vAResult in research.VAResultDTOs)
-                        {
-                            @if (vAResult != null)
-                            {
-                                <div class="row">
-                                    <div class="col-xl-3 col-md-6">
-                                        <div class="card flex-row align-items-center align-items-stretch border-0">
-                                            <div class="col-4 d-flex align-items-center bg-green-dark justify-content-center rounded-left">
-                                                <em class="fa-4x mr-2 far fa-clock"></em>
-                                            </div>
-                                            <div class="col-8 py-3 bg-green rounded-right">
-                                                <div class="h2 mt-0">@vAResult.Time</div>
-                                                <div class="text">Total Time</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-3 col-md-6">
-                                        <div class="card flex-row align-items-center align-items-stretch border-0">
-                                            <div class="col-4 d-flex align-items-center bg-danger-dark justify-content-center rounded-left">
-                                                <em class="fa-4x mr-2 fas fa-ban"></em>
-                                            </div>
-                                            <div class="col-8 py-3 bg-danger rounded-right">
-                                                <div class="h2 mt-0">@vAResult.NoOfMistakes</div>
-                                                <div class="text">No of Mistakes</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                            else
-                            {
-                                <h4>No results yet</h4>
-                            }
-                        }
-                    }
-
-                }
-                else if (research.TypeId == ResearchType.QualtricsQuestionnaire.GetEnumDescription())
-                {
-                    @if (research.QualtricsResultDTO != null)
-                    {
-                        //UP COMING
-                    }
-                    else
-                    {
-                        <h4>No results yet</h4>
-                    }
-                }
-                else if (research.TypeId == ResearchType.OfflineMethod.GetEnumDescription())
-                {
-                    @if (research.OfflineResultDTO != null)
-                    {
-                        <div class="row">
-                            @if (research.OfflineResultDTO.DocumentUrl.Length > 0)
-                            {
-                                <div class="col-md-1">
-                                    <a href=@research.OfflineResultDTO.DocumentUrl target="_blank" class="fa-5x mr-2 fas fa-file" style="color:gray"></a>
-                                </div>
-                            }
-                            <div class="col-xl-3 col-md-6">
-                                <div class="form-group">
-                                    <form id="modal-update-photo-form" method="post" enctype="multipart/form-data" asp-action="UploadFile" asp-route-participantPassToken=@Model.ParticipantPassToken asp-route-sessionPassToken=@Model.SessionPassToken asp-route-researchPassToken=@research.ResearchPassToken>
-                                        <div class="form-group">
-                                            <div class="col-md-10">
-                                                <input type="file" name="files" accept="application/pdf, application/vnd.ms-excel" class="btn btn-primary btn-sm" />
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <div class="col-md-10">
-                                                <input type="submit" value="Upload & Replace" class="btn btn-primary" style="width:200px;color:white" />
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>                            
-                        </div>
-                    }
-                    else
-                    {
-                        <h4>No results yet. Upload file</h4>
-                        <div class="row">
-                            <div class="col-xl-3 col-md-6">
-                                <div class="form-group">
-                                    <form id="modal-update-photo-form" method="post" enctype="multipart/form-data" asp-action="UploadFile" asp-route-participantPassToken=@Model.ParticipantPassToken asp-route-sessionPassToken=@Model.SessionPassToken asp-route-researchPassToken=@research.ResearchPassToken>
-                                        <div class="form-group">
-                                            <div class="col-md-10">
-                                                <input type="file" name="files" accept="application/pdf, application/vnd.ms-excel" class="btn btn-primary btn-sm" />
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <div class="col-md-10">
-                                                <input type="submit" value="Upload & Save" class="btn btn-primary" style="width:200px;color:white" />
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>                            
-                        </div>
-                    }
-                }
-            </div>
-        }
+<section class="xr-panel xr-note">
+    <div class="xr-panel-head">
+        <h3>Session notes</h3>
+        <span class="xr-type">Only visible to the research team</span>
     </div>
-</div>
+    <form method="post" asp-action="TakeSessionNote" asp-route-participantPassToken="@Model.ParticipantPassToken" asp-route-sessionPassToken="@Model.SessionPassToken">
+        <textarea id="participant-note" name="notes" maxlength="250" aria-label="Notes about this participant in this session">@Model.Notes</textarea>
+        <button type="submit" class="btn btn-primary">Save notes</button>
+    </form>
+</section>
 
 @section Scripts {
-    <script type='text/javascript'>
-        function copyParticipantPassTokenToClipboard() {
-            // Get the text field
-            var copyText = document.getElementById("participant-pass-token");
-
-            // Select the text field
-            copyText.select();
-
-            // Copy the text inside the text field
-            navigator.clipboard.writeText(copyText.value);
-
-            // Alert the copied text
-            //alert("Copied the text: " + copyText.value);
-        }
+    <script>
+        // Copies a pass token. Falls back to a hidden text field when the page is not served over HTTPS,
+        // where the browser clipboard API is not available.
+        document.querySelectorAll('.xr-copy').forEach(function (button) {
+            button.addEventListener('click', function () {
+                var text = document.getElementById(button.getAttribute('data-copy')).textContent.trim();
+                var done = function () {
+                    button.textContent = 'Copied';
+                    button.classList.add('is-copied');
+                    setTimeout(function () { button.textContent = 'Copy'; button.classList.remove('is-copied'); }, 1600);
+                };
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(text).then(done);
+                } else {
+                    var field = document.createElement('textarea');
+                    field.value = text;
+                    field.style.position = 'fixed';
+                    field.style.opacity = '0';
+                    document.body.appendChild(field);
+                    field.select();
+                    try { document.execCommand('copy'); done(); } catch (e) { }
+                    document.body.removeChild(field);
+                }
+            });
+        });
     </script>
-    <script type='text/javascript'>
-        function copySessionPassTokenToClipboard() {
-            // Get the text field
-            var copyText = document.getElementById("session-pass-token");
-
-            // Select the text field
-            copyText.select();
-
-            // Copy the text inside the text field
-            navigator.clipboard.writeText(copyText.value);
-
-            // Alert the copied text
-            //alert("Copied the text: " + copyText.value);
-        }
-    </script>
-    <script type='text/javascript'>
-        function copyResearchPassTokenToClipboard(thisResearchId) {
-            // Get the text field
-            var copyText = document.getElementById(thisResearchId);
-
-            // Select the text field
-            copyText.select();
-
-            // Copy the text inside the text field
-            navigator.clipboard.writeText(copyText.value);
-
-            // Alert the copied text
-            //alert("Copied the text: " + copyText.value);
-        }
-    </script>
-    @*<script type='text/javascript'>
-        function uploadButton() {
-
-
-        }
-    </script>
-    <script type='text/javascript'>
-        function uploadFile() {
-
-
-        }
-    </script>*@
 }
-

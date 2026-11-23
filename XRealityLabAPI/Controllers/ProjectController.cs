@@ -1,4 +1,4 @@
-﻿using Application.Security;
+using Application.Security;
 using Common;
 using Common.Helpers;
 using Infrastructure.Entities;
@@ -78,7 +78,7 @@ namespace XRealityLabAPI.Controllers
                     Title = k.Session.Title,
                     Description = k.Session.Description,
                     Registered = k.Session.Registered,
-                    participantsNo = _context.SessionParticipant.Where(k => k.SessionId == k.Session.SessionId).Count()
+                    participantsNo = _context.SessionParticipant.Where(sp => sp.SessionId == k.SessionId).Count()
                 }).ToList();
             
 
@@ -92,7 +92,8 @@ namespace XRealityLabAPI.Controllers
                 return NotFound(MessageConverter.GetResponse("AuthToken is incorrect", MethodResult.Failed));
 
             var authToken = await _context.UserAuthToken.Where(k => k.AuthToken == _authToken).FirstOrDefaultAsync();
-            if (!await _context.ProjectUser.Where(k => k.UserId == authToken.UserId && k.ProjectId == _context.ProjectSession.Where(x => x.SessionId == sessionId).FirstOrDefault().SessionId && (k.RoleId == 4 || k.RoleId == 5)).AnyAsync())
+            var projectSession = await _context.ProjectSession.Where(x => x.SessionId == sessionId).FirstOrDefaultAsync();
+            if (projectSession == null || !await _context.ProjectUser.Where(k => k.UserId == authToken.UserId && k.ProjectId == projectSession.ProjectId && (k.RoleId == 4 || k.RoleId == 5)).AnyAsync())
                 return NotFound(MessageConverter.GetResponse("Access denied to this session", MethodResult.Failed));
 
             List<ParticipantsAPI> participants = _context.SessionParticipant.Include(k => k.Participant).Where(k => k.SessionId == sessionId)
@@ -102,7 +103,7 @@ namespace XRealityLabAPI.Controllers
                     FirstName = k.Participant.FirstName,
                     LastName = k.Participant.LastName,
                     Email = k.Participant.Email,
-                    Registered = k.Session.Registered,
+                    Registered = k.Participant.Registered,
                 }).ToList();
 
 
@@ -111,6 +112,9 @@ namespace XRealityLabAPI.Controllers
         [HttpPost("ParticipantResult")]
         public async Task<ActionResult<ResponseDTO>> PostParticipantResult(string _authToken, ParticipantResultAPI _participantResultAPI)
         {
+            if (!await _context.UserAuthToken.AnyAsync(k => k.AuthToken == _authToken))
+                return NotFound(MessageConverter.GetResponse("AuthToken is incorrect", MethodResult.Failed));
+
             try
             {
 
@@ -167,7 +171,8 @@ namespace XRealityLabAPI.Controllers
             }
             catch (Exception ex)
             {
-                return NotFound(MessageConverter.GetResponse("Failed to save the data.", MethodResult.Failed));
+                Console.WriteLine("[API] Saving a result failed: " + ex);
+                return NotFound(MessageConverter.GetResponse("Failed to save the data. Check that the participant, session and research pass tokens are correct.", MethodResult.Failed));
             }
 
         }
@@ -176,6 +181,9 @@ namespace XRealityLabAPI.Controllers
         {
             string debugState = "1000";
             string jsonString = JsonSerializer.Serialize(_qualtricsResultAPI);
+
+            if (!await _context.UserAuthToken.AnyAsync(k => k.AuthToken == _authToken))
+                return NotFound(MessageConverter.GetResponse("AuthToken is incorrect", MethodResult.Failed));
 
             try
             {
@@ -219,7 +227,7 @@ namespace XRealityLabAPI.Controllers
 
                 //check research type
                 if (!await _context.Research.Where(k => k.ResearchId == researchId && k.ResearchMethodId == (int)ResearchType.QualtricsQuestionnaire).AnyAsync())
-                    return NotFound(MessageConverter.GetResponse("No Virtual or Augmented reality research with this pass token " + debugState, MethodResult.Failed));
+                    return NotFound(MessageConverter.GetResponse("No Qualtrics research with this pass token " + debugState, MethodResult.Failed));
 
                 debugState = "1007";
 
@@ -247,45 +255,8 @@ namespace XRealityLabAPI.Controllers
             }
             catch (Exception ex)
             {
-                return NotFound(MessageConverter.GetResponse("Failed to save the data.", MethodResult.Failed));
-            }
-
-        }
-        [HttpPost("QualtricsResultDebug")]
-        public async Task<ActionResult<ResponseDTO>> PostQualtricsResultDebug(string _authToken, QualtricsResultAPI _qualtricsResultAPI)
-        {
-
-            string jsonString = JsonSerializer.Serialize(_qualtricsResultAPI);
-
-            string debugState = "1000 JSON: " + jsonString;
-            try
-            {
-                debugState = "1001 JSON: " + jsonString;
-
-                if (!await _context.UserAuthToken.AnyAsync(k => k.AuthToken == _authToken))
-                    return NotFound(MessageConverter.GetResponse("AuthToken is incorrect " + debugState + "auth: " + _authToken, MethodResult.Failed));                
-
-                debugState = "1002 JSON: " + jsonString;
-
-                QualtricsResult qualtricsResult = new QualtricsResult
-                {
-                    ParticipantId = 3,
-                    SessionId = 3,
-                    ResearchId = 17,
-                    DocumentUrl = _qualtricsResultAPI.DocumentUrl,
-                    Notes = _qualtricsResultAPI.Notes
-                };
-
-                debugState = "1009 JSON: " + jsonString;
-
-                _context.QualtricsResult.Add(qualtricsResult);
-                _context.SaveChanges();
-
-                return new ActionResult<ResponseDTO>(MessageConverter.GetResponse("Saved Data " + debugState + "auth: " + _authToken, MethodResult.Succeeded));
-            }
-            catch (Exception ex)
-            {
-                return NotFound(MessageConverter.GetResponse("Failed to save the data. " + debugState + "auth: " + _authToken, MethodResult.Failed));
+                Console.WriteLine("[API] Saving a result failed: " + ex);
+                return NotFound(MessageConverter.GetResponse("Failed to save the data. Check that the participant, session and research pass tokens are correct.", MethodResult.Failed));
             }
 
         }

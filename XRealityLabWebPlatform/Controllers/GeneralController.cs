@@ -1,4 +1,4 @@
-﻿using Infrastructure.Entities;
+using Infrastructure.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Threading.Tasks;
@@ -7,7 +7,7 @@ using XRealityLab.Models;
 
 namespace XRealityLab.Controllers
 {
-    [Authorize(Roles = "Administrator,DirectorIT")]
+    [Authorize]
     public class GeneralController : Controller
     {
         private readonly XRealityLabdbContext _context;

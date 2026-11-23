@@ -1,4 +1,4 @@
-﻿@model XRealityLab.Models.OrganizationDTO
+@model XRealityLab.Models.OrganizationDTO
 @using XRealityLab.Common;
 
 @{
@@ -6,63 +6,48 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<!--Header-->
 <div class="content-heading">
     <div>
-        <strong>(@Model.LabDTOs.Count/@Model.NoAllowedLabs) Labs of: @Model.FullName</strong>
+        <strong>Labs of @Model.FullName</strong><span class="xr-count">@Model.LabDTOs.Count of @Model.NoAllowedLabs</span>
+        <span class="xr-sub">Each lab has one Lab Director, who manages its projects and researchers.</span>
     </div>
 </div>
 
-<!--Alert dialog-->
-@if (ViewBag.actionMessage != null)
-{
-    <div class="alert alert-info alert-dismissible fade show" role="alert">
-        <button class="close" type="button" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-        @ViewBag.actionMessage
-    </div>
-}
+<partial name="_ActionMessage" />
 
-<div class="container">
-    <div class="card-columns">
-        @if (Model.LabDTOs.Count < Model.NoAllowedLabs)
-        {
-            <div class="card mb-4" style="height:360px;background-color:transparent" onclick="location.href='/DirectorIT/AddLab'">
-                <div align="center" style="padding :60px 0 0 0">
-                    <h4 style="color: #4bc4e9;font-size:100px">+</h4>
-                    <h4 style="color: #4bc4e9">New Lab</h4>
-                </div>
-                <img style="margin:-215px 0px 0 0" width="370" height="360" src="/_images/group_icons/new_organization.png" />
-            </div>
-        }
-        @foreach (var item in Model.LabDTOs)
-        {
-            <div class="card mb-4" style="background-color : @item.Color;padding:10px 0;height:360px" onclick="location.href='/DirectorIT/Lab?passToken='+ @item.PassToken">
-                <div align="right">
-                    <a class="fa-2x mr-2 fas fa-ellipsis-h text-white" data-toggle="dropdown"></a>
-                    <div class="dropdown-menu" role="menu">
-                        <a class="dropdown-item" href="/DirectorIT/EditLab?passToken=@item.PassToken">Edit Lab</a>
-                        <a class="dropdown-item" href="/DirectorIT/RemoveLab?passToken=@item.PassToken" onclick="return confirm('Are you sure you want to delete this item?');" >Remove Lab</a>
-                    </div>
-                </div>
-                <div align="center" style="padding :10px 0 0 0" onclick="location.href='/DirectorIT/EditLab?passToken=@item.PassToken'">
-                    <img src="@item.PhotoUrl" alt="Avatar" width="90" height="90" class="rounded-circle" />
-                </div>
-                <h3 class="text-white" style="margin:10px">@item.FullName</h3>
-                <div class="card-body">
-                    <div style="background-color: black; margin: 0px -16px; height: 50px">
-                        <h4 class="card-title text-white" style="padding: 13px">Lab Director</h4>
-                    </div>
-                    <div style="background-color:white;margin:0px -16px; height:103px">
-                        <em class="fa fa-envelope" style="padding:15px 10px"></em>
-                        <span style="font-weight:bold;font-size:15px">@((Rank)item.LabDirector.Rank + ". " + item.LabDirector.Firstname + " " + item.LabDirector.Lastname)</span>
-                        @*<span class="fa fa-envelope" style="padding:15px 10px">
-                            @((Rank)item.LabDirector.Rank + ". " + item.LabDirector.Firstname + " " + item.LabDirector.Lastname)
-                        </span>*@
+<div class="xr-grid">
+    @if (Model.LabDTOs.Count < Model.NoAllowedLabs)
+    {
+        <a class="xr-card xr-card-new" href="/DirectorIT/AddLab">
+            <span class="xr-plus">+</span>
+            New lab
+        </a>
+    }
+
+    @foreach (var item in Model.LabDTOs)
+    {
+        <article class="xr-card" style="--xr-card-color:@item.Color">
+            <div class="xr-card-band">
+                <div class="xr-card-menu">
+                    <a class="fas fa-ellipsis-h" data-toggle="dropdown" role="button" aria-label="Actions for @item.FullName"></a>
+                    <div class="dropdown-menu dropdown-menu-right" role="menu">
+                        <a class="dropdown-item" href="/DirectorIT/EditLab?passToken=@item.PassToken">Edit lab</a>
+                        <a class="dropdown-item" href="/DirectorIT/ChangeLabDirector?passToken=@item.PassToken">Change Lab Director</a>
+                        <a class="dropdown-item text-danger" href="/DirectorIT/RemoveLab?passToken=@item.PassToken" onclick="return confirm('Remove this lab together with its projects and users? This cannot be undone.');">Remove lab</a>
                     </div>
                 </div>
             </div>
-        }
-    </div>
+            <img class="xr-card-avatar" src="@item.PhotoUrl" alt="" />
+            <div class="xr-card-body">
+                <h3 class="xr-card-title"><a href="/DirectorIT/EditLab?passToken=@item.PassToken">@item.FullName</a></h3>
+                <p class="xr-label">Lab Director</p>
+                <ul class="xr-people">
+                    <li>@((Rank)item.LabDirector.Rank + ". " + item.LabDirector.Firstname + " " + item.LabDirector.Lastname)</li>
+                </ul>
+                <div class="xr-card-foot">
+                    <a href="/DirectorIT/EditLab?passToken=@item.PassToken">Edit lab</a>
+                </div>
+            </div>
+        </article>
+    }
 </div>

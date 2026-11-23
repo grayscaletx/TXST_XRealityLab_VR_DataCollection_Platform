@@ -13,22 +13,28 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NETCore.MailKit.Extensions;
-using NETCore.MailKit.Infrastructure.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Wkhtmltopdf.NetCore;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
+using Common.Constants;
+using XRealityLab.Setup;
 
 namespace ARIWebPlatform
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
             Configuration = configuration;
+            // Storage and mail settings come from appsettings / environment variables.
+            PlatformSetup.LoadSettings(configuration, environment.ContentRootPath);
         }
 
         public IConfiguration Configuration { get; }
@@ -36,11 +42,25 @@ namespace ARIWebPlatform
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var connection = string.Empty;
-            if (Configuration.GetSection("Environment").Value == "Production")
-                connection = Configuration.GetConnectionString("xrealitylabdb");
-            else
-                connection = Configuration.GetConnectionString("xrealitylabdb");
+            string connection = Configuration.GetConnectionString("xrealitylabdb");
+            if (string.IsNullOrWhiteSpace(connection))
+                throw new InvalidOperationException("Connection string 'xrealitylabdb' is missing. Set it in appsettings.json or in the environment variable ConnectionStrings__xrealitylabdb.");
+
+            // Keep the encryption keys (login cookie, pass tokens in URLs) across restarts when a folder is configured.
+            string keysPath = Configuration["DataProtection:KeysPath"];
+            if (!string.IsNullOrWhiteSpace(keysPath))
+            {
+                Directory.CreateDirectory(keysPath);
+                services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(keysPath)).SetApplicationName("XRealityLab");
+            }
+
+            // Needed when the platform runs behind a reverse proxy (Caddy, nginx, IIS ARR).
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+                options.KnownNetworks.Clear();
+                options.KnownProxies.Clear();
+            });
 
             services.AddDbContext<XRealityLabdbContext>(options => options.UseSqlServer(connection));
 
@@ -64,6 +84,7 @@ namespace ARIWebPlatform
             {
                 config.Cookie.Name = "XRealityLab.Cookie";
                 config.LoginPath = "/Auth/Login";
+                config.AccessDeniedPath = "/Auth/Index";
             });
 
             services.AddAuthorization(config =>
@@ -94,14 +115,14 @@ namespace ARIWebPlatform
 
             services.Configure<ReCAPTCHASettings>(Configuration.GetSection("GoogleReCAPTCHA"));
 
-            services.AddMailKit(config => config.UseMailKit(Configuration.GetSection("Email").Get<MailKitOptions>()));
-
             services.AddControllersWithViews().AddRazorRuntimeCompilation();//ONLY FOR THE DEVELOPMENT (addrazorRuntimeCompilation)
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseForwardedHeaders();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -112,8 +133,34 @@ namespace ARIWebPlatform
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            app.UseHttpsRedirection();
+            // Set "HttpsRedirection": false when a reverse proxy already terminates HTTPS.
+            if (!string.Equals(Configuration["HttpsRedirection"], "false", StringComparison.OrdinalIgnoreCase))
+                app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            // Folders the upload / export features write to (not kept in git).
+            Directory.CreateDirectory(Path.Combine(env.WebRootPath, "research-files", "for-upload"));
+            Directory.CreateDirectory(Path.Combine(env.WebRootPath, "research-files", "for-download"));
+            foreach (var folder in new[] { "organization-photos", "lab-photos", "project-photos", "user-photos" })
+                Directory.CreateDirectory(Path.Combine(env.WebRootPath, "_images", folder));
+
+            // Local file storage (used when no Azure storage account is configured) is served under /files.
+            if (!AzureGPV2Credentials.UseAzure)
+            {
+                Directory.CreateDirectory(AzureGPV2Credentials.LOCAL_STORAGE_ROOT);
+                PlatformSetup.SeedLocalStockIcons(env.WebRootPath);
+                app.UseStaticFiles(new StaticFileOptions
+                {
+                    FileProvider = new PhysicalFileProvider(AzureGPV2Credentials.LOCAL_STORAGE_ROOT),
+                    RequestPath = "/files"
+                });
+            }
+
+            // Creates the schema, the lookup rows and the first Administrator on a fresh installation (Database:AutoCreate).
+            using (var scope = app.ApplicationServices.CreateScope())
+            {
+                PlatformSetup.PrepareDatabase(scope.ServiceProvider.GetRequiredService<XRealityLabdbContext>(), Configuration);
+            }
 
             app.UseAuthentication();
 

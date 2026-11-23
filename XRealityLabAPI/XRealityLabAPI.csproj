@@ -27,7 +27,6 @@
     <ProjectReference Include="..\XRealityLab.Core\Common\Common.csproj" />
     <ProjectReference Include="..\XRealityLab.Infrastructure\Infrastructure\Infrastructure.csproj" />
     <ProjectReference Include="..\XRealityLab.Service\AzureStorage\AzureStorage.csproj" />
-    <ProjectReference Include="..\XRealityLabWebPlatform\XRealityLab.csproj" />
   </ItemGroup>
 
 

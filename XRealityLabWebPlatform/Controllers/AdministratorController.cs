@@ -1,4 +1,4 @@
-﻿using Application.Security;
+using Application.Security;
 using XRealityLab.Common;
 using XRealityLab.Models;
 using Common.Constants;
@@ -132,7 +132,7 @@ namespace XRealityLab.Controllers
             {
                 var userManagerResult = await _userManager.DeleteAsync(_identityUser);
                 if (!userManagerResult.Succeeded)
-                    return RedirectToAction(nameof(AddOrganization), new { _actionMessage = "Couldn't create the user identity, Try again later!" });
+                    return RedirectToAction(nameof(AddOrganization), new { actionMessage = "Couldn't create the user identity, Try again later!" });
             }
 
             var hasCreated = await IdentityMigration.CreateIdentityUserAsync(_userManager, userDTO.Email.Trim(), userDTO.Password);
@@ -322,18 +322,18 @@ namespace XRealityLab.Controllers
                 else if (organizationDirectorDTO.PhotoBase64.StartsWith("data:image/jpeg;base64,"))
                     fileExtension = ".jpeg";
                 string newFileName = myUniqueFileName + fileExtension;
-                var fileName = Path.Combine(_environment.WebRootPath, "_images", "organization-photos") + $@"\{newFileName}";
+                var fileName = Path.Combine(_environment.WebRootPath, "_images", "organization-photos", newFileName);
                 image.Save(fileName);
 
                 bool isUploaded = await ContainerService.UploadOperationAsync(Path.Combine(_environment.WebRootPath, "_images", "organization-photos"),
                     newFileName, AzureGPV2Credentials.CONTAINER_ORGANIZATION_ICONS);
 
                 if (isUploaded)
-                    organization.PhotoUrl = Path.Combine(BaseLink.AZURE_BLOB_URL, AzureGPV2Credentials.CONTAINER_ORGANIZATION_ICONS, newFileName);
+                    organization.PhotoUrl = BaseLink.Combine(AzureGPV2Credentials.CONTAINER_ORGANIZATION_ICONS, newFileName);
 
                 //DELETE from root
-                if (System.IO.File.Exists(Path.Combine(_environment.WebRootPath, "_images", "organization-photos") + $@"\{newFileName}"))
-                    System.IO.File.Delete(Path.Combine(_environment.WebRootPath, "_images", "organization-photos") + $@"\{newFileName}");
+                if (System.IO.File.Exists(Path.Combine(_environment.WebRootPath, "_images", "organization-photos", newFileName)))
+                    System.IO.File.Delete(Path.Combine(_environment.WebRootPath, "_images", "organization-photos", newFileName));
             }
 
             //Update organization data
@@ -348,7 +348,6 @@ namespace XRealityLab.Controllers
             organization.NoAllowedLabs = organizationDirectorDTO.NoAllowedLabs;
             organization.SubscriptionStarted = organizationDirectorDTO.SubscriptionStarted;
             organization.SubscriptionExpiration = organizationDirectorDTO.SubscriptionExpiration;
-            organization.Registered = DateTime.Now;
             organization.Country = organizationDirectorDTO.Country;
 
             ResponseDTO responseDTO = await DataValidation.OrganizationValidation(_context, organization);
@@ -490,7 +489,7 @@ namespace XRealityLab.Controllers
             {
                 var userManagerResult = await _userManager.DeleteAsync(_identityUser);
                 if (!userManagerResult.Succeeded)
-                    return RedirectToAction(nameof(ChangeITDirector), new { _actionMessage = "Couldn't create the user identity, Try again later!" });
+                    return RedirectToAction(nameof(ChangeITDirector), new { passToken = organizationDirectorDTO.PassToken, _actionMessage = "Couldn't create the user identity, Try again later!" });
             }
 
             var hasCreated = await IdentityMigration.CreateIdentityUserAsync(_userManager, userDTO.Email.Trim(), userDTO.Password);
@@ -521,24 +520,6 @@ namespace XRealityLab.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Organizations", "Administrator");
-        }
-        public async Task<IActionResult> RemoveAllUser()
-        {
-            List<User> users = _context.User.Where(k => k.RoleId != 1).ToList();
-            foreach (var user in users)
-            {
-                var identityUser = await _userManager.FindByEmailAsync(user.Email);
-                if (identityUser != null)
-                {
-                    var userManagerResult = await _userManager.DeleteAsync(identityUser);
-                    if (!userManagerResult.Succeeded)
-                        RedirectToAction(nameof(Organizations));
-                }                
-            }
-            _context.User.RemoveRange(users);
-            _context.SaveChanges();
-
-            return RedirectToAction(nameof(Organizations));
         }
         //Init Data
         [HttpGet]

@@ -1,4 +1,4 @@
-﻿@model List<XRealityLab.Models.ProjectDTO>
+@model List<XRealityLab.Models.ProjectDTO>
 @using XRealityLab.Common;
 
 @{
@@ -6,66 +6,55 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<!--Header-->
 <div class="content-heading">
     <div>
-        <strong>All Projects</strong>
+        <strong>All projects</strong><span class="xr-count">@Model.Count</span>
+        <span class="xr-sub">Every project of your lab. Add researchers and research methods from the menu of each project.</span>
     </div>
 </div>
 
-<!--Alert dialog-->
-@if (ViewBag.actionMessage != null)
-{
-    <div class="alert alert-info alert-dismissible fade show" role="alert">
-        <button class="close" type="button" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-        @ViewBag.actionMessage
-    </div>
-}
+<partial name="_ActionMessage" />
 
-<div class="container">
-    <div class="card-columns">
-        <div class="card mb-4" style="height:360px;background-color:transparent" onclick="location.href='/Project/AddProject'">
-            <div align="center" style="padding :60px 0 0 0">
-                <h4 style="color: #4bc4e9;font-size:100px">+</h4>
-                <h4 style="color: #4bc4e9">New Project</h4>
-            </div>
-            <img style="margin:-215px 0px 0 0" width="370" height="360" src="/_images/group_icons/new_organization.png" />
-        </div>
-        @foreach (var item in Model)
-        {
-            <div class="card mb-4" style="background-color : @item.Color;padding:10px 0;height:360px" onclick="location.href='/LabDirector/Project?passToken='+ @item.PassToken">
-                <div align="right">
-                    <a class="fa-2x mr-2 fas fa-ellipsis-h text-white" data-toggle="dropdown"></a>
-                    <div class="dropdown-menu" role="menu">
-                        <a class="dropdown-item" href="/Project/EditProject?passToken=@item.PassToken">Edit Project</a>
-                        <a class="dropdown-item" href="/Project/RemoveProject?passToken=@item.PassToken" onclick="return confirm('Are you sure you want to delete this item?');" >Remove Project</a>
-                        <a class="dropdown-item" href="/User/AddPrincipleInvestigatorsToProject?passToken=@item.PassToken">Add Principle Investigators</a>
-                        <a class="dropdown-item" href="/User/AddResearchAssistantsToProject?passToken=@item.PassToken">Add Research Assistants</a>
-                        <a class="dropdown-item" href="/Project/EditResearchMethods?passToken=@item.PassToken">Add Research Method</a>
-                    </div>
-                </div>
-                <div align="center" style="padding :10px 0 0 0">
-                    <img src="@item.PhotoUrl" alt="Avatar" width="90" height="90" class="rounded-circle" />
-                </div>
-                <h3 class="text-white" style="margin:10px">@item.FullName</h3>
-                <div class="card-body">
-                    <div style="background-color: black; margin: 0px -16px; height: 50px">
-                        <h4 class="card-title text-white" style="padding: 13px">Supervising PIs</h4>
-                    </div>
-                    <div style="background-color:white;margin:0px -16px; height:103px">
-                        @foreach (var PI in item.UserDTOs)
-                        {
-                            <em class="fa fa-envelope" style="padding:15px 10px"></em>
-                            <span style="font-weight:bold;font-size:15px">@((Rank)PI.Rank  + ". " + PI.Firstname + " " + PI.Lastname)</span>
-                            @*<span class="fa fa-envelope" style="padding:15px 10px">
-                                @((Rank)PI.Rank  + ". " + PI.Firstname + " " + PI.Lastname)
-                            </span>*@
-                        }
+<div class="xr-grid">
+    <a class="xr-card xr-card-new" href="/Project/AddProject">
+        <span class="xr-plus">+</span>
+        New project
+    </a>
+
+    @foreach (var item in Model)
+    {
+        <article class="xr-card" style="--xr-card-color:@item.Color">
+            <div class="xr-card-band">
+                <div class="xr-card-menu">
+                    <a class="fas fa-ellipsis-h" data-toggle="dropdown" role="button" aria-label="Actions for @item.FullName"></a>
+                    <div class="dropdown-menu dropdown-menu-right" role="menu">
+                        <a class="dropdown-item" href="/Project/DataCollections?passToken=@item.PassToken">Data collections</a>
+                        <a class="dropdown-item" href="/Project/EditResearchMethods?passToken=@item.PassToken">Research methods</a>
+                        <a class="dropdown-item" href="/User/AddPrincipleInvestigatorsToProject?passToken=@item.PassToken">Principal Investigators</a>
+                        <a class="dropdown-item" href="/User/AddResearchAssistantsToProject?passToken=@item.PassToken">Research Assistants</a>
+                        <a class="dropdown-item" href="/Project/EditProject?passToken=@item.PassToken">Edit project</a>
+                        <a class="dropdown-item text-danger" href="/Project/RemoveProject?passToken=@item.PassToken" onclick="return confirm('Remove this project together with its sessions, participants and results? This cannot be undone.');">Remove project</a>
                     </div>
                 </div>
             </div>
-        }
-    </div>
+            <img class="xr-card-avatar" src="@item.PhotoUrl" alt="" />
+            <div class="xr-card-body">
+                <h3 class="xr-card-title"><a href="/Project/DataCollections?passToken=@item.PassToken">@item.FullName</a></h3>
+                <p class="xr-label">Principal Investigators</p>
+                <ul class="xr-people">
+                    @if (item.UserDTOs.Count == 0)
+                    {
+                        <li class="xr-empty">None yet. Add one from the menu.</li>
+                    }
+                    @foreach (var PI in item.UserDTOs)
+                    {
+                        <li>@((Rank)PI.Rank + ". " + PI.Firstname + " " + PI.Lastname)</li>
+                    }
+                </ul>
+                <div class="xr-card-foot">
+                    <a href="/Project/DataCollections?passToken=@item.PassToken">Open data collections</a>
+                </div>
+            </div>
+        </article>
+    }
 </div>

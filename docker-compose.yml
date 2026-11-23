@@ -1,0 +1,65 @@
+# XRealityLab - complete stack on one machine: SQL Server + web platform + API.
+#
+#   1. copy .env.example to .env and fill in the passwords
+#   2. docker compose up -d --build
+#   3. web platform: http://localhost:8080      API (Swagger): http://localhost:8081
+#
+# The web container creates the database, the lookup data and the first Administrator
+# on its first start (Database__AutoCreate=true).
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Express"
+      MSSQL_SA_PASSWORD: "${DB_PASSWORD}"
+      MSSQL_MEMORY_LIMIT_MB: "1024"
+    volumes:
+      - dbdata:/var/opt/mssql
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.web
+    depends_on:
+      - db
+    environment:
+      ConnectionStrings__xrealitylabdb: "Server=db,1433;Database=XRealityLabdb;User ID=sa;Password=${DB_PASSWORD};TrustServerCertificate=True"
+      Database__AutoCreate: "true"
+      Seed__AdminEmail: "${ADMIN_EMAIL}"
+      Seed__AdminPassword: "${ADMIN_PASSWORD}"
+      PlatformUrl: "${PLATFORM_URL:-http://localhost:8080}"
+      # plain HTTP inside the container; put a reverse proxy with HTTPS in front for real use
+      HttpsRedirection: "false"
+      Mail__Provider: "${MAIL_PROVIDER:-None}"
+      Mail__FromEmail: "${MAIL_FROM_EMAIL:-no-reply@example.org}"
+      Mail__SendGridApiKey: "${SENDGRID_API_KEY:-}"
+      Mail__SmtpHost: "${SMTP_HOST:-}"
+      Mail__SmtpPort: "${SMTP_PORT:-587}"
+      Mail__SmtpUser: "${SMTP_USER:-}"
+      Mail__SmtpPassword: "${SMTP_PASSWORD:-}"
+    volumes:
+      - webdata:/data
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    depends_on:
+      - db
+      - web
+    environment:
+      ConnectionStrings__xrealitylabdb: "Server=db,1433;Database=XRealityLabdb;User ID=sa;Password=${DB_PASSWORD};TrustServerCertificate=True"
+      HttpsRedirection: "false"
+    ports:
+      - "8081:8080"
+    restart: unless-stopped
+
+volumes:
+  dbdata:
+  webdata:

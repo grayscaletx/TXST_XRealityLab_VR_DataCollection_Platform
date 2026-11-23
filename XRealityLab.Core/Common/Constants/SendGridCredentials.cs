@@ -1,18 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace Common.Constants
 {
+    /// <summary>
+    /// E-mail settings, loaded from configuration at startup (section "Mail").
+    /// Provider: "SendGrid", "Smtp" or "None" (None = e-mails are written to the application log).
+    /// </summary>
     public static class SendGridCredentials
     {
-        public static string API_KEY = "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"; //old-> "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" changed
-        public static string SET_FROM_EMAIL = "gntakakis@outlook.com";
-        public static string SET_FROM_NAME = "XRealityLab team";
-        public static string SET_FROM_CLIENT = "XRealityLab client";
-        public static string SET_TO_NAME = "User";
-        public static string TEMPLATE_ACCOUNT_VERIFICATION_ID = "a5df6d30-c6dc-4129-9fad-59c7592ac935";
-        public static string TEMPLATE_FORGOT_PASSWORD_ID = "ba6cff4d-239b-41d1-922d-557c7e0af7d1"; //changed
-        public static string TEMPLATE_PLATFORM_INVITATION_ID = "64969e24-fb80-47f2-95db-769751940fc7";
+        public static string PROVIDER { get; set; } = "None";
+        public static string API_KEY { get; set; } = string.Empty;
+        public static string SET_FROM_EMAIL { get; set; } = "no-reply@localhost";
+        public static string SET_FROM_NAME { get; set; } = "XRealityLab team";
+
+        public static string SMTP_HOST { get; set; } = string.Empty;
+        public static int SMTP_PORT { get; set; } = 587;
+        public static string SMTP_USER { get; set; } = string.Empty;
+        public static string SMTP_PASSWORD { get; set; } = string.Empty;
+        public static bool SMTP_USE_SSL { get; set; } = true;
+
+        /// <summary>Public address of the web platform, used in invitation e-mails.</summary>
+        public static string PLATFORM_URL { get; set; } = string.Empty;
     }
 }

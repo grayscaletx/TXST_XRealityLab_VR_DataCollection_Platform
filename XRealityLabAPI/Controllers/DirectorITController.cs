@@ -1,4 +1,4 @@
-﻿using Common;
+using Common;
 using Common.Helpers;
 using Infrastructure.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -42,6 +42,7 @@ namespace XRealityLabAPI.Controllers
                     Registered = k.Lab.Registered
                 }).FirstOrDefault();
 
+            if (lab == null) return NotFound(MessageConverter.GetResponse("No lab found for this user", MethodResult.Failed));
             return lab;
         }
     }

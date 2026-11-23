@@ -1,4 +1,4 @@
-﻿@model XRealityLab.Models.OrganizationDirectorDTO
+@model XRealityLab.Models.OrganizationDirectorDTO
 @using System.Security.Claims;
 @using XRealityLab.Common;
 
@@ -171,7 +171,7 @@
     <button class="btn btn-sm btn-primary" type="submit">Update</button>
 </form>
 <br/>
-<button class="btn btn-sm btn-outline-primary" onclick="location.href='/Administrator/Organizations'">Cancel</button>
+<button type="button" class="btn btn-sm btn-outline-primary" onclick="location.href='/Administrator/Organizations'">Cancel</button>
 
 @section Styles {
     <partial name="_ValidationScriptsPartial" />

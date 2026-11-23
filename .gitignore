@@ -239,3 +239,7 @@ _ReSharper.*
 bin
 obj
 packages
+# Local file storage, data-protection keys and local overrides (never commit)
+App_Data/
+.env
+appsettings.Local.json

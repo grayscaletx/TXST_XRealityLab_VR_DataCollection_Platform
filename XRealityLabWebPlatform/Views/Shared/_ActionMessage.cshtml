@@ -1,0 +1,10 @@
+@* Shows the message a controller passed back after an action (ViewBag.actionMessage). *@
+@if (ViewBag.actionMessage != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        @ViewBag.actionMessage
+    </div>
+}

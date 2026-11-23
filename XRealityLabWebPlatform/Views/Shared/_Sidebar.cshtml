@@ -1,4 +1,4 @@
-﻿@using System.Security.Claims;
+@using System.Security.Claims;
 @using XRealityLab.Common;
 @using Common.Constants;
 
@@ -23,7 +23,7 @@
                
             </li>-->
             <li class="nav-heading">
-                <span>Main Navigation</span>
+                <span>Workspace</span>
             </li>
             @if (role == RoleType.Administrator.GetEnumDescription())
             {
@@ -36,7 +36,7 @@
             }
             else if (role == RoleType.DirectorOfIT.GetEnumDescription())
             {
-                <li class="@Html.isActive("DirectorOfIT", "Labs")">
+                <li class="@Html.isActive("DirectorIT", "Labs")">
                     <a href="@Url.Action("Labs", RoleType.DirectorOfIT.GetEnumDescription())" title="Organizations">
                         <em class="fa-2x  far fa-clipboard"></em>
                         <span>Labs</span>
@@ -61,7 +61,7 @@
                 <li class="@Html.isActive("User", "PrincipleInvestigators")">
                     <a href="@Url.Action("PrincipleInvestigators", "User")" title="PrincipleIvestigators">
                         <em class="fa-2x  fas fa-users"></em>
-                        <span>Principle Ivestigators</span>
+                        <span>Principal Investigators</span>
                     </a>
                 </li>
                 <li class="@Html.isActive("User", "ResearchAssistants")">
@@ -82,7 +82,7 @@
                 <li class="@Html.isActive("User", "PrincipleInvestigators")">
                     <a href="@Url.Action("PrincipleInvestigators", "User")" title="PrincipleIvestigators">
                         <em class="fa-2x  fas fa-users"></em>
-                        <span>Principle Ivestigators</span>
+                        <span>Principal Investigators</span>
                     </a>
                 </li>
                 <li class="@Html.isActive("User", "ResearchAssistants")">
@@ -114,7 +114,7 @@
             @if (role == "Research Assistant")
             {
                 <li class="nav-heading">
-                    <span>Main Navigation</span>
+                    <span>Workspace</span>
                 </li>
                 <li>
                     <a href="@Url.Action("MyProjects", "ResearchAssistant")" title="MyProjects">
@@ -130,7 +130,7 @@
             @if (role == "PI")
             {
                 <li class="nav-heading">
-                    <span>Main Navigation</span>
+                    <span>Workspace</span>
                 </li>
                 <li>
                     <a href="@Url.Action("MyProjects", "ResearchAssistant")" title="MyProjects">
@@ -139,7 +139,7 @@
                     </a>
                     <a href="@Url.Action("PrincipleInvestigators", "PrincipleInvestigator")" title="PrincipleIvestigators">
                         <em class="fa-2x mr-2 fas fa-users"></em>
-                        <span>Principle Ivestigators</span>
+                        <span>Principal Investigators</span>
                     </a>
                     <a href="@Url.Action("ResearchAssistants", "PrincipleInvestigator")" title="ResearchAssistants">
                         <em class="fa-2x mr-2 fas fa-users"></em>
@@ -154,7 +154,7 @@
             @if (role == "UniversityAdmin")
             {
                 <li class="nav-heading">
-                    <span>Main Navigation</span>
+                    <span>Workspace</span>
                 </li>
                 <li>
                     <a href="@Url.Action("Labs", "UniversityAdmin")" title="Labs">

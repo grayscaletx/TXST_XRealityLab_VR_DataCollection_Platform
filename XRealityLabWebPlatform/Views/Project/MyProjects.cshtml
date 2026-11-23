@@ -1,87 +1,73 @@
-﻿@using System.Security.Claims;
+@using System.Security.Claims;
 @using XRealityLab.Common;
-@using Common.Constants;
 @model List<XRealityLab.Models.ProjectDTO>
 
 @{
-    ViewBag.Title = "MyProjects";
+    ViewBag.Title = "My Projects";
     Layout = "~/Views/Shared/_Layout.cshtml";
-}
 
-@{
     string role = string.Empty;
-    if (((ClaimsIdentity)User.Identity).FindAll("http://schemas.microsoft.com/ws/2008/06/identity/claims/role").Count() != 0)
+    var roleClaims = ((ClaimsIdentity)User.Identity).FindAll(ClaimTypes.Role).ToList();
+    if (roleClaims.Count != 0)
     {
-        role = ((ClaimsIdentity)User.Identity).FindAll("http://schemas.microsoft.com/ws/2008/06/identity/claims/role").ToList().LastOrDefault().Value;
+        role = roleClaims.LastOrDefault().Value;
     }
-    IEnumerable<Claim> claims = User.Claims;
+    bool canManage = role == RoleType.LabDirector.GetEnumDescription() || role == RoleType.PrincipleInvestigator.GetEnumDescription();
 }
 
-<!--Header-->
 <div class="content-heading">
     <div>
-        <strong>My Projects</strong>
+        <strong>My projects</strong><span class="xr-count">@Model.Count</span>
+        <span class="xr-sub">Projects you work on as Principal Investigator or Research Assistant. Open one to run its data collections.</span>
     </div>
 </div>
 
-<!--Alert dialog-->
-@if (ViewBag.actionMessage != null)
-{
-    <div class="alert alert-info alert-dismissible fade show" role="alert">
-        <button class="close" type="button" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-        @ViewBag.actionMessage
-    </div>
-}
+<partial name="_ActionMessage" />
 
-<div class="container">
-    <div class="card-columns">
-        @if (role == RoleType.LabDirector.GetEnumDescription() || role == RoleType.PrincipleInvestigator.GetEnumDescription())
-        {
-            <div class="card mb-4" style="height:360px;background-color:transparent" onclick="location.href='/Project/AddProject'">
-                <div align="center" style="padding :60px 0 0 0">
-                    <h4 style="color: #4bc4e9;font-size:100px">+</h4>
-                    <h4 style="color: #4bc4e9">New Project</h4>
-                </div>
-                <img style="margin:-215px 0px 0 0" width="370" height="360" src="/_images/group_icons/new_organization.png" />
-            </div>
-        }
-        @foreach (var item in Model)
-        {
-            string passToken = item.PassToken;
-            <div class="card mb-4" style="background-color : @item.Color;padding:10px 0;height:360px">
-                @if (role == RoleType.LabDirector.GetEnumDescription() || role == RoleType.PrincipleInvestigator.GetEnumDescription())
+<div class="xr-grid">
+    @if (canManage)
+    {
+        <a class="xr-card xr-card-new" href="/Project/AddProject">
+            <span class="xr-plus">+</span>
+            New project
+        </a>
+    }
+    else if (Model.Count == 0)
+    {
+        <p class="xr-nodata">You are not assigned to a project yet. Ask a Principal Investigator or your Lab Director to add you.</p>
+    }
+
+    @foreach (var item in Model)
+    {
+        <article class="xr-card" style="--xr-card-color:@item.Color">
+            <div class="xr-card-band">
+                @if (canManage)
                 {
-                    <div align="right">
-                        <a class="fa-2x mr-2 fas fa-ellipsis-h text-white" data-toggle="dropdown"></a>
-                        <div class="dropdown-menu" role="menu">
-                            <a class="dropdown-item" href="/User/AddPrincipleInvestigatorsToProject?passToken=@item.PassToken">Add Principle Investigators</a>
-                            <a class="dropdown-item" href="/User/AddResearchAssistantsToProject?passToken=@item.PassToken">Add Research Assistants</a>
-                            <a class="dropdown-item" href="/Project/EditResearchMethods?passToken=@item.PassToken">Add Research Method</a>
+                    <div class="xr-card-menu">
+                        <a class="fas fa-ellipsis-h" data-toggle="dropdown" role="button" aria-label="Actions for @item.FullName"></a>
+                        <div class="dropdown-menu dropdown-menu-right" role="menu">
+                            <a class="dropdown-item" href="/Project/DataCollections?passToken=@item.PassToken">Data collections</a>
+                            <a class="dropdown-item" href="/Project/EditResearchMethods?passToken=@item.PassToken">Research methods</a>
+                            <a class="dropdown-item" href="/User/AddPrincipleInvestigatorsToProject?passToken=@item.PassToken">Principal Investigators</a>
+                            <a class="dropdown-item" href="/User/AddResearchAssistantsToProject?passToken=@item.PassToken">Research Assistants</a>
                         </div>
                     </div>
                 }
-                <div align="center" style="padding :10px 0 0 0" onclick="location.href='/Project/DataCollections?passToken=@passToken'">
-                    <img src="@item.PhotoUrl" alt="Avatar" width="90" height="90" class="rounded-circle" />
-                </div>
-                <h3 class="text-white" style="margin:10px">@item.FullName</h3>
-                <div class="card-body">
-                    <div style="background-color: black; margin: 0px -16px; height: 50px">
-                        <h4 class="card-title text-white" style="padding: 13px">Supervising PIs</h4>
-                    </div>
-                    <div style="background-color:white;margin:0px -16px; height:103px">
-                        @foreach (var PI in item.UserDTOs)
-                        {
-                            <em class="fa fa-envelope" style="padding:15px 10px"></em>
-                            <span style="font-weight:bold;font-size:15px">@((Rank)PI.Rank  + ". " + PI.Firstname + " " + PI.Lastname)</span>
-                            @*<span class="fa fa-envelope" style="padding:15px 10px">
-                                @((Rank)PI.Rank  + ". " + PI.Firstname + " " + PI.Lastname)
-                            </span>*@
-                        }
-                    </div>
+            </div>
+            <img class="xr-card-avatar" src="@item.PhotoUrl" alt="" />
+            <div class="xr-card-body">
+                <h3 class="xr-card-title"><a href="/Project/DataCollections?passToken=@item.PassToken">@item.FullName</a></h3>
+                <p class="xr-label">Principal Investigators</p>
+                <ul class="xr-people">
+                    @foreach (var PI in item.UserDTOs)
+                    {
+                        <li>@((Rank)PI.Rank + ". " + PI.Firstname + " " + PI.Lastname)</li>
+                    }
+                </ul>
+                <div class="xr-card-foot">
+                    <a href="/Project/DataCollections?passToken=@item.PassToken">Open data collections</a>
                 </div>
             </div>
-        }
-    </div>
+        </article>
+    }
 </div>

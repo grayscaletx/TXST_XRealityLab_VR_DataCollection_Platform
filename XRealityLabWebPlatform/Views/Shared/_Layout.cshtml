@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -41,23 +41,9 @@
         <link href="~/css/app.css" rel="stylesheet" asp-append-version="true" id="maincss" />
     </environment>
 
-    <style>
-        .aside-container .sidebar-nav > li > a {
-            display: flex;
-            align-items: center;
-        }
-
-            .aside-container .sidebar-nav > li > a em {
-                margin-right: 8px;
-                display: inline-flex;
-                align-items: center;
-                line-height: 1;
-            }
-
-            .aside-container .sidebar-nav > li > a span {
-                line-height: 1;
-            }
-    </style>
+    <!-- =============== XREALITYLAB THEME ===============-->
+    <link href="~/fonts/xr/fonts.css" rel="stylesheet" />
+    <link href="~/css/xr-theme.css" rel="stylesheet" asp-append-version="true" />
 
 </head>
 <body>
@@ -159,150 +145,6 @@
     <script src="~/master/js/modules/tables/datatable.js"></script>    
     <!-- Custom -->
     <script src="~/master/js/custom/custom.js"></script>
-    <script>
-        //$(document).ready(function () {
-        //    $.get("GetPhotoUrl", function (data) {
-        //        document.getElementById("user-photo").src = data;
-        //    });
-            if ($('#packagingLineDataTable').DataTable)
-                $('#packagingLineDataTable').DataTable({
-                    'paging': true,
-                    // Table pagination
-                    'ordering': true,
-                    // Column ordering
-                    'info': true,
-                    // Bottom left status text
-                    responsive: true,
-                    //'order': [[0, 'desc']],
-                    // Text translation options
-                    // Note the required keywords between underscores (e.g _MENU_)
-                    oLanguage: {
-                        sSearch: '<em class="fas fa-search"></em>',
-                        sLengthMenu: '_MENU_ records per page',
-                        info: 'Σελίδα _PAGE_ από _PAGES_',
-                        zeroRecords: 'Nothing found - sorry',
-                        infoEmpty: 'No records available',
-                        infoFiltered: '(filtered from _MAX_ total records)',
-                        oPaginate: {
-                            sNext: '<em class="fa fa-caret-right"></em>',
-                            sPrevious: '<em class="fa fa-caret-left"></em>'
-                        }
-                    }
-                });
-
-            if ($('#TrucksDataTbl').DataTable)
-                $('#TrucksDataTbl').DataTable({
-                    "processing": true,
-                    "serverSide": true,
-                    "ajax": {
-                        "url": "https://localhost:44362/ACFacilities/TruckListPagination",
-                        "type": "POST"
-                    },
-                    'paging': true,
-                    // Table pagination
-                    'ordering': true,
-                    // Column ordering
-                    'info': true,
-                    // Bottom left status text
-                    responsive: true,
-                    'order': [[6, 'desc']],
-                    // Text translation options
-                    // Note the required keywords between underscores (e.g _MENU_)
-                    oLanguage: {
-                        sSearch: '<em class="fas fa-search"></em>',
-                        sLengthMenu: '_MENU_ records per page',
-                        info: 'Σελίδα _PAGE_ από _PAGES_',
-                        zeroRecords: 'Nothing found - sorry',
-                        infoEmpty: 'No records available',
-                        infoFiltered: '(filtered from _MAX_ total records)',
-                        oPaginate: {
-                            sNext: '<em class="fa fa-caret-right"></em>',
-                            sPrevious: '<em class="fa fa-caret-left"></em>'
-                        }
-                    }
-                }); // Filter
-
-            if ($('#TrucksDataTable').DataTable)
-                $('#TrucksDataTable').DataTable({
-                    'paging': true,
-                    // Table pagination
-                    'ordering': true,
-                    // Column ordering
-                    'info': true,
-                    // Bottom left status text
-                    responsive: true,
-                    'order': [[6, 'desc']],
-                    // Text translation options
-                    // Note the required keywords between underscores (e.g _MENU_)
-                    oLanguage: {
-                        sSearch: '<em class="fas fa-search"></em>',
-                        sLengthMenu: '_MENU_ records per page',
-                        info: 'Σελίδα _PAGE_ από _PAGES_',
-                        zeroRecords: 'Nothing found - sorry',
-                        infoEmpty: 'No records available',
-                        infoFiltered: '(filtered from _MAX_ total records)',
-                        oPaginate: {
-                            sNext: '<em class="fa fa-caret-right"></em>',
-                            sPrevious: '<em class="fa fa-caret-left"></em>'
-                        }
-                    }
-                }); // Filter
-
-            if ($('#VisitorsDataTable').DataTable)
-                $('#VisitorsDataTable').DataTable({
-                    'paging': true,
-                    // Table pagination
-                    'ordering': true,
-                    // Column ordering
-                    'info': true,
-                    // Bottom left status text
-                    responsive: true,
-                    'order': [[5, 'desc']],
-                    // Text translation options
-                    // Note the required keywords between underscores (e.g _MENU_)
-                    oLanguage: {
-                        sSearch: '<em class="fas fa-search"></em>',
-                        sLengthMenu: '_MENU_ records per page',
-                        info: 'Σελίδα _PAGE_ από _PAGES_',
-                        zeroRecords: 'Nothing found - sorry',
-                        infoEmpty: 'No records available',
-                        infoFiltered: '(filtered from _MAX_ total records)',
-                        oPaginate: {
-                            sNext: '<em class="fa fa-caret-right"></em>',
-                            sPrevious: '<em class="fa fa-caret-left"></em>'
-                        }
-                    }
-                }); // Filter
-
-            if ($('#CompaniesTrucksDataTable').DataTable)
-                $('#CompaniesTrucksDataTable').DataTable({
-                    'paging': true,
-                    // Table pagination
-                    'ordering': true,
-                    // Column ordering
-                    'info': true,
-                    // Bottom left status text
-                    responsive: true,
-                    'order': [[0, 'desc']],
-                    // Text translation options
-                    // Note the required keywords between underscores (e.g _MENU_)
-                    oLanguage: {
-                        sSearch: '<em class="fas fa-search"></em>',
-                        sLengthMenu: '_MENU_ records per page',
-                        info: 'Σελίδα _PAGE_ από _PAGES_',
-                        zeroRecords: 'Nothing found - sorry',
-                        infoEmpty: 'No records available',
-                        infoFiltered: '(filtered from _MAX_ total records)',
-                        oPaginate: {
-                            sNext: '<em class="fa fa-caret-right"></em>',
-                            sPrevious: '<em class="fa fa-caret-left"></em>'
-                        }
-                    }
-                });
-
-
-        });
-    </script>
 
 </environment>
 

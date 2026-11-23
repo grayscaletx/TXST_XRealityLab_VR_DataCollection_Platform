@@ -1,4 +1,4 @@
-﻿using Application.Security;
+using Application.Security;
 using XRealityLab.Common;
 using XRealityLab.Models;
 using Common.Constants;
@@ -23,7 +23,7 @@ using Mail;
 
 namespace XRealityLab.Controllers
 {
-    //[Authorize(Roles = "LabDirector,PrincipleInvestigator")]
+    [Microsoft.AspNetCore.Authorization.Authorize]
     public class UserController : Controller
     {
         private readonly XRealityLabdbContext _context;
@@ -60,7 +60,7 @@ namespace XRealityLab.Controllers
             //Data validation
             if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(AddPrincipleInvestigator), new { _actionMessage = "Invalid Data" });
+                return RedirectToAction(nameof(EditProfile), new { _actionMessage = "Invalid Data" });
             }
             User user = _context.User.Where(k => k.UserId == int.Parse(_protector.Encode(_userDTO.PassToken))).FirstOrDefault();
             _userDTO.Email = user.Email;
@@ -103,13 +103,13 @@ namespace XRealityLab.Controllers
 
                 if (isUploaded)
                 {
-                    user.PhotoUrl = Path.Combine(BaseLink.AZURE_BLOB_URL, AzureGPV2Credentials.CONTAINER_USER_ICONS, newFileName);
+                    user.PhotoUrl = BaseLink.Combine(AzureGPV2Credentials.CONTAINER_USER_ICONS, newFileName);
                 }
 
                 //DELETE from root
-                if (System.IO.File.Exists(Path.Combine(_environment.WebRootPath, "_images", "user-photos") + $@"\{newFileName}"))
+                if (System.IO.File.Exists(Path.Combine(_environment.WebRootPath, "_images", "user-photos", newFileName)))
                 {
-                    System.IO.File.Delete(Path.Combine(_environment.WebRootPath, "_images", "user-photos") + $@"\{newFileName}");
+                    System.IO.File.Delete(Path.Combine(_environment.WebRootPath, "_images", "user-photos", newFileName));
                 }
             }
 
@@ -214,7 +214,7 @@ namespace XRealityLab.Controllers
             //Data validation
             if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(AddPrincipleInvestigator), new { _actionMessage = "Invalid Data" });
+                return RedirectToAction(nameof(EditProfile), new { _actionMessage = "Invalid Data" });
             }
             UserDTO userDTO = new UserDTO
             {
