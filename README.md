@@ -54,6 +54,7 @@ environment variable (`Mail:Provider` becomes `Mail__Provider`). The guide lists
 | `Seed:AdminEmail`, `Seed:AdminPassword` | Administrator account, created on start when that e-mail does not exist yet |
 | `Storage:AzureConnectionString`, `Storage:PublicBaseUrl` | Azure Storage; leave empty to store files on the server |
 | `Mail:Provider` | `Webhook`, `SendGrid`, `Smtp` or `None` |
+| `Mail:WebhookUrl`, `Mail:WebhookKey` | For `Webhook`: where to send e-mails. `docs/n8n/xrealitylab-mail-workflow.json` is a ready-made n8n workflow that sends them through Outlook |
 | `GoogleReCAPTCHA:*` | Optional reCAPTCHA v3 keys |
 
 ## Known limitations

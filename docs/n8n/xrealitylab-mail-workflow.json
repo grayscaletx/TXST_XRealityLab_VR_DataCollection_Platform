@@ -1,0 +1,167 @@
+{
+  "name": "XRealityLab - Platform e-mail (invitations, password reset)",
+  "nodes": [
+    {
+      "id": "0dfff07c-d186-41d9-8817-76f5cff5267c",
+      "name": "XRealityLab e-mail request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "xrealitylab-mail",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "c3defd47-72ef-473f-9f03-2af91c3c9865",
+      "name": "Key and recipient valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c7d20827-5ee7-4672-816a-65eb4f73d825",
+              "leftValue": "={{ $json.headers['x-xrealitylab-key'] }}",
+              "rightValue": "REPLACE-WITH-THE-SAME-VALUE-AS-Mail:WebhookKey",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "c62c6b58-ee54-4745-83a2-f59fcc18eae2",
+              "leftValue": "={{ $json.body.to }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "f956924b-37d6-4e27-92f0-9c5c2d04d43d",
+      "name": "Send from Outlook",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        480,
+        -100
+      ],
+      "parameters": {
+        "toRecipients": "={{ $json.body.to }}",
+        "subject": "={{ $json.body.subject }}",
+        "bodyContent": "={{ $json.body.html }}",
+        "additionalFields": {
+          "bodyContentType": "html"
+        }
+      },
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "",
+          "name": "choose your Outlook account"
+        }
+      }
+    },
+    {
+      "id": "c38ad54c-624a-4dfa-a0c2-50adfc63e545",
+      "name": "Reply sent",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        -100
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"ok\": true } }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "929857f1-c852-49ea-bfb0-08fe11488c75",
+      "name": "Reply refused",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        120
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"ok\": false } }}",
+        "options": {
+          "responseCode": 401
+        }
+      }
+    }
+  ],
+  "connections": {
+    "XRealityLab e-mail request": {
+      "main": [
+        [
+          {
+            "node": "Key and recipient valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Key and recipient valid?": {
+      "main": [
+        [
+          {
+            "node": "Send from Outlook",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply refused",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send from Outlook": {
+      "main": [
+        [
+          {
+            "node": "Reply sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": false
+  },
+  "pinData": {}
+}
