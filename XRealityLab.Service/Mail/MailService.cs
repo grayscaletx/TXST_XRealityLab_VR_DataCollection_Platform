@@ -4,19 +4,23 @@ using SendGrid;
 using SendGrid.Helpers.Mail;
 using System;
 using System.Net;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Mail
 {
     /// <summary>
     /// Sends the platform e-mails (invitation with temporary password, password reset link).
-    /// The provider is chosen in configuration (Mail:Provider = SendGrid | Smtp | None).
+    /// The provider is chosen in configuration (Mail:Provider = Webhook | SendGrid | Smtp | None).
     /// With "None" the e-mail is written to the application log, so a fresh installation
     /// works without any mail account.
     /// E-mail bodies are built here, so no SendGrid templates are required.
     /// </summary>
     public class MailService
     {
+        private static readonly HttpClient http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+
         public async Task<bool> SendResetPasswordAsync(string resetLink, string email)
         {
             string html =
@@ -49,11 +53,41 @@ namespace Mail
             return await SendAsync(email, "Log in to your XRealityLab platform account", html);
         }
 
+        /// <summary>Encodes a value as a JSON string literal (quotes, backslashes and control characters escaped).</summary>
+        private static string JsonString(string value)
+        {
+            var sb = new StringBuilder("\"");
+            foreach (char c in value ?? string.Empty)
+            {
+                if (c == '"') sb.Append("\\\"");
+                else if (c == '\\') sb.Append("\\\\");
+                else if (c < ' ') sb.Append("\\u").Append(((int)c).ToString("x4"));
+                else sb.Append(c);
+            }
+            return sb.Append('"').ToString();
+        }
+
         private static async Task<bool> SendAsync(string to, string subject, string html)
         {
             try
             {
                 string provider = (SendGridCredentials.PROVIDER ?? "None").Trim().ToLowerInvariant();
+
+                if (provider == "webhook" && !string.IsNullOrWhiteSpace(SendGridCredentials.WEBHOOK_URL))
+                {
+                    string json = "{\"to\":" + JsonString(to) + ",\"subject\":" + JsonString(subject) + ",\"html\":" + JsonString(html) + "}";
+                    using (var request = new HttpRequestMessage(HttpMethod.Post, SendGridCredentials.WEBHOOK_URL))
+                    {
+                        request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+                        request.Headers.Add("X-XRealityLab-Key", SendGridCredentials.WEBHOOK_KEY ?? string.Empty);
+                        using (var response = await http.SendAsync(request))
+                        {
+                            if (!response.IsSuccessStatusCode)
+                                Console.WriteLine("[Mail] Webhook refused the e-mail to " + to + ": " + (int)response.StatusCode);
+                            return response.IsSuccessStatusCode;
+                        }
+                    }
+                }
 
                 if (provider == "sendgrid" && !string.IsNullOrWhiteSpace(SendGridCredentials.API_KEY))
                 {

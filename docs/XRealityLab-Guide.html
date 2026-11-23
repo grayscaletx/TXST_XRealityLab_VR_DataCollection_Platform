@@ -94,7 +94,7 @@
     <tr><td><b>API</b><br><span class="mono">XRealityLabAPI</span></td><td>A small web API used by Unity applications and questionnaires to read projects and save results. It has a built-in test page (Swagger) at its root address.</td></tr>
     <tr><td><b>Database</b></td><td>Microsoft SQL Server. Both the web platform and the API use the same database.</td></tr>
     <tr><td><b>File storage</b></td><td>Pictures and uploaded result files. Either an Azure Storage account or a folder on the server.</td></tr>
-    <tr><td><b>E-mail</b></td><td>Invitations with a temporary password and password-reset links. SendGrid, any SMTP server, or none.</td></tr>
+    <tr><td><b>E-mail</b></td><td>Invitations with a temporary password and password-reset links. A webhook to an automation tool (the hosted instance uses n8n with an Outlook account), SendGrid, any SMTP server, or none.</td></tr>
 </table>
 
 <figure><img src="images/01-login.png" alt="Log in page"><figcaption>The log in page.</figcaption></figure>
@@ -352,7 +352,8 @@ docker compose up -d --build</pre>
     <tr><td class="mono">Storage:AzureConnectionString</td><td>Connection string of an Azure Storage account. Leave empty to store files on the server.</td></tr>
     <tr><td class="mono">Storage:PublicBaseUrl</td><td>Public address of the stored files. With Azure: <code>https://ACCOUNT.blob.core.windows.net/</code>. Without: leave <code>/files/</code>.</td></tr>
     <tr><td class="mono">Storage:LocalPath</td><td>Folder for files when Azure is not used. Default <code>App_Data/files</code>.</td></tr>
-    <tr><td class="mono">Mail:Provider</td><td><code>SendGrid</code>, <code>Smtp</code> or <code>None</code>. With <code>None</code>, e-mails are written to the application log.</td></tr>
+    <tr><td class="mono">Mail:Provider</td><td><code>Webhook</code>, <code>SendGrid</code>, <code>Smtp</code> or <code>None</code>. With <code>None</code>, e-mails are written to the application log.</td></tr>
+    <tr><td class="mono">Mail:WebhookUrl<br>Mail:WebhookKey</td><td>For <code>Webhook</code>: the platform sends each e-mail as JSON (<code>to</code>, <code>subject</code>, <code>html</code>) to this address, with the key in the <code>X-XRealityLab-Key</code> header. Any automation tool that can send mail (n8n, Make, Power Automate) can receive it.</td></tr>
     <tr><td class="mono">Mail:FromEmail, Mail:FromName</td><td>Sender. With SendGrid it must be a verified sender of your SendGrid account.</td></tr>
     <tr><td class="mono">Mail:SendGridApiKey</td><td>API key for SendGrid.</td></tr>
     <tr><td class="mono">Mail:SmtpHost, SmtpPort, SmtpUser, SmtpPassword, SmtpUseSsl</td><td>Settings for an SMTP server, for example the university mail server.</td></tr>

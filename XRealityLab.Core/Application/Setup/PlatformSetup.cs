@@ -40,6 +40,8 @@ namespace XRealityLab.Setup
             SendGridCredentials.SMTP_USER = config["Mail:SmtpUser"] ?? string.Empty;
             SendGridCredentials.SMTP_PASSWORD = config["Mail:SmtpPassword"] ?? string.Empty;
             if (bool.TryParse(config["Mail:SmtpUseSsl"], out bool ssl)) SendGridCredentials.SMTP_USE_SSL = ssl;
+            SendGridCredentials.WEBHOOK_URL = config["Mail:WebhookUrl"] ?? string.Empty;
+            SendGridCredentials.WEBHOOK_KEY = config["Mail:WebhookKey"] ?? string.Empty;
             SendGridCredentials.PLATFORM_URL = config["PlatformUrl"] ?? string.Empty;
         }
 

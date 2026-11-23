@@ -53,7 +53,7 @@ environment variable (`Mail:Provider` becomes `Mail__Provider`). The guide lists
 | `Database:AutoCreate` | `true` prepares an empty database on start |
 | `Seed:AdminEmail`, `Seed:AdminPassword` | Administrator account, created on start when that e-mail does not exist yet |
 | `Storage:AzureConnectionString`, `Storage:PublicBaseUrl` | Azure Storage; leave empty to store files on the server |
-| `Mail:Provider` | `SendGrid`, `Smtp` or `None` |
+| `Mail:Provider` | `Webhook`, `SendGrid`, `Smtp` or `None` |
 | `GoogleReCAPTCHA:*` | Optional reCAPTCHA v3 keys |
 
 ## Known limitations
