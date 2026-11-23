@@ -515,6 +515,7 @@ namespace XRealityLab.Controllers
             organization.ItdirectorId = newDirectorIT.UserId;
             _context.Organization.Update(organization);
             //Delete old director
+            Migration.RemoveUserAuthTokens(_context, oldDirectorIT.UserId);
             _context.User.Remove(oldDirectorIT);
 
             await _context.SaveChangesAsync();

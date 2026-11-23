@@ -1,4 +1,4 @@
-﻿using Application.Security;
+using Application.Security;
 using Common;
 using Common.Constants;
 using Common.Helpers;
@@ -66,6 +66,15 @@ namespace XRealityLab
             return photoUrl;
         }
 
+        /// <summary>
+        /// Removes the API log in tokens of a user. Must run before the user row is removed,
+        /// otherwise the delete fails on FK_UserAuthToken_User for anyone who ever used the API.
+        /// </summary>
+        public static void RemoveUserAuthTokens(XRealityLabdbContext _context, int userId)
+        {
+            _context.UserAuthToken.RemoveRange(_context.UserAuthToken.Where(k => k.UserId == userId).ToList());
+        }
+
         public static async Task<ResponseDTO> InsertUserAsync(XRealityLabdbContext _context,User _user)
         {
             try
@@ -114,6 +123,7 @@ namespace XRealityLab
                 }
 
                 _context.Remove(organization);
+                RemoveUserAuthTokens(_context, user.UserId);
                 _context.Remove(user);
 
                 await _context.SaveChangesAsync();
@@ -171,6 +181,7 @@ namespace XRealityLab
                 _context.Remove(organizationLab);
                 _context.Remove(labUser);
                 _context.Remove(lab);
+                RemoveUserAuthTokens(_context, user.UserId);
                 _context.Remove(user);
 
                 await _context.SaveChangesAsync();
@@ -240,6 +251,7 @@ namespace XRealityLab
                 LabUser labUser = _context.LabUser.Where(k => k.UserId == user.UserId && k.RoleId == 4).FirstOrDefault();
                 _context.LabUser.Remove(labUser);
                 _context.ProjectUser.RemoveRange(projectUsers);
+                RemoveUserAuthTokens(_context, user.UserId);
                 _context.User.Remove(user);
                 await _context.SaveChangesAsync();
                 return MessageConverter.GetResponse(string.Empty, MethodResult.Succeeded);
@@ -271,6 +283,7 @@ namespace XRealityLab
                 LabUser labUser = _context.LabUser.Where(k => k.UserId == user.UserId && k.RoleId == 5).FirstOrDefault();
                 _context.LabUser.Remove(labUser);
                 _context.ProjectUser.RemoveRange(projectUsers);
+                RemoveUserAuthTokens(_context, user.UserId);
                 _context.User.Remove(user);
                 await _context.SaveChangesAsync();
                 return MessageConverter.GetResponse(string.Empty, MethodResult.Succeeded);
